@@ -1,0 +1,65 @@
+[
+  {
+    "name": "City Park",
+    "lat": 52.1320,
+    "lon": 11.6234,
+    "type": "park",
+    "description": "Large green space in city center",
+    "value_alignment": {
+      "pro_environment": 0.8,
+      "physical_activity": 0.5,
+      "hedonism": 0.6,
+      "comfort": 0.3
+    }
+  },
+  {
+    "name": "Shopping Mall",
+    "lat": 52.1250,
+    "lon": 11.6350,
+    "type": "retail",
+    "description": "Large indoor shopping center",
+    "value_alignment": {
+      "hedonism": 0.7,
+      "comfort": 0.9,
+      "pro_environment": -0.5,
+      "cost_saving": -0.4
+    }
+  },
+  {
+    "name": "Bike Lane Network Hub",
+    "lat": 52.1400,
+    "lon": 11.6500,
+    "type": "infrastructure",
+    "description": "Major intersection with protected bike lanes",
+    "value_alignment": {
+      "pro_environment": 0.9,
+      "physical_activity": 0.8,
+      "safety": 0.6
+    }
+  },
+  {
+    "name": "Highway Junction",
+    "lat": 52.1100,
+    "lon": 11.6700,
+    "type": "infrastructure",
+    "description": "Major highway access point",
+    "value_alignment": {
+      "speed": 0.8,
+      "autonomy": 0.5,
+      "pro_environment": -0.9,
+      "safety": -0.3
+    }
+  },
+  {
+    "name": "University Campus",
+    "lat": 52.1394,
+    "lon": 11.6486,
+    "type": "educational",
+    "description": "Main university campus with cycling facilities",
+    "value_alignment": {
+      "physical_activity": 0.6,
+      "pro_environment": 0.5,
+      "hedonism": 0.4
+    }
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "_profile_type": "Altruistic",
+  "_description": "Based on Bouman, Steg & Kiers (2018, Frontiers in Psychology). Altruistic value orientation: concern for the welfare and wellbeing of other human beings and society at large. These individuals act pro-environmentally when doing so also benefits others (e.g. reducing congestion, improving air quality). They favour shared, collective transport options. E-SVS altruistic items: equality, a world at peace, social justice, helpful, caring for the weak.",
+
+  "id": "agent_altruistic_01",
+
+  "values": {
+    "pro_environment":   0.70,
+    "physical_activity": 0.50,
+    "privacy":           0.15,
+    "autonomy":          0.20,
+    "hedonism":          0.20,
+    "cost_saving":       0.55,
+    "speed":             0.30,
+    "safety":            0.85,
+    "comfort":           0.40
+  },
+
+  "beliefs": {
+    "owns_car":      false,
+    "owns_bike":     true,
+    "has_pt_access": true
+  },
+
+  "_value_rationale": {
+    "pro_environment":   "High — altruistic values correlate positively with pro-environmental beliefs when the two align (Bouman et al. 2018; De Groot & Steg 2007); pro-environmental behaviour benefits others",
+    "physical_activity": "Moderate — active travel acceptable; not a primary driver but consistent with social norms",
+    "privacy":           "Very low — strongly prefers collective/shared modes; PT aligns with social orientation",
+    "autonomy":          "Very low — willingly defers to shared schedules; autonomy is not a priority for other-focused individuals",
+    "hedonism":          "Low — pleasure/comfort is subordinated to social benefit (hedonic and altruistic values sit on opposing dimensions in Schwartz's circular model)",
+    "cost_saving":       "Moderate-high — cost sensitivity reflects awareness of economic equity and fairness to others",
+    "speed":             "Low-moderate — willing to accept slower journeys when they benefit the collective (e.g. reducing road congestion)",
+    "safety":            "Very high — safety of self and others is paramount; aligns directly with altruistic concern for wellbeing",
+    "comfort":           "Moderate — moderate comfort expected but not at the expense of collective benefit"
+  }
+}

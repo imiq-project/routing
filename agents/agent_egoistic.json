@@ -1,0 +1,36 @@
+{
+  "_profile_type": "Egoistic",
+  "_description": "Based on Bouman, Steg & Kiers (2018, Frontiers in Psychology). Egoistic value orientation: concern for personal resources — wealth, power, status, and control. These individuals prioritise maintaining and maximising their own resources, including time and money. They resist giving up personal control (hence prefer car over PT) and are the least likely to act pro-environmentally unless it directly saves them money or time. E-SVS egoistic items: authority, influential, wealth, ambitious, social power.",
+
+  "id": "agent_egoistic_01",
+
+  "values": {
+    "pro_environment":   0.05,
+    "physical_activity": 0.10,
+    "privacy":           0.90,
+    "autonomy":          0.95,
+    "hedonism":          0.50,
+    "cost_saving":       0.80,
+    "speed":             0.90,
+    "safety":            0.60,
+    "comfort":           0.70
+  },
+
+  "beliefs": {
+    "owns_car":      true,
+    "owns_bike":     false,
+    "has_pt_access": true
+  },
+
+  "_value_rationale": {
+    "pro_environment":   "Very low — egoistic values negatively predict pro-environmental beliefs and behaviours (Bouman et al. 2018; Steg et al. 2014). Environmental costs are irrelevant unless they affect personal resources",
+    "physical_activity": "Very low — physical effort is a cost, not a benefit; active travel perceived as a loss of time and status",
+    "privacy":           "Very high — strong preference for personal space; aversion to crowded shared transport",
+    "autonomy":          "Highest priority — personal control over route, timing, and mode is central to egoistic orientation. Loss of autonomy (fixed PT schedules) is highly aversive",
+    "hedonism":          "Moderate — some overlap with self-enhancement cluster (Schwartz 1994), but egoistic focus is on resources rather than pleasure specifically",
+    "cost_saving":       "High — protecting personal financial resources is a core egoistic concern. Will switch mode if cost saving is large enough",
+    "speed":             "Very high — time is a personal resource; minimising travel time maximises available time for productive/status-oriented activities",
+    "safety":            "Moderate — personal safety valued as protection of a personal resource (self)",
+    "comfort":           "High — comfort reflects status and resource access; discomfort is perceived as a personal cost"
+  }
+}

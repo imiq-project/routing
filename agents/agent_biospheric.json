@@ -1,0 +1,36 @@
+{
+  "_profile_type": "Biospheric",
+  "_description": "Based on Bouman, Steg & Kiers (2018, Frontiers in Psychology). Biospheric value orientation: strong concern for the environment, nature, and the planet. These individuals prioritise ecological sustainability above personal cost or convenience. They are willing to accept slower journeys, more physical effort, and higher inconvenience if it means a lower environmental impact. E-SVS biospheric items: preventing pollution, respecting the earth, unity with nature, protecting the environment.",
+
+  "id": "agent_biospheric_01",
+
+  "values": {
+    "pro_environment":   0.98,
+    "physical_activity": 0.75,
+    "privacy":           0.20,
+    "autonomy":          0.30,
+    "hedonism":          0.10,
+    "cost_saving":       0.35,
+    "speed":             0.10,
+    "safety":            0.60,
+    "comfort":           0.15
+  },
+
+  "beliefs": {
+    "owns_car":      false,
+    "owns_bike":     true,
+    "has_pt_access": true
+  },
+
+  "_value_rationale": {
+    "pro_environment":   "Supreme importance — the defining characteristic of this orientation (Bouman et al. E-SVS Bio items: preventing pollution, unity with nature, protecting the environment)",
+    "physical_activity": "High — biospheric agents often embrace active travel (cycling, walking) as consistent with environmental values",
+    "privacy":           "Low — willingness to share space on PT aligns with collective orientation",
+    "autonomy":          "Low-moderate — accepts schedule constraints of PT/shared modes for environmental gain",
+    "hedonism":          "Very low — environmental concern takes precedence over personal pleasure or comfort (Steg et al. 2014: hedonic and biospheric values compete on the self-enhancement vs self-transcendence axis)",
+    "cost_saving":       "Moderate — cost matters but is secondary to environmental impact",
+    "speed":             "Very low — willing to accept longer journeys if greener (consistent with pro-environmental norm activation theory, Stern et al. 1998)",
+    "safety":            "Moderate — personal safety valued but not at the expense of green choices",
+    "comfort":           "Very low — discomfort is accepted as part of sustainable travel"
+  }
+}

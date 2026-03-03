@@ -1,0 +1,55 @@
+graphhopper:
+
+  # ---------------------------
+  # Data sources 
+  # ---------------------------
+
+  datareader.file: C:/Users/fyho22me/Documents/Work (copy)/Simple_engine/data/sachsen-anhalt-260216.osm.pbf
+  gtfs.file: C:/Users/fyho22me/Documents/Work (copy)/Simple_engine/data/magdeburg_gtfs.zip
+  graph.location: C:/Users/fyho22me/Documents/Work (copy)/Simple_engine/data/graph-cache
+  # ---------------------------
+  # Routing profiles 
+  #----------------------------
+  profiles:
+    - name: car
+      custom_model_files: [car.json]
+
+    - name: bike
+      custom_model_files: [bike.json]
+
+    - name: foot
+      custom_model_files: [foot.json]
+
+    # PT uses foot.json for the walk legs between stops
+    - name: pt
+      custom_model_files: [foot.json]
+
+  # ---------------------------
+  # Contraction Hierarchies 
+  # ---------------------------
+  profiles_ch:
+    - profile: car
+    - profile: bike
+    - profile: foot
+
+  #  OSM import 
+  import.osm.ignored_highways: motorway,trunk
+
+  #  Encoded values 
+  graph.encoded_values: car_access, car_average_speed, bike_access, bike_average_speed, bike_priority, foot_access, foot_average_speed, foot_priority, road_class, road_environment, max_speed, road_access, country, mtb_rating, hike_rating, roundabout
+
+  #  PT query limits 
+  routing:
+    non_ch:
+      max_visited_nodes: 1000000
+
+  #  HTTP server 
+  server:
+    application_connectors:
+      - type: http
+        port: 8989
+        bind_host: 0.0.0.0
+    admin_connectors:
+      - type: http
+        port: 8990
+        bind_host: 0.0.0.0

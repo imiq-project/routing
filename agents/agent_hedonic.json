@@ -1,0 +1,36 @@
+{
+  "_profile_type": "Hedonic",
+  "_description": "Based on Bouman, Steg & Kiers (2018, Frontiers in Psychology). Hedonic value orientation: concern for personal pleasure, enjoyment, and comfort in the present moment. These individuals prioritise how travel feels — whether it is comfortable, enjoyable, and stress-free. They resist effort, inconvenience, and discomfort. Steg et al. (2014) showed hedonic values are important for understanding environmental behaviour independently of egoistic values. E-SVS hedonic items: pleasure, enjoying life, self-indulgent. Hedonic values sit on the self-enhancement side of Schwartz's circumplex, meaning they compete with biospheric and altruistic values.",
+
+  "id": "agent_hedonic_01",
+
+  "values": {
+    "pro_environment":   0.10,
+    "physical_activity": 0.05,
+    "privacy":           0.65,
+    "autonomy":          0.55,
+    "hedonism":          0.98,
+    "cost_saving":       0.30,
+    "speed":             0.70,
+    "safety":            0.65,
+    "comfort":           0.95
+  },
+
+  "beliefs": {
+    "owns_car":      true,
+    "owns_bike":     false,
+    "has_pt_access": true
+  },
+
+  "_value_rationale": {
+    "pro_environment":   "Very low — hedonic values negatively predict pro-environmental beliefs and behaviours (Bouman et al. 2018; Steg et al. 2014). Sustainable options are often perceived as less comfortable or enjoyable",
+    "physical_activity": "Lowest priority — physical effort is the opposite of comfort and pleasure; walking or cycling perceived as effortful and unenjoyable",
+    "privacy":           "Moderate-high — crowded PT reduces comfort and enjoyment; preference for personal space when possible",
+    "autonomy":          "Moderate — values freedom to choose when and how to travel for maximum enjoyment, but less extreme than egoistic type",
+    "hedonism":          "Supreme importance — the defining characteristic of this orientation. Travel should be pleasant, enjoyable, and stress-free (Steg et al. 2014 introduced hedonic values as a fourth distinct value type)",
+    "cost_saving":       "Low-moderate — cost is less important than experience quality; will pay more for a comfortable or enjoyable journey",
+    "speed":             "High — slow journeys are unpleasant; speed reduces time spent in an uncomfortable state",
+    "safety":            "Moderate-high — safety contributes to feeling secure and comfortable during travel",
+    "comfort":           "Highest alongside hedonism — climate-controlled, seated, smooth travel is essential; this directly expresses the hedonic orientation"
+  }
+}
