@@ -20,9 +20,7 @@ from typing import Optional
 from graphhopper_client import GraphHopperClient, Route, WalkLeg, PtLeg
 
 
-# ---------------------------------    
-#  Data classes 
-# ---------------------------------
+# ── Data classes ──────────────────────────────────────────────────────────────
 
 @dataclass
 class IntermodalLeg:
@@ -31,8 +29,12 @@ class IntermodalLeg:
     distance_m: float = 0.0
     duration_s: float = 0.0
     route_id: str = ""
+    trip_headsign: str = ""
     from_name: str = ""
     to_name: str = ""
+    from_stop: str = ""
+    to_stop: str = ""
+    num_stops: int = 0
     stops: list = field(default_factory=list)
     departure_time: Optional[str] = None
     arrival_time: Optional[str] = None
@@ -59,9 +61,7 @@ class IntermodalRoute:
         return round(self.total_distance_m / 1000, 2)
 
 
-# ---------------------------
-#  Router 
-#----------------------------
+# ── Router ────────────────────────────────────────────────────────────────────
 
 class IntermodalRouter:
     """
@@ -103,9 +103,8 @@ class IntermodalRouter:
         routes.sort(key=lambda r: (not r.feasible, r.total_duration_s))
         return routes
 
-    # -------------------------
-    #   Strategy selection 
-    # -------------------------
+    # ── Strategy selection ────────────────────────────────────────────────────
+
     def _choose_strategies(self, distance_km: float) -> list[str]:
         """
         Pick which routing strategies to attempt based on straight-line distance.
@@ -135,9 +134,7 @@ class IntermodalRouter:
 
         return strategies
 
-    # -------------------------
-    #  Execute a strategy 
-    # -------------------------
+    # ── Execute a strategy ────────────────────────────────────────────────────
 
     def _execute(self, strategy: str, from_lat, from_lon,
                  to_lat, to_lon, distance_km) -> Optional[IntermodalRoute]:
@@ -165,9 +162,7 @@ class IntermodalRouter:
                 feasible=False, infeasible_reason=str(e)
             )
 
-    # -------------------------
-    #  Strategy implementations 
-    # -------------------------
+    # ── Strategy implementations ──────────────────────────────────────────────
 
     def _direct(self, from_lat, from_lon, to_lat, to_lon,
                 mode, label, strategy) -> Optional[IntermodalRoute]:
@@ -232,12 +227,20 @@ class IntermodalRouter:
             )
 
         iml_legs = self._convert_pt_legs(best)
+        
+        # Calculate actual distance from legs (GraphHopper's total might be incomplete for PT)
+        legs_distance = sum(leg.distance_m for leg in iml_legs)
+        
+        # Use leg-based distance if it's significantly different from GraphHopper's total
+        # (GraphHopper sometimes returns crow-flies distance for PT routes)
+        total_distance = legs_distance if legs_distance > best.distance_m * 1.5 else best.distance_m
+        
         return IntermodalRoute(
             label            = "🚌 Public Transport",
             strategy         = "pt_direct",
             legs             = iml_legs,
             total_duration_s = best.duration_s,
-            total_distance_m = best.distance_m,
+            total_distance_m = total_distance,
             transfers        = best.transfers,
             geometry         = best.points,  # Pass the GeoJSON geometry
         )
@@ -360,8 +363,13 @@ class IntermodalRouter:
         ]
         iml_legs += self._convert_pt_legs(pt_route)
 
+        # Calculate total distance from legs (more accurate than GraphHopper's totals for PT)
+        legs_distance = sum(leg.distance_m for leg in iml_legs)
+        gh_distance = first_leg_route.distance_m + pt_route.distance_m
+        
+        # Use leg-based distance if significantly different
+        total_distance = legs_distance if legs_distance > gh_distance * 1.5 else gh_distance
         total_duration = first_leg_route.duration_s + pt_route.duration_s
-        total_distance = first_leg_route.distance_m + pt_route.distance_m
 
         return IntermodalRoute(
             label            = label,
@@ -372,33 +380,63 @@ class IntermodalRouter:
             transfers        = pt_route.transfers,
         )
 
-    # --------------------------
-    #  Helpers 
-    # --------------------------
+    # ── Helpers ───────────────────────────────────────────────────────────────
 
     def _convert_pt_legs(self, route: Route) -> list[IntermodalLeg]:
         """Convert GraphHopper Route legs into IntermodalLeg objects."""
         result = []
-        for leg in route.legs:
-            if isinstance(leg, WalkLeg):
+        for gh_leg in route.legs:
+            if isinstance(gh_leg, WalkLeg):
                 result.append(IntermodalLeg(
                     mode        = "walk",
                     description = "🚶 Walk",
-                    distance_m  = leg.distance_m,
-                    duration_s  = leg.duration_s,
+                    distance_m  = gh_leg.distance_m,
+                    duration_s  = gh_leg.duration_s,
                 ))
-            elif isinstance(leg, PtLeg):
+            elif isinstance(gh_leg, PtLeg):
+                # Calculate duration from departure and arrival times if available
+                duration_s = 0
+                if gh_leg.departure_time and gh_leg.arrival_time:
+                    try:
+                        from dateutil import parser as dp
+                        dep = dp.parse(gh_leg.departure_time)
+                        arr = dp.parse(gh_leg.arrival_time)
+                        duration_s = (arr - dep).total_seconds()
+                    except:
+                        pass
+                
+                # Calculate distance from stops if available
+                distance_m = 0
+                if gh_leg.stops and len(gh_leg.stops) >= 2:
+                    # Sum distances between consecutive stops
+                    for i in range(len(gh_leg.stops) - 1):
+                        try:
+                            stop1 = gh_leg.stops[i]
+                            stop2 = gh_leg.stops[i + 1]
+                            coords1 = stop1.get('geometry', {}).get('coordinates', [None, None])
+                            coords2 = stop2.get('geometry', {}).get('coordinates', [None, None])
+                            if coords1[0] and coords2[0]:
+                                # lon, lat order in GeoJSON
+                                dist_km = self._haversine_km(coords1[1], coords1[0], coords2[1], coords2[0])
+                                distance_m += dist_km * 1000
+                        except:
+                            pass
+                
                 result.append(IntermodalLeg(
                     mode           = "pt",
-                    description    = f"🚌 {leg.route_id}" if leg.route_id else "🚌 PT",
-                    distance_m     = 0,
-                    duration_s     = 0,
-                    route_id       = leg.route_id,
-                    from_name      = leg.from_stop,
-                    to_name        = leg.to_stop,
-                    stops          = leg.stops,
-                    departure_time = leg.departure_time,
-                    arrival_time   = leg.arrival_time,
+                    description    = f"🚌 {gh_leg.route_id}" if gh_leg.route_id else "🚌 PT",
+                    distance_m     = distance_m,
+                    duration_s     = duration_s,
+                    route_id       = gh_leg.route_id,
+                    trip_headsign  = gh_leg.trip_headsign,
+                    from_name      = gh_leg.from_stop,
+                    to_name        = gh_leg.to_stop,
+                    from_stop      = gh_leg.from_stop,
+                    to_stop        = gh_leg.to_stop,
+                    num_stops      = gh_leg.num_stops,
+                    stops          = gh_leg.stops,
+                    departure_time = gh_leg.departure_time,
+                    arrival_time   = gh_leg.arrival_time,
                 ))
         return result
 

@@ -2,3 +2,5 @@ requests==2.31.0        # HTTP calls to the GraphHopper server
 fastapi==0.104.1        # optional REST API layer (remove if not needed)
 uvicorn==0.24.0         # ASGI server to run FastAPI
 python-dateutil==2.8.2  # convenient datetime parsing
+flask==3.0.0           # Web interface API server
+flask-cors==4.0.0      # Cross-origin requests for local development
