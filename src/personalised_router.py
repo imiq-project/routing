@@ -30,7 +30,9 @@ from intermodal_router import IntermodalRouter, IntermodalRoute
 from graphhopper_client import GraphHopperClient
 
 
-# ── Result dataclasses ────────────────────────────────────────────────────────
+# ----------------------------------------------
+# Result dataclasses 
+# ----------------------------------------------
 
 @dataclass
 class DimensionScore:
@@ -70,7 +72,9 @@ class ScoredRoute:
         return sorted(negative, key=lambda d: d.contribution)[:2]
 
 
-# ── Scorer ────────────────────────────────────────────────────────────────────
+# ----------------------------------------------    
+#  Personalised Router scorer
+# ----------------------------------------------
 
 class PersonalisedRouter:
     """
@@ -96,7 +100,9 @@ class PersonalisedRouter:
         self.pois = pois or []
         self.poi_proximity_m = poi_proximity_m
 
-    # ── Main entry point ──────────────────────────────────────────────────────
+    # ----------------------------------------------    
+    #  Main entry point
+    # ----------------------------------------------
 
     def route(self, agent: Agent,
               from_lat: float, from_lon: float,
@@ -129,6 +135,14 @@ class PersonalisedRouter:
             if mode_key not in MODE_ATTRIBUTES:
                 continue
 
+            # Check agent-specific feasibility (distance limits by profile)
+            is_feasible, reason = im_router.check_feasibility(route, agent)
+            if not is_feasible:
+                # Mark as infeasible and continue
+                route.feasible = False
+                route.infeasible_reason = reason
+                continue
+
             # Score all routes, but mark unavailable ones
             scored_route = self._score_route(agent, route, mode_key)
             
@@ -159,7 +173,9 @@ class PersonalisedRouter:
 
         return scored
 
-    # ── Scoring logic ─────────────────────────────────────────────────────────
+    # ----------------------------------------------    
+    #  Scoring logic
+    # ----------------------------------------------
 
     def _score_route(self, agent: Agent,
                      route: IntermodalRoute,
@@ -192,7 +208,10 @@ class PersonalisedRouter:
                 contribution       = contribution,
             ))
         
+        # ----------------------------------------------
+        #  Add POI boost if applicable for later
         # Add POI boost if POIs are configured
+        # -----------------------------------------------
         poi_boost = 0.0
         matched_pois = []
         if self.pois:
@@ -231,15 +250,23 @@ class PersonalisedRouter:
         # Apply distance penalties for active modes
         if mode_key == "foot":
             distance_penalty = walking_distance_penalty(distance_km, profile_type)
-            # Reduce speed and comfort scores based on walking distance
+            # Distance penalties affect multiple dimensions
             adjustments["speed"] += distance_penalty
-            adjustments["comfort"] = adjustments.get("comfort", 0.0) + distance_penalty * 0.5
+            adjustments["comfort"] = adjustments.get("comfort", 0.0) + distance_penalty * 0.6
+            # Long walks also negatively affect these:
+            if distance_km > 3.0:
+                adjustments["hedonism"] = adjustments.get("hedonism", 0.0) + distance_penalty * 0.4
+                adjustments["safety"] = adjustments.get("safety", 0.0) + distance_penalty * 0.2
             
         elif mode_key == "bike":
             distance_penalty = cycling_distance_penalty(distance_km, profile_type)
-            # Reduce speed and comfort scores based on cycling distance
+            # Distance penalties affect multiple dimensions
             adjustments["speed"] += distance_penalty * 0.7
-            adjustments["comfort"] = adjustments.get("comfort", 0.0) + distance_penalty * 0.3
+            adjustments["comfort"] = adjustments.get("comfort", 0.0) + distance_penalty * 0.4
+            # Long rides also negatively affect these:
+            if distance_km > 12.0:
+                adjustments["hedonism"] = adjustments.get("hedonism", 0.0) + distance_penalty * 0.3
+                adjustments["safety"] = adjustments.get("safety", 0.0) + distance_penalty * 0.2
 
         # Cost: based on mode and distance
         adjustments["cost_saving"] = cost_score_from_mode(

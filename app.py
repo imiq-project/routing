@@ -92,7 +92,7 @@ def calculate_route():
         # Load agent
         agent = load_agent(agent_type)
         
-        # Load POIs if enabled
+        # Load POIs if enabled, Empty for now, but can be extended to load from fiware
         pois = load_pois() if pois_enabled else []
         
         # Initialize router

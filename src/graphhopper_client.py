@@ -1,3 +1,8 @@
+"""
+graphhopper_client.py
+─────────────────────
+Low-level client that talks directly to the GraphHopper HTTP server.
+"""
 
 import requests
 from datetime import datetime, timezone
@@ -5,9 +10,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 
-# ----------------------------------
-# Data classes 
-# ----------------------------------
+# ── Data classes ──────────────────────────────────────────────────────────────
 
 @dataclass
 class WalkLeg:
@@ -51,9 +54,7 @@ class Route:
         return round(self.distance_m / 1000, 2)
 
 
-# --------------------------------------------
-# Client 
-# --------------------------------------------
+# ── Client ────────────────────────────────────────────────────────────────────
 
 class GraphHopperClient:
 
@@ -101,9 +102,7 @@ class GraphHopperClient:
         }
         return self._send(params)
 
-    #----------------------------------------
-    # Internal 
-    #----------------------------------------
+    # ── Internal ──────────────────────────────────────────────────────────────
 
     def _route_standard(self, from_lat, from_lon, to_lat, to_lon, profile):
         params = {
@@ -138,7 +137,9 @@ class GraphHopperClient:
 
         return [self._parse_path(p) for p in data["paths"]]
 
-    def _parse_path(self, path: dict) -> Route:  # Parses a single path from the /route response
+    def _parse_path(self, path: dict) -> Route:
+        # transfers can be -1 in GH when the journey is walk-only (no PT legs).
+        # Clamp to 0 so the display makes sense.
         raw_transfers = path.get("transfers", 0)
         transfers = max(0, raw_transfers) if raw_transfers is not None else 0
 
@@ -153,9 +154,17 @@ class GraphHopperClient:
             leg_type = leg.get("type", "")
 
             if leg_type == "walk":
+                distance_m = leg.get("distance", 0)
+                duration_s = leg.get("time", 0) / 1000 if leg.get("time") else 0
+                
+                # If GraphHopper didn't provide duration, estimate it
+                # Walking speed: ~5 km/h = 1.39 m/s
+                if duration_s == 0 and distance_m > 0:
+                    duration_s = distance_m / 1.39
+                
                 route.legs.append(WalkLeg(
-                    distance_m = leg.get("distance", 0),
-                    duration_s = leg.get("time", 0) / 1000,
+                    distance_m = distance_m,
+                    duration_s = duration_s,
                 ))
 
             elif leg_type == "pt":

@@ -28,7 +28,9 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 
-# ── Value dimensions ──────────────────────────────────────────────────────────
+# ----------------------------------------------
+#  Value dimensions 
+# ----------------------------------------------
 
 VALUE_DIMENSIONS = [
     "pro_environment",
@@ -43,9 +45,11 @@ VALUE_DIMENSIONS = [
 ]
 
 
-# ── Mode attribute matrix ─────────────────────────────────────────────────────
+# ----------------------------------------------
+#  Mode attribute matrix 
 # Each entry is a dict of {value_dimension: score}.
 # Missing dimensions default to 0.0 (neutral).
+# ----------------------------------------------S
 
 MODE_ATTRIBUTES = {
 
@@ -97,7 +101,9 @@ MODE_ATTRIBUTES = {
         "comfort":           0.2,  # seated but crowded
     },
 
-    # ── Intermodal combinations ───────────────────────────────────────────────
+    # -----------------------------------------------
+    #  Intermodal combinations 
+    # -----------------------------------------------
 
     "bike_pt": {
         # Biking to the stop + PT: blend of bike and PT attributes
@@ -126,7 +132,9 @@ MODE_ATTRIBUTES = {
     },
 }
 
+# ------------------------------------
 # Human-readable labels for display
+# ------------------------------------
 MODE_LABELS = {
     "foot":    "🚶 Walk",
     "bike":    "🚴 Bike",
@@ -136,9 +144,11 @@ MODE_LABELS = {
     "car_pt":  "🚗+🚌 Car & PT (P&R)",
 }
 
+# -----------------------------------   
 # Which belief must be True for this mode to be available
+# ------------------------------------
 MODE_BELIEF_REQUIREMENTS = {
-    "foot":    [],                          # always available
+    "foot":    [],                          
     "bike":    ["owns_bike"],
     "car":     ["owns_car"],
     "pt":      ["has_pt_access"],
@@ -147,9 +157,12 @@ MODE_BELIEF_REQUIREMENTS = {
 }
 
 
-# ── Route metric scoring ──────────────────────────────────────────────────────
+# ------------------------------------
+# Route metric scoring
 # Beyond value attributes, actual route metrics also feed into value scores.
 # These functions map a route metric to a value dimension contribution.
+# ------------------------------------  
+
 
 def speed_score_from_duration(duration_s: float,
                                reference_s: float = 1800) -> float:
@@ -221,26 +234,26 @@ def walking_distance_penalty(distance_km: float, profile_type: str = "biospheric
     Returns
     -------
     penalty : float
-        Negative value to subtract from speed/comfort scores (-3.0 to 0.0)
+        Negative value to subtract from speed/comfort scores (-10.0 to 0.0)
     """
     # Base penalty curve (biospheric baseline - most tolerant)
     if distance_km <= 1.0:
         penalty = 0.0
     elif distance_km <= 2.0:
-        # Light penalty: -0.2 at 2km
-        penalty = -0.2 * (distance_km - 1.0)
+        # Light penalty: -0.3 at 2km
+        penalty = -0.3 * (distance_km - 1.0)
     elif distance_km <= 3.0:
-        # Moderate penalty: -0.6 at 3km
-        penalty = -0.2 - 0.4 * (distance_km - 2.0)
+        # Moderate penalty: -0.9 at 3km
+        penalty = -0.3 - 0.6 * (distance_km - 2.0)
     elif distance_km <= 5.0:
-        # Severe penalty: -1.8 at 5km
-        penalty = -0.6 - 0.6 * (distance_km - 3.0)
+        # Severe penalty: -2.1 at 5km
+        penalty = -0.9 - 0.6 * (distance_km - 3.0)
     else:
-        # Extreme penalty: continues declining
-        penalty = -1.8 - 1.0 * (distance_km - 5.0)
+        # Extreme penalty: very steep beyond 5km
+        penalty = -2.1 - 2.0 * (distance_km - 5.0)
     
     # Clamp to minimum
-    penalty = max(-3.0, penalty)
+    penalty = max(-10.0, penalty)
     
     # Profile-based tolerance adjustments
     multipliers = {

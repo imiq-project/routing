@@ -20,7 +20,9 @@ from typing import Optional
 from graphhopper_client import GraphHopperClient, Route, WalkLeg, PtLeg
 
 
-# ── Data classes ──────────────────────────────────────────────────────────────
+# ------------------------------------------------------
+# Data classes 
+# ------------------------------------------------------
 
 @dataclass
 class IntermodalLeg:
@@ -61,7 +63,9 @@ class IntermodalRoute:
         return round(self.total_distance_m / 1000, 2)
 
 
-# ── Router ────────────────────────────────────────────────────────────────────
+# ------------------------------------------------------
+#  Router 
+# ------------------------------------------------------
 
 class IntermodalRouter:
     """
@@ -76,8 +80,12 @@ class IntermodalRouter:
 
     # Distance thresholds that influence which strategies are offered
     BIKE_MAX_KM   = 15.0   # don't suggest biking legs longer than this
-    WALK_MAX_KM   = 2.0    # above this, walking alone is shown as "slow"
+    WALK_MAX_KM   = 5.0    # hard limit for walking (even for fit people)
     CAR_PT_MIN_KM = 5.0    # only suggest park-and-ride above this distance
+    
+    # Soft thresholds for warnings
+    WALK_SLOW_KM  = 2.0    # flag walking as "slow" above this
+    BIKE_SLOW_KM  = 12.0   # flag biking as "long" above this
 
     def __init__(self, client: GraphHopperClient,
                  departure: Optional[str] = None, max_walk_m: int = 500):
@@ -103,7 +111,9 @@ class IntermodalRouter:
         routes.sort(key=lambda r: (not r.feasible, r.total_duration_s))
         return routes
 
-    # ── Strategy selection ────────────────────────────────────────────────────
+    # ------------------------------------------------------
+    #  Strategy selection
+    # ------------------------------------------------------
 
     def _choose_strategies(self, distance_km: float) -> list[str]:
         """
@@ -117,8 +127,9 @@ class IntermodalRouter:
         # Always try direct car
         strategies.append("car_direct")
 
-        # Walk alone — always show but flag as slow if far
-        strategies.append("foot_direct")
+        # Walk alone — only if not absurdly far
+        if distance_km <= self.WALK_MAX_KM:
+            strategies.append("foot_direct")
 
         # Bike alone — only if not too far
         if distance_km <= self.BIKE_MAX_KM:
@@ -134,7 +145,9 @@ class IntermodalRouter:
 
         return strategies
 
-    # ── Execute a strategy ────────────────────────────────────────────────────
+    # ------------------------------------------------------    
+    #  Strategy execution
+    # ------------------------------------------------------
 
     def _execute(self, strategy: str, from_lat, from_lon,
                  to_lat, to_lon, distance_km) -> Optional[IntermodalRoute]:
@@ -162,7 +175,9 @@ class IntermodalRouter:
                 feasible=False, infeasible_reason=str(e)
             )
 
-    # ── Strategy implementations ──────────────────────────────────────────────
+    # -------------------------------------------------------
+    #  Strategy implementations 
+    # -------------------------------------------------------
 
     def _direct(self, from_lat, from_lon, to_lat, to_lon,
                 mode, label, strategy) -> Optional[IntermodalRoute]:
@@ -380,7 +395,43 @@ class IntermodalRouter:
             transfers        = pt_route.transfers,
         )
 
-    # ── Helpers ───────────────────────────────────────────────────────────────
+    def check_feasibility(self, route: IntermodalRoute, agent) -> tuple[bool, str]:
+        """
+        Check if a route is physically/practically feasible for this agent.
+        Returns (is_feasible, reason_if_not)
+        
+        Uses research-based distance thresholds adjusted by agent profile.
+        """
+        distance_km = route.total_distance_m / 1000
+        profile_type = agent.infer_profile_type()
+        
+        # Profile-specific maximum distances
+        max_distances = {
+            'biospheric': {'walk': 5.0, 'bike': 20.0},   # Most tolerant
+            'altruistic': {'walk': 4.0, 'bike': 15.0},   # Moderate
+            'egoistic': {'walk': 2.0, 'bike': 12.0},     # Less tolerant
+            'hedonic': {'walk': 2.0, 'bike': 10.0},      # Least tolerant
+        }
+        
+        limits = max_distances.get(profile_type, max_distances['egoistic'])
+        
+        # Check walking-only routes
+        if route.strategy == "foot_direct":
+            if distance_km > limits['walk']:
+                return False, f"Walking {distance_km:.1f}km exceeds practical limit ({limits['walk']}km for {profile_type} profile)"
+        
+        # Check cycling-only routes  
+        elif route.strategy == "bike_direct":
+            if distance_km > limits['bike']:
+                return False, f"Cycling {distance_km:.1f}km exceeds practical limit ({limits['bike']}km for {profile_type} profile)"
+        
+        # Check bike legs in intermodal routes
+        elif route.strategy == "bike_pt":
+            bike_distance = sum(leg.distance_m for leg in route.legs if leg.mode == 'bike') / 1000
+            if bike_distance > limits['bike']:
+                return False, f"Bike leg ({bike_distance:.1f}km) too long for {profile_type} profile"
+        
+        return True, ""
 
     def _convert_pt_legs(self, route: Route) -> list[IntermodalLeg]:
         """Convert GraphHopper Route legs into IntermodalLeg objects."""
