@@ -20,7 +20,7 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for local development
 
 # Initialize GraphHopper client
-gh_client = GraphHopperClient(base_url="http://localhost:8080")
+gh_client = GraphHopperClient(base_url=os.environ.get('GRAPHHOPPER_URL', 'http://localhost:8080'))
 
 # Load POIs
 def load_pois():
@@ -39,8 +39,9 @@ def load_agent(agent_type):
         'egoistic': 'agents/agent_egoistic.json',
         'hedonic': 'agents/agent_hedonic.json'
     }
-    
-    with open(agent_files[agent_type], 'r') as f:
+
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(script_dir, agent_files[agent_type]), 'r') as f:
         agent_data = json.load(f)
     
     return Agent.from_dict(agent_data)
@@ -251,7 +252,7 @@ if __name__ == '__main__':
     print("\n📍 Starting server...")
     print(f"   Interface: http://localhost:5000")
     print(f"   API: http://localhost:5000/api/route")
-    print("\n⚠️  Make sure GraphHopper is running on http://localhost:8080")
+    print(f"\n⚠️  Make sure GraphHopper is running on {gh_client.base_url}")
     print("="*60 + "\n")
     
     # Check GraphHopper connection
