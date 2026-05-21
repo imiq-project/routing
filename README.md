@@ -34,16 +34,23 @@ After the graph is built and stored locally, a Python CLI provides an interactiv
 
 ---
 
-## Project structure (example)
+## Project structure 
 
 ```text
 .
 ├── graphhopper/
 │   ├── graphhopper-web-10.0.jar
 │   ├── config.yml
-│   ├── data/
-│   │   ├── magdeburg.osm.pbf
-│   │   └── magdeburg.gtfs.zip
-│   └── graph-cache/              # generated locally after building
-├── main.py                        # interactive routing terminal
+├── data/
+│   ├── magdeburg.osm.pbf
+│   └── magdeburg.gtfs.zip
+│   └── graph-cache/
+├── src /
+|   ├── agent.py
+|   ├──graphhopper_client.py
+|   ├── intermodal_router.py
+|   ├── personalised_router.py
+|   ├── router.py
+|   ├── value_model.py
+├── main.py                        # interactive routing terminal or json
 └── README.md
