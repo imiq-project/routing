@@ -1,0 +1,89 @@
+services:
+  graphhopper:
+    build:
+      context: .
+      dockerfile: Dockerfile.graphhopper
+    container_name: simple-engine-graphhopper
+    command: ["server", "/graphhopper/config/config.docker.yml"]
+    ports:
+      - "8989:8989"
+      - "8990:8990"
+    volumes:
+      - ./data:/data
+      - ./graphhopper:/graphhopper/config
+      - graphhopper-cache:/data/graph-cache
+    environment:
+      JAVA_OPTS: "-Xms1g -Xmx4g"
+    restart: unless-stopped
+
+  routing-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: simple-engine-routing-api
+    depends_on:
+      - graphhopper
+    ports:
+      - "8000:8000"
+    environment:
+      GRAPHOPPER_HOST: "http://graphhopper:8989"
+      POIS_FILE: "/app/example_pois.json"
+      POI_PROXIMITY_M: "100"
+    command: ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+    restart: unless-stopped
+
+  interface-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: simple-engine-interface-app
+    depends_on:
+      - graphhopper
+    ports:
+      - "5000:5000"
+    environment:
+      GRAPHOPPER_HOST: "http://graphhopper:8989"
+      FLASK_ENV: "production"
+    command: ["python", "app.py"]
+    restart: unless-stopped
+
+  study-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: simple-engine-study-app
+    depends_on:
+      - graphhopper
+    ports:
+      - "5001:5000"
+    environment:
+      GRAPHOPPER_HOST: "http://graphhopper:8989"
+      FLASK_SECRET_KEY: "change-this-secret-key-in-production"
+      FLASK_ENV: "production"
+    volumes:
+      - ./user_study/study_data.db:/app/user_study/study_data.db
+    command: ["python", "user_study/study_app.py"]
+    restart: unless-stopped
+
+  # main.py is a CLI, not a long-running web service.
+  # Run it only when needed:
+  #
+  # docker compose run --rm main-cli python main.py \
+  #   --host http://graphhopper:8989 \
+  #   --agent agents/agent_biospheric.json \
+  #   --from 52.1309,11.6266 \
+  #   --to 52.1407,11.6437 \
+  #   --departure 2025-11-15T09:00:00+01:00
+  main-cli:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    profiles: ["cli"]
+    depends_on:
+      - graphhopper
+    environment:
+      GRAPHOPPER_HOST: "http://graphhopper:8989"
+    command: ["python", "main.py", "--host", "http://graphhopper:8989"]
+
+volumes:
+  graphhopper-cache:

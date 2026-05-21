@@ -1,0 +1,32 @@
+graphhopper:
+  datareader.file: /data/sachsen-anhalt-260216.osm.pbf
+  gtfs.file: /data/magdeburg_gtfs.zip
+  graph.location: /data/graph-cache
+
+  profiles:
+    - name: car
+      vehicle: car
+      weighting: fastest
+
+    - name: bike
+      vehicle: bike
+      weighting: fastest
+
+    - name: foot
+      vehicle: foot
+      weighting: fastest
+
+  profiles_ch:
+    - profile: car
+    - profile: bike
+    - profile: foot
+
+server:
+  application_connectors:
+    - type: http
+      port: 8989
+      bind_host: 0.0.0.0
+  admin_connectors:
+    - type: http
+      port: 8990
+      bind_host: 0.0.0.0

@@ -1,22 +1,24 @@
-# Compiled binaries
-*.o
-*.obj
-*.out
-*.exe
-*.dll
-*.so
-*.dylib
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.Python
+.venv/
+venv/
+env/
 
-# IDE
+# IDE / OS
 .vscode/
 .idea/
 *.swp
 *.swo
 *.swn
-*.sublime-project
-*.sublime-workspace
+.DS_Store
+Thumbs.db
 
-# Build directories
+# Build / packaging
 build/
 dist/
 bin/
@@ -24,35 +26,33 @@ obj/
 Debug/
 Release/
 
-# Dependency management
+# Node/frontend
 node_modules/
-.npm
+.npm/
 package-lock.json
 yarn.lock
 
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.egg-info/
-.Python
-venv/
-env/
-
-# OS
-.DS_Store
-Thumbs.db
-.env
-
-# Logs
+# Logs / temp
 *.log
 logs/
-
-# Temporary files
 *.tmp
 *.temp
 *~
-.DS_Store
 
-# data file
-data/
+# Secrets
+.env
+.env.*
+
+# Local databases
+*.db
+user_study/study_data.db
+
+# Large local routing data
+data/*.osm.pbf
+data/*.zip
+data/graph-cache/
+data/gtfs-cache/
+
+# Keep folder placeholders/docs
+!data/README.md
+!data/.gitkeep

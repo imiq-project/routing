@@ -1,0 +1,11 @@
+FROM eclipse-temurin:17-jre
+
+WORKDIR /graphhopper
+
+# This expects your local file:
+# graphhopper/graphhopper-web-*.jar
+COPY graphhopper/graphhopper-web-*.jar /graphhopper/graphhopper-web.jar
+
+EXPOSE 8989 8990
+
+ENTRYPOINT ["java", "-jar", "/graphhopper/graphhopper-web.jar"]

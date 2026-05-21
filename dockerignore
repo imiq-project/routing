@@ -1,0 +1,36 @@
+.venv
+venv
+env
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.egg-info
+.pytest_cache
+.mypy_cache
+
+.git
+.gitignore
+.vscode
+.idea
+
+*.log
+logs
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Do not send large local datasets into Python app images.
+# They are mounted into the GraphHopper container instead.
+data/*.osm.pbf
+data/*.zip
+data/graph-cache
+data/graph-cache/
+
+# Keep database out of images; mount it as a volume for study-app.
+user_study/study_data.db
+*.db
+
+# Keep local secrets out of images.
+.env
