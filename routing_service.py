@@ -1,5 +1,3 @@
-
-
 from __future__ import annotations
 
 import math
@@ -13,6 +11,17 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 from agent import Agent
 from graphhopper_client import GraphHopperClient
 from personalised_router import PersonalisedRouter
+
+# ---------------------------------------------------------------------------
+# GTFS validity fallback
+# When no departure time is supplied by the caller, use this instead of
+# datetime.now() so PT queries always land inside the GTFS feed's validity
+# window.  Override via the GTFS_FALLBACK_DEPARTURE env var.
+# Format: ISO 8601, e.g. "2025-11-15T09:00:00+01:00"
+# ---------------------------------------------------------------------------
+_GTFS_FALLBACK_DEPARTURE: Optional[str] = os.getenv(
+    "GTFS_FALLBACK_DEPARTURE", "2025-11-15T09:00:00+01:00"
+)
 
 
 Coordinate = Dict[str, float]
@@ -59,13 +68,16 @@ class RoutingService:
         from_lat, from_lon = self._validate_coordinate(start, "start")
         to_lat, to_lon = self._validate_coordinate(stop, "stop")
 
+        # Resolve departure: use caller value, then env fallback, then now
+        resolved_departure = departure or _GTFS_FALLBACK_DEPARTURE
+
         results = self.router.route(
             agent,
             from_lat,
             from_lon,
             to_lat,
             to_lon,
-            departure=departure,
+            departure=resolved_departure,
             max_walk_m=max_walk_m,
         )
 
@@ -80,7 +92,8 @@ class RoutingService:
             "request": {
                 "start": {"lat": from_lat, "lon": from_lon},
                 "stop": {"lat": to_lat, "lon": to_lon},
-                "departure": departure,
+                "departure": resolved_departure,       # echo what was actually used
+                "departure_source": "caller" if departure else "gtfs_fallback",
                 "max_walk_m": max_walk_m,
             },
             "agent": self._agent_summary(agent),
