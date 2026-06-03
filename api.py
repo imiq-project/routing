@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import json
@@ -30,13 +29,17 @@ class Coordinate(BaseModel):
 class RouteRequest(BaseModel):
     cognitive_passport: Dict[str, Any] = Field(
         ...,
-        description="Agent profile from the app. Expected keys include id, values, and beliefs.",
+        description=(
+            "Agent cognitive passport. Accepts either the full nested passport "
+            "(with top-level 'cognitive_passport' key and profile.needs) "
+            "or the legacy flat format with 'values' and 'beliefs' keys."
+        ),
     )
     start: Coordinate
     stop: Coordinate
     datetime: Optional[str] = Field(
         None,
-        description="Departure datetime. Use an ISO string accepted by the routing backend, or null for now.",
+        description="Departure datetime ISO string, or null for now.",
     )
     max_walk_m: int = Field(500, ge=0, description="Maximum walking distance in meters")
     include_unavailable: bool = Field(True, description="Return unavailable modes with reasons")

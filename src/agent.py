@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass, field
 from typing import Optional
 from value_model import VALUE_DIMENSIONS, MODE_BELIEF_REQUIREMENTS
@@ -15,12 +14,36 @@ class Agent:
 
     @classmethod
     def from_dict(cls, data: dict, normalise: bool = True) -> "Agent":
-  
-        agent_id = data.get("id", "unknown_agent")
-        raw_values = data.get("values", {})
-        beliefs    = data.get("beliefs", {})
-        metadata   = {k: v for k, v in data.items()
-                      if k not in ("id", "values", "beliefs")}
+
+        # Support both the new nested passport format and the old flat format
+        if "cognitive_passport" in data:
+            data = data["cognitive_passport"]
+
+        agent_id = data.get("agent_id", data.get("id", "unknown_agent"))
+
+        # New passport: needs live under profile.needs
+        profile = data.get("profile", {})
+        raw_values = profile.get("needs", data.get("values", {}))
+
+        # Beliefs: inferred from routing_parameters.contextual_flags or
+        # explicit beliefs block (old format)
+        routing_params = data.get("routing_parameters", {})
+        mode_weights   = routing_params.get("mode_weights", {})
+        explicit_beliefs = data.get("beliefs", {})
+
+        # Infer ownership from mode_weights if not explicitly provided:
+        # if the model assigned any weight to a mode, the agent can use it
+        inferred_beliefs = {
+            "owns_car":      mode_weights.get("car", 0.0) > 0.01,
+            "owns_bike":     mode_weights.get("bike", 0.0) > 0.01,
+            "has_pt_access": mode_weights.get("pt", 0.0) > 0.01,
+        }
+        inferred_beliefs.update({k: bool(v) for k, v in explicit_beliefs.items()})
+
+        # Carry everything else as metadata
+        metadata = {k: v for k, v in data.items()
+                    if k not in ("agent_id", "id", "profile", "beliefs",
+                                 "routing_parameters")}
 
         # Fill any missing dimensions with 0
         filled = {dim: float(raw_values.get(dim, 0.0))
@@ -29,13 +52,13 @@ class Agent:
         if normalise:
             filled = cls._normalise(filled)
 
-        # Default beliefs to False if not provided
-        default_beliefs = {
-            "owns_car":      False,
-            "owns_bike":     False,
-            "has_pt_access": False,
-        }
-        default_beliefs.update({k: bool(v) for k, v in beliefs.items()})
+        return cls(
+            id            = agent_id,
+            value_weights = filled,
+            beliefs       = inferred_beliefs,
+            metadata      = metadata,
+        )
+
 
         return cls(
             id            = agent_id,
@@ -74,33 +97,29 @@ class Agent:
         return all(self.beliefs.get(b, False) for b in required)
     
     def infer_profile_type(self) -> str:
-       
         weights = self.value_weights
-        
-        # Get top 2 values
+
         sorted_values = sorted(weights.items(), key=lambda x: x[1], reverse=True)
         top1, top2 = sorted_values[0][0], sorted_values[1][0]
-        top1_weight, top2_weight = sorted_values[0][1], sorted_values[1][1]
-        
-        # Biospheric: pro_environment or physical_activity dominant
-        if (top1 in ("pro_environment", "physical_activity") and top1_weight > 0.7) or \
-           (top1 == "pro_environment" and top2 == "physical_activity"):
+        top1_weight  = sorted_values[0][1]
+
+        # Biospheric: pro_env or physical dominant
+        if (top1 in ("pro_env", "physical") and top1_weight > 0.7) or \
+           (top1 == "pro_env" and top2 == "physical"):
             return "biospheric"
-        
-        # Altruistic: safety dominant
-        if top1 == "safety" and top1_weight > 0.7:
+
+        # Altruistic: safety_accident or safety_crime dominant
+        if top1 in ("safety_accident", "safety_crime") and top1_weight > 0.7:
             return "altruistic"
-        
-        # Hedonic: hedonism or comfort dominant
-        if (top1 in ("hedonism", "comfort") and top1_weight > 0.8) or \
-           (top1 == "hedonism" and top2 == "comfort"):
+
+        # Hedonic: comfort dominant
+        if top1 == "comfort" and top1_weight > 0.8:
             return "hedonic"
-        
+
         # Egoistic: autonomy, speed, or privacy dominant
         if top1 in ("autonomy", "speed", "privacy") and top1_weight > 0.8:
             return "egoistic"
-        
-        # Default: egoistic (most conservative distance tolerance)
+
         return "egoistic"
 
     #  Display helpers
