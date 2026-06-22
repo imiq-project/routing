@@ -1,0 +1,894 @@
+<!-- templates/study.html -->
+<!-- Simple Engine — Phase 1 User Study -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mobility Routing Study</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='study.css') }}" />
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+</head>
+<body>
+<div class="container">
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- HEADER                                      -->
+    <!-- ══════════════════════════════════════════ -->
+    <header class="header">
+        <h1>Mobility Routing Study</h1>
+        <p>Evaluating personalised multimodal route recommendations — Phase 1</p>
+    </header>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- STEP 1 — WELCOME & CONSENT                  -->
+    <!-- ══════════════════════════════════════════ -->
+    <section class="card" id="consent-section">
+
+        <h2>Welcome!</h2>
+
+        <p>
+            Thank you very much for participating in our survey. It is being conducted as part of the
+            ERDF-funded project <strong>"IMIQ – Smart Mobility in the Quarter"</strong>.
+        </p>
+
+        <p>
+            <em>"IMIQ – Intelligent Mobility Space in the Quarter"</em> is a project of the
+            <a href="https://www.imr.ovgu.de/niimo/Intelligenter+Mobilit%C3%A4tsraum-nonactive-1-preview-1-showdeleted-1.html"
+               target="_blank" rel="noopener">IMR (Intelligent Mobility Space)</a>,
+            which is based at the Wissenschaftshafen in Magdeburg. During its planned runtime from 2024
+            to 2028, the Wissenschaftshafen will become a district of the future where new needs-based
+            solutions are conceived, technically tested, and implemented with a socio-economic
+            perspective in mind.
+        </p>
+
+        <p>
+            In this survey, we are interested in your opinions on <strong>personalised multimodal route
+            recommendations</strong>. We would like to emphasise that there are no wrong answers — we
+            are only interested in your personal assessment. This survey is anonymous. Please answer
+            all questions. It will take about <strong>20–525 minutes</strong> to complete.
+            Thank you again for your support!
+        </p>
+
+        <div class="info-box">
+            <strong>Contact person for the organisational unit executing the project</strong><br>
+            Modou Lamin Manjang<br>
+            Universitätsplatz 2, Building 29, 39106 Magdeburg<br>
+            E-Mail: <a href="mailto:mmanjang@ovgu.de">mmanjang@ovgu.de</a>
+        </div>
+
+        <div class="consent-box">
+            <h3>Data Protection Information</h3>
+
+            <p>
+                Your consent to the processing of your data is voluntary. It may be modified or
+                revoked in whole or in part at any time, effective for the future, without providing
+                a reason. You may revoke your consent by mail or email using the contact information
+                provided for the aforementioned contact person. Revoking consent will not result in
+                any disadvantages for you.
+            </p>
+
+            <p>
+                <strong>Information on the collection of data in accordance with Art. 13 of the GDPR.</strong><br>
+                Your personal data will be processed for the following purpose: the survey data will be
+                stored only in pseudonymised form and used for research purposes. Your data will be
+                stored until the project is completed, or for a maximum period of 12 months. After
+                that, all data will be deleted.
+            </p>
+
+            <p>
+                The legal basis for the collection of data is Article 6(1)(a) of the GDPR (consent).
+                Data will not be disclosed to third parties (outside the university) or to a third
+                country. Information regarding the responsible authority, the contact details of the
+                data protection officers, and your rights regarding the processing of your personal
+                data can be found in the OVGU's privacy policy at:
+                <a href="https://www.ovgu.de/unimagdeburg/en/privacy+policy-p-64704.html"
+                   target="_blank" rel="noopener">
+                    https://www.ovgu.de/unimagdeburg/en/privacy+policy-p-64704.html
+                </a>
+            </p>
+
+            <p>
+                The data collected as part of this study will be used exclusively for scientific
+                purposes. The results may be released in a scientific publication. This will be done
+                in pseudonymised form, meaning that the data cannot be traced back to any specific
+                individuals. To enhance the quality of research, the fully pseudonymised raw data
+                from this study may be made available as open data on the internet in a data archive
+                or provided to other researchers. In doing so, this study follows the recommendations
+                of the German Research Foundation (DFG) and the German Psychological Society (DGPs)
+                on quality control in research.
+            </p>
+        </div>
+
+        <label class="checkbox-row">
+            <input type="checkbox" id="consent-checkbox" />
+            I have read and understood the above information. I voluntarily consent to participate
+            in this study and to the processing of my data as described.
+        </label>
+
+        <button id="start-btn">Begin Survey</button>
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- STEP 2 — DEMOGRAPHICS                       -->
+    <!-- ══════════════════════════════════════════ -->
+    <section class="card hidden" id="demographics-section">
+        <h2>Background Information</h2>
+        <p class="step-label">Step 1 of 4 — About you</p>
+        <p>Please answer the following questions about yourself and your typical mobility behaviour.</p>
+
+        <div class="question-group">
+            <label>Age group</label>
+            <select id="age-group">
+                <option value="">— select —</option>
+                <option>18–24</option><option>25–34</option>
+                <option>35–44</option><option>45–54</option>
+                <option>55–64</option><option>65+</option>
+            </select>
+        </div>
+
+        <div class="question-group">
+            <label>Gender</label>
+            <select id="gender">
+                <option value="">— select —</option>
+                <option>Female</option><option>Male</option>
+                <option>Non-binary / third gender</option>
+                <option>Prefer not to say</option>
+            </select>
+        </div>
+
+        <div class="question-group">
+            <label>Occupation</label>
+            <select id="occupation">
+                <option value="">— select —</option>
+                <option>Student</option><option>Employed full-time</option>
+                <option>Employed part-time</option><option>Self-employed</option>
+                <option>Retired</option><option>Unemployed</option>
+                <option>Prefer not to say</option>
+            </select>
+        </div>
+
+        <div class="question-group">
+            <label>City / region where you usually travel</label>
+            <input type="text" id="city-of-residence" placeholder="e.g. Magdeburg" />
+        </div>
+
+        <div class="question-group">
+            <label>How often do you use public transport?</label>
+            <select id="mobility-frequency">
+                <option value="">— select —</option>
+                <option value="daily">Daily</option>
+                <option value="several_week">Several times per week</option>
+                <option value="weekly">About once per week</option>
+                <option value="rarely">Rarely or never</option>
+            </select>
+        </div>
+
+        <div class="question-group">
+            <label>Do you have a driving licence?</label>
+            <select id="driving-license">
+                <option value="">— select —</option>
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+            </select>
+        </div>
+
+        <div class="question-group">
+            <label>Do you own or have regular access to a car?</label>
+            <select id="owns-car">
+                <option value="">— select —</option>
+                <option value="1">Yes</option><option value="0">No</option>
+            </select>
+        </div>
+
+        <div class="question-group">
+            <label>Do you own or have regular access to a bicycle?</label>
+            <select id="owns-bike">
+                <option value="">— select —</option>
+                <option value="1">Yes</option><option value="0">No</option>
+            </select>
+        </div>
+
+        <div class="question-group">
+            <label>How comfortable are you cycling in city traffic?</label>
+            <div class="likert-row" data-target="cycling-comfort">
+                <span class="likert-label-l">Not at all</span>
+                <div class="likert-options" id="cycling-comfort"></div>
+                <span class="likert-label-r">Very comfortable</span>
+            </div>
+        </div>
+
+        <button id="save-demographics-btn">Continue to Profile Selection</button>
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- STEP 3 — PROFILE SELECTION                  -->
+    <!-- ══════════════════════════════════════════ -->
+    <section class="card hidden" id="profile-section">
+        <h2>Your Mobility Value Profile</h2>
+        <p class="step-label">Step 2 of 4 — Profile</p>
+        <p>
+            Select the profile that best describes how you usually think about
+            getting from A to B. There is no right or wrong answer — choose
+            whichever feels most like you.
+        </p>
+
+        <div class="profile-grid">
+
+            <div class="profile-card" data-profile="biospheric">
+                <h3>🌱 Sustainable Traveller</h3>
+                <p>
+                    I prioritise low environmental impact. I am willing to accept a
+                    slower or less convenient journey if it means lower emissions.
+                </p>
+                <ul>
+                    <li>Walking, cycling, public transport preferred</li>
+                    <li>Sustainability over speed</li>
+                    <li>Physical activity is a bonus</li>
+                </ul>
+            </div>
+
+            <div class="profile-card" data-profile="altruistic">
+                <h3>🤝 Safety-Conscious Traveller</h3>
+                <p>
+                    Safety and reliability matter most to me. I prefer well-lit routes,
+                    predictable timetables, and modes that feel secure.
+                </p>
+                <ul>
+                    <li>Accident and crime safety are key</li>
+                    <li>Reliability and punctuality</li>
+                    <li>Shared transport is acceptable</li>
+                </ul>
+            </div>
+
+            <div class="profile-card" data-profile="egoistic">
+                <h3>⚡ Efficiency-Oriented Traveller</h3>
+                <p>
+                    My time and autonomy are paramount. I want the fastest, most
+                    direct route with maximum flexibility and personal control.
+                </p>
+                <ul>
+                    <li>Speed and autonomy</li>
+                    <li>Minimal transfers and waiting</li>
+                    <li>Privacy and independence</li>
+                </ul>
+            </div>
+
+            <div class="profile-card" data-profile="hedonic">
+                <h3>🛋️ Comfort-Oriented Traveller</h3>
+                <p>
+                    The quality of the journey matters. I want comfortable, low-stress
+                    travel and avoid unnecessary effort or crowding.
+                </p>
+                <ul>
+                    <li>Comfort and convenience</li>
+                    <li>Low physical effort</li>
+                    <li>Avoiding infection risk and crowds</li>
+                </ul>
+            </div>
+
+        </div>
+
+        <input type="hidden" id="selected-profile" />
+        <button id="save-profile-btn">Continue to Route Scenarios</button>
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- STEP 4 — SCENARIOS                          -->
+    <!-- ══════════════════════════════════════════ -->
+    <section class="card hidden" id="scenario-section">
+
+        <div class="scenario-header">
+            <h2 id="scenario-title"></h2>
+            <span class="step-label" id="scenario-counter"></span>
+        </div>
+
+        <p id="scenario-context" class="scenario-context"></p>
+
+        <div class="info-box" id="scenario-instruction">
+            <strong>Your task:</strong>
+            Review the two sets of route options below. Set A comes from a
+            value-based routing engine; Set B comes from a standard routing
+            system. Both sets are generated for the same journey — the labels
+            are intentionally generic so you can judge the routes on their merits.
+            <br><br>
+            For <strong>Set A</strong>, review the engine's ranking and select your preferred route. For <strong>Set B</strong>, drag the routes into the order you prefer and choose your top route.
+            <br><br>
+            <strong>⏱ Note on driving times:</strong> Travel times shown for car routes
+            include an estimated <strong>8 minutes</strong> for parking search and the walk
+            to your destination. This overhead is not shown by standard navigation apps
+            but reflects realistic urban door-to-door journey time.
+        </div>
+
+        <!-- Loading indicator -->
+        <div id="routes-loading" class="loading-box hidden">
+            <div class="spinner"></div>
+            <p>Generating routes…</p>
+        </div>
+
+        <!-- ── Sets A and B side by side ── -->
+        <div id="route-sets-container" class="hidden route-sets-split">
+
+            <!-- SET A (personalised, blinded) — fixed engine ranking, no drag -->
+            <div id="route-set-a" class="route-set-panel set-a-panel">
+                <h3 class="set-label set-a-label">Route Set A</h3>
+                <p class="set-desc">Routes ranked by the engine. Select your preferred route below.</p>
+                <ul id="routes-list-a" class="routes-list"></ul>
+                <div class="question-group">
+                    <label>Which route from Set A would you choose?</label>
+                    <select id="preferred-route-a"></select>
+                </div>
+                <div class="question-group">
+                    <label>How well does Set A's ranking match your preference?</label>
+                    <div class="likert-row" data-target="ranking-acceptance-a">
+                        <span class="likert-label-l">Very poor</span>
+                        <div class="likert-options" id="ranking-acceptance-a"></div>
+                        <span class="likert-label-r">Excellent</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SET B (baseline, blinded) -->
+            <div id="route-set-b" class="route-set-panel set-b-panel">
+                <h3 class="set-label set-b-label">Route Set B</h3>
+                <p class="set-desc">Drag to reorder by preference.</p>
+                <ul id="routes-list-b" class="routes-list sortable"></ul>
+                <div class="question-group">
+                    <label>Which route from Set B would you choose?</label>
+                    <select id="preferred-route-b"></select>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- rating-section moved to standalone needs-rating-section after scenario 4 -->
+
+        <!-- ── Intermodal section ── -->
+        <div id="intermodal-section" class="hidden">
+            <h3>Intermodal Routes</h3>
+            <div class="question-group">
+                <label>Did you notice that some routes combine multiple transport modes (e.g. bike + tram)?</label>
+                <select id="noticed-intermodal">
+                    <option value="">— select —</option>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                </select>
+            </div>
+            <div class="question-group">
+                <label>How easy was it to understand the intermodal route suggestions? (1 = not at all, 5 = very easy)</label>
+                <div class="likert-row" data-target="understood-intermodal">
+                    <div class="likert-options" id="understood-intermodal"></div>
+                </div>
+            </div>
+            <div class="question-group">
+                <label>Your general attitude towards intermodal routes (combining modes)</label>
+                <select id="intermodal-preference">
+                    <option value="">— select —</option>
+                    <option value="prefer">I prefer them</option>
+                    <option value="neutral">Neutral</option>
+                    <option value="avoid">I prefer to avoid them</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- ── Open comment ── -->
+        <div class="question-group">
+            <label>Any comments about the routes shown in this scenario? (optional)</label>
+            <textarea id="scenario-comment" rows="3"
+                      placeholder="What matched or did not match your expectations?"></textarea>
+        </div>
+
+        <div class="button-row">
+            <button id="next-scenario-btn">Next Scenario</button>
+        </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- STEP 4b — NEEDS IMPORTANCE RATING            -->
+    <!-- After all 4 scenarios, ask how important     -->
+    <!-- each need dimension is to the participant    -->
+    <!-- ══════════════════════════════════════════ -->
+    <section class="card hidden" id="needs-rating-section">
+        <h2>Your Mobility Needs</h2>
+        <p class="step-label">Step 3b of 4 — How you weigh different travel factors</p>
+        <p>
+            You have now seen routes across four different journeys.
+            Thinking back across all of them, please rate how important
+            each of the following factors is to you when choosing a route.
+            (1 = not important at all, 5 = very important)
+        </p>
+
+        <div class="rating-grid">
+            <div class="rating-item">
+                <label>🌱 Environmental friendliness</label>
+                <div class="likert-row"><div class="likert-options" id="need-pro-env"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>🚴 Physical activity opportunity</label>
+                <div class="likert-row"><div class="likert-options" id="need-physical"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>🔒 Privacy / personal space</label>
+                <div class="likert-row"><div class="likert-options" id="need-privacy"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>🗺️ Autonomy / flexibility</label>
+                <div class="likert-row"><div class="likert-options" id="need-autonomy"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>💶 Affordability</label>
+                <div class="likert-row"><div class="likert-options" id="need-cost"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>⚡ Speed</label>
+                <div class="likert-row"><div class="likert-options" id="need-speed"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>🚦 Traffic / accident safety</label>
+                <div class="likert-row"><div class="likert-options" id="need-safety-accident"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>🔦 Personal security (crime)</label>
+                <div class="likert-row"><div class="likert-options" id="need-safety-crime"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>🛋️ Comfort</label>
+                <div class="likert-row"><div class="likert-options" id="need-comfort"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>🕐 Reliability / punctuality</label>
+                <div class="likert-row"><div class="likert-options" id="need-reliable"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>😷 Infection / crowding risk</label>
+                <div class="likert-row"><div class="likert-options" id="need-health-infection"></div></div>
+            </div>
+        </div>
+
+        <button id="save-needs-btn">Continue to Final Feedback</button>
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- STEP 5 — FINAL FEEDBACK                     -->
+    <!-- ══════════════════════════════════════════ -->
+    <section class="card hidden" id="final-section">
+        <h2>Final Feedback</h2>
+        <p class="step-label">Step 4 of 4 — Overall impressions</p>
+
+        <div class="question-group">
+            <label>How accurately did the profile you selected represent your real values? (1 = not at all, 5 = very accurately)</label>
+            <div class="likert-row" data-target="value-profile-accuracy">
+                <span class="likert-label-l">Not at all</span>
+                <div class="likert-options" id="value-profile-accuracy"></div>
+                <span class="likert-label-r">Very accurately</span>
+            </div>
+        </div>
+
+        <div class="question-group">
+            <label>How confident were you when choosing your profile? (1 = not at all, 5 = very confident)</label>
+            <div class="likert-row" data-target="profile-confidence">
+                <div class="likert-options" id="profile-confidence"></div>
+            </div>
+        </div>
+
+        <div class="question-group">
+            <label>Did you notice that Set A routes were adapted to the profile you selected?</label>
+            <select id="noticed-personalisation">
+                <option value="">— select —</option>
+                <option value="1">Yes, clearly</option>
+                <option value="0">No, I did not notice a difference</option>
+            </select>
+        </div>
+
+        <div class="question-group">
+            <label>How well did the personalised routes (Set A) match your values? (1 = poorly, 5 = very well)</label>
+            <div class="likert-row" data-target="personalisation-quality">
+                <div class="likert-options" id="personalisation-quality"></div>
+            </div>
+        </div>
+
+        <div class="question-group">
+            <label>How useful is this routing system compared to a standard navigation app like Google Maps?</label>
+            <select id="comparison-google">
+                <option value="">— select —</option>
+                <option value="1">Much worse</option>
+                <option value="2">Slightly worse</option>
+                <option value="3">About the same</option>
+                <option value="4">Slightly better</option>
+                <option value="5">Much better</option>
+            </select>
+        </div>
+
+        <div class="question-group">
+            <label>How likely are you to use a personalised value-based routing app in daily life? (1 = very unlikely, 5 = very likely)</label>
+            <div class="likert-row" data-target="willingness-use">
+                <div class="likert-options" id="willingness-use"></div>
+            </div>
+        </div>
+
+        <div class="question-group">
+            <label>How much do you trust the route rankings produced by this system? (1 = not at all, 5 = a great deal)</label>
+            <div class="likert-row" data-target="trust-ranking">
+                <div class="likert-options" id="trust-ranking"></div>
+            </div>
+        </div>
+
+        <div class="question-group">
+            <label>What was the best feature of the system? (open text)</label>
+            <textarea id="best-feature" rows="2"></textarea>
+        </div>
+
+        <div class="question-group">
+            <label>What should be improved? (open text)</label>
+            <textarea id="improvement" rows="2"></textarea>
+        </div>
+
+        <button id="submit-study-btn">Submit</button>
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- THANK YOU                                   -->
+    <!-- ══════════════════════════════════════════ -->
+    <section class="card hidden" id="thankyou-section">
+        <h2>Thank You</h2>
+        <p>Your responses have been recorded. Thank you for participating.</p>
+        <p id="participant-code-display" style="margin-top:12px; font-size:13px; color:#666;"></p>
+    </section>
+
+</div><!-- /container -->
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- SCRIPT                                                      -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<script>
+
+// ── State ──────────────────────────────────────────────────────
+let scenarios          = [];
+let currentIdx         = 0;
+let currentPersonalised = [];   // routes for Set A
+let currentBaseline     = [];   // routes for Set B
+
+// ── Likert builder ─────────────────────────────────────────────
+function buildLikert(containerId, max = 5) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    el.innerHTML = "";
+    for (let i = 1; i <= max; i++) {
+        const btn = document.createElement("button");
+        btn.type      = "button";
+        btn.className = "likert-btn";
+        btn.textContent = i;
+        btn.dataset.value = i;
+        btn.onclick = () => {
+            el.querySelectorAll(".likert-btn").forEach(b => b.classList.remove("selected"));
+            btn.classList.add("selected");
+        };
+        el.appendChild(btn);
+    }
+}
+
+function getLikert(containerId) {
+    const el = document.getElementById(containerId);
+    if (!el) return null;
+    const sel = el.querySelector(".likert-btn.selected");
+    return sel ? parseInt(sel.dataset.value) : null;
+}
+
+// Build all Likerts on load
+const LIKERT_IDS = [
+    "cycling-comfort", "ranking-acceptance-a",
+    "understood-intermodal",
+    "need-pro-env", "need-physical", "need-privacy", "need-autonomy",
+    "need-cost", "need-speed", "need-safety-accident", "need-safety-crime",
+    "need-comfort", "need-reliable", "need-health-infection",
+    "value-profile-accuracy", "profile-confidence", "personalisation-quality",
+    "willingness-use", "trust-ranking",
+];
+window.addEventListener("DOMContentLoaded", () => {
+    LIKERT_IDS.forEach(id => buildLikert(id));
+});
+
+// ── Section navigation ─────────────────────────────────────────
+function show(id) {
+    document.querySelectorAll(".card").forEach(s => s.classList.add("hidden"));
+    document.getElementById(id).classList.remove("hidden");
+    window.scrollTo(0, 0);
+}
+
+// ── CONSENT → DEMOGRAPHICS ────────────────────────────────────
+document.getElementById("start-btn").onclick = () => {
+    if (!document.getElementById("consent-checkbox").checked) {
+        alert("Please provide consent before continuing.");
+        return;
+    }
+    show("demographics-section");
+};
+
+// ── DEMOGRAPHICS → PROFILE ────────────────────────────────────
+document.getElementById("save-demographics-btn").onclick = async () => {
+    const payload = {
+        age_group:             document.getElementById("age-group").value || null,
+        gender:                document.getElementById("gender").value || null,
+        occupation:            document.getElementById("occupation").value || null,
+        city_of_residence:     document.getElementById("city-of-residence").value || null,
+        mobility_frequency:    document.getElementById("mobility-frequency").value || null,
+        has_driving_license:   document.getElementById("driving-license").value
+                               ? parseInt(document.getElementById("driving-license").value) : null,
+        owns_car:              document.getElementById("owns-car").value
+                               ? parseInt(document.getElementById("owns-car").value) : null,
+        owns_bike:             document.getElementById("owns-bike").value
+                               ? parseInt(document.getElementById("owns-bike").value) : null,
+        uses_public_transport: null,
+        cycling_comfort:       getLikert("cycling-comfort"),
+    };
+    await fetch("/api/demographics", {
+        method: "POST", credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+    });
+    show("profile-section");
+};
+
+// ── PROFILE SELECTION ─────────────────────────────────────────
+document.querySelectorAll(".profile-card").forEach(card => {
+    card.addEventListener("click", () => {
+        document.querySelectorAll(".profile-card").forEach(c => c.classList.remove("selected"));
+        card.classList.add("selected");
+        document.getElementById("selected-profile").value = card.dataset.profile;
+    });
+});
+
+document.getElementById("save-profile-btn").onclick = async () => {
+    const profile = document.getElementById("selected-profile").value;
+    if (!profile) { alert("Please select a profile."); return; }
+    await fetch("/api/profile", {
+        method: "POST", credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ selected_profile: profile }),
+    });
+    show("scenario-section");
+    await loadScenarios();
+};
+
+// ── SCENARIO LOADING ──────────────────────────────────────────
+async function loadScenarios() {
+    const res = await fetch("/api/scenarios", { credentials: "same-origin" });
+    scenarios = await res.json();
+    currentIdx = 0;
+    await loadScenario();
+}
+
+async function loadScenario() {
+    const s = scenarios[currentIdx];
+
+    document.getElementById("scenario-title").textContent   = s.title;
+    document.getElementById("scenario-counter").textContent =
+        `Step 3 of 4 — Scenario ${currentIdx + 1} / ${scenarios.length}`;
+    document.getElementById("scenario-context").textContent = s.context;
+
+    // Hide route sets, show loading
+    ["route-sets-container","intermodal-section"].forEach(
+        id => document.getElementById(id).classList.add("hidden")
+    );
+    document.getElementById("routes-loading").classList.remove("hidden");
+    document.getElementById("next-scenario-btn").disabled = true;
+    document.getElementById("scenario-comment").value = "";
+    // Reset Likerts for this scenario
+    ["ranking-acceptance-a","perceived-pro-env","perceived-physical","perceived-privacy",
+     "perceived-autonomy","perceived-cost","perceived-speed","perceived-safety-accident",
+     "perceived-safety-crime","perceived-comfort","perceived-reliable",
+     "perceived-health-infection","perceived-intermodal","overall-satisfaction",
+     "understood-intermodal"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.querySelectorAll(".likert-btn").forEach(b => b.classList.remove("selected"));
+    });
+
+    let data;
+    try {
+        const res = await fetch(`/api/scenario/${s.id}/ranking`, { credentials: "same-origin" });
+        data = await res.json();
+    } catch (err) {
+        document.getElementById("routes-loading").classList.add("hidden");
+        console.error("Network error fetching routes:", err);
+        alert("Network error loading routes. Check that GraphHopper is running.");
+        return;
+    }
+    document.getElementById("routes-loading").classList.add("hidden");
+
+    console.log("Ranking API response:", data);
+
+    if (data.status !== "success") {
+        console.error("Route generation failed:", data.message);
+        alert("Error loading routes: " + data.message);
+        return;
+    }
+
+    currentPersonalised = data.personalised || [];
+    currentBaseline     = data.baseline     || [];
+
+    console.log(`Personalised routes: ${currentPersonalised.length}, Baseline routes: ${currentBaseline.length}`);
+
+    renderRouteSet("routes-list-a", "preferred-route-a", currentPersonalised, false);
+    renderRouteSet("routes-list-b", "preferred-route-b", currentBaseline, true);
+
+    document.getElementById("route-sets-container").classList.remove("hidden");
+    document.getElementById("intermodal-section").classList.remove("hidden");
+    document.getElementById("next-scenario-btn").disabled = false;
+
+    // Show intermodal quality item only if any personalised route is intermodal
+    const hasIntermodal = currentPersonalised.some(r => r.is_intermodal);
+    document.getElementById("intermodal-rating-box").style.display =
+        hasIntermodal ? "block" : "none";
+}
+
+function renderRouteSet(listId, selectId, routes, draggable=false) {
+    const list   = document.getElementById(listId);
+    const select = document.getElementById(selectId);
+    list.innerHTML   = "";
+    select.innerHTML = "";
+
+    routes.forEach((route, i) => {
+        // List item (draggable)
+        const li = document.createElement("li");
+        li.className    = "route-card";
+        li.dataset.routeId = route.route_id;
+        li.innerHTML = `
+            <div class="route-rank">#${i + 1}</div>
+            <div class="route-content">
+                <h4>${route.route_summary}</h4>
+                <p><strong>Modes:</strong> ${route.transport_modes || "—"}</p>
+                <div class="metric-grid">
+                    <div class="metric-card"><strong>Duration</strong>
+                        <span>${route.total_duration_minutes != null
+                              ? Math.round(route.total_duration_minutes) + " min" : "—"}</span></div>
+                    <div class="metric-card"><strong>Transfers</strong>
+                        <span>${route.transfer_count ?? 0}</span></div>
+                    <div class="metric-card"><strong>Walking</strong>
+                        <span>${route.walking_minutes != null
+                              ? Math.round(route.walking_minutes) + " min" : "—"}</span></div>
+                    <div class="metric-card"><strong>Type</strong>
+                        <span>${route.is_intermodal ? "Intermodal 🔀" : "Single mode"}</span></div>
+                </div>
+                ${route.is_intermodal
+                  ? `<div class="intermodal-box">Combines: ${route.intermodal_type}</div>`
+                  : ""}
+            </div>`;
+        list.appendChild(li);
+
+        // Select option
+        const opt  = document.createElement("option");
+        opt.value  = route.route_id;
+        opt.text   = `${i + 1}. ${route.route_summary || route.route_id}`;
+        select.appendChild(opt);
+    });
+
+    if (draggable) {
+        new Sortable(list, { animation: 150 });
+    }
+}
+
+// ── NEXT SCENARIO ─────────────────────────────────────────────
+document.getElementById("next-scenario-btn").onclick = async () => {
+    // Guard: if scenarios lost from memory (page refresh), re-fetch before proceeding
+    if (!scenarios.length) {
+        const res = await fetch("/api/scenarios", { credentials: "same-origin" });
+        scenarios = await res.json();
+    }
+    const s = scenarios[currentIdx];
+    if (!s) {
+        console.error("No scenario at index", currentIdx, "— scenarios:", scenarios);
+        return;
+    }
+
+    // Set A is not draggable — engine ranking is fixed, participant ranking = engine ranking
+    const participantRankingA = currentPersonalised.map(r => r.route_id);
+    const engineRankingA = currentPersonalised.map(r => r.route_id);
+
+    // Chosen route ratings (personalised/Set A)
+    const chosenRouteIdA = document.getElementById("preferred-route-a").value;
+    const chosenRoute    = currentPersonalised.find(r => r.route_id === chosenRouteIdA) || {};
+
+    // Per-route ratings: no longer collected per scenario.
+    // The 11-dimension needs importance is asked once after all scenarios
+    // on the needs-rating-section page.
+    const routeRatings = [
+        {
+            condition:    "personalised",
+            route_id:     chosenRouteIdA,
+            would_use_route: 1,
+            route_comment: null,
+        },
+    ];
+
+    const payload = {
+        scenario_id:                    s.id,
+        engine_ranking:                 engineRankingA,
+        participant_ranking:            participantRankingA,
+        participant_selected_route_id:  chosenRouteIdA,
+        ranking_acceptance_score:       getLikert("ranking-acceptance-a"),
+        explanation:                    document.getElementById("scenario-comment").value,
+        route_ratings:                  routeRatings,
+        intermodal_feedback: {
+            noticed_intermodal_option:   document.getElementById("noticed-intermodal").value
+                                         ? parseInt(document.getElementById("noticed-intermodal").value) : null,
+            understood_intermodal_logic: getLikert("understood-intermodal"),
+            intermodal_acceptance_score: null,
+            intermodal_preference:       document.getElementById("intermodal-preference").value || null,
+            intermodal_comment:          null,
+        },
+    };
+
+    await fetch("/api/scenario-response", {
+        method: "POST", credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+    });
+
+    currentIdx++;
+    if (currentIdx >= scenarios.length) {
+        // All scenarios done — go to the needs importance page
+        show("needs-rating-section");
+        return;
+    }
+    await loadScenario();
+};
+
+// ── NEEDS IMPORTANCE → FINAL ──────────────────────────────────
+document.getElementById("save-needs-btn").onclick = async () => {
+    const needsPayload = {
+        need_pro_env:           getLikert("need-pro-env"),
+        need_physical:          getLikert("need-physical"),
+        need_privacy:           getLikert("need-privacy"),
+        need_autonomy:          getLikert("need-autonomy"),
+        need_cost:              getLikert("need-cost"),
+        need_speed:             getLikert("need-speed"),
+        need_safety_accident:   getLikert("need-safety-accident"),
+        need_safety_crime:      getLikert("need-safety-crime"),
+        need_comfort:           getLikert("need-comfort"),
+        need_reliable:          getLikert("need-reliable"),
+        need_health_infection:  getLikert("need-health-infection"),
+    };
+    // Store on participant record
+    await fetch("/api/needs-importance", {
+        method: "POST", credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(needsPayload),
+    });
+    show("final-section");
+};
+
+// ── FINAL FEEDBACK → SUBMIT ───────────────────────────────────
+document.getElementById("submit-study-btn").onclick = async () => {
+    const payload = {
+        value_profile_accuracy:      getLikert("value-profile-accuracy"),
+        profile_confidence:          getLikert("profile-confidence"),
+        noticed_personalisation:     document.getElementById("noticed-personalisation").value
+                                     ? parseInt(document.getElementById("noticed-personalisation").value) : null,
+        personalisation_quality:     getLikert("personalisation-quality"),
+        comparison_with_google_maps: document.getElementById("comparison-google").value
+                                     ? parseInt(document.getElementById("comparison-google").value) : null,
+        willingness_to_use:          getLikert("willingness-use"),
+        trust_in_ranking:            getLikert("trust-ranking"),
+        best_feature:                document.getElementById("best-feature").value,
+        worst_feature:               null,
+        improvement_suggestion:      document.getElementById("improvement").value,
+    };
+    await fetch("/api/final-feedback", {
+        method: "POST", credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+    });
+    show("thankyou-section");
+    // Show participant code
+    const info = await fetch("/api/participant", { credentials: "same-origin" });
+    const d    = await info.json();
+    if (d.participant_code) {
+        document.getElementById("participant-code-display").textContent =
+            "Your participation code: " + d.participant_code;
+    }
+};
+
+</script>
+</body>
+</html>
