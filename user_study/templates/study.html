@@ -7,6 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mobility Routing Study</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='study.css') }}" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body>
@@ -46,15 +48,16 @@
             In this survey, we are interested in your opinions on <strong>personalised multimodal route
             recommendations</strong>. We would like to emphasise that there are no wrong answers — we
             are only interested in your personal assessment. This survey is anonymous. Please answer
-            all questions. It will take about <strong>20–525 minutes</strong> to complete.
+            all questions. It will take about <strong>40–50 minutes</strong> to complete.
             Thank you again for your support!
         </p>
 
         <div class="info-box">
             <strong>Contact person for the organisational unit executing the project</strong><br>
             Modou Lamin Manjang<br>
-            Universitätsplatz 2, Building 29, 39106 Magdeburg<br>
-            E-Mail: <a href="mailto:mmanjang@ovgu.de">mmanjang@ovgu.de</a>
+            Universitätsplatz 2, Building XY, 39106 Magdeburg<br>
+            Phone: YYXX<br>
+            E-Mail: <a href="mailto:XXX@ovgu.de">XXX@ovgu.de</a>
         </div>
 
         <div class="consent-box">
@@ -284,6 +287,16 @@
         </div>
 
         <p id="scenario-context" class="scenario-context"></p>
+
+        <!-- ── Orientation map ── -->
+        <div id="scenario-map-container" class="scenario-map-container">
+            <div id="scenario-map" class="scenario-map"></div>
+            <div class="map-legend">
+                <span class="map-legend-a">A</span> <span id="map-origin-label"></span>
+                &nbsp;&nbsp;
+                <span class="map-legend-b">B</span> <span id="map-dest-label"></span>
+            </div>
+        </div>
 
         <div class="info-box" id="scenario-instruction">
             <strong>Your task:</strong>
@@ -667,6 +680,11 @@ async function loadScenario() {
         `Step 3 of 4 — Scenario ${currentIdx + 1} / ${scenarios.length}`;
     document.getElementById("scenario-context").textContent = s.context;
 
+    // ── Orientation map ───────────────────────────────────────
+    document.getElementById("map-origin-label").textContent = s.origin;
+    document.getElementById("map-dest-label").textContent   = s.destination;
+    initScenarioMap(s.origin_lat, s.origin_lon, s.destination_lat, s.destination_lon);
+
     // Hide route sets, show loading
     ["route-sets-container","intermodal-section"].forEach(
         id => document.getElementById(id).classList.add("hidden")
@@ -833,6 +851,63 @@ document.getElementById("next-scenario-btn").onclick = async () => {
     }
     await loadScenario();
 };
+
+// ── SCENARIO MAP ─────────────────────────────────────────────
+let _scenarioMap = null;
+
+function initScenarioMap(oLat, oLon, dLat, dLon) {
+    const container = document.getElementById("scenario-map");
+
+    // Destroy previous map instance if it exists
+    if (_scenarioMap) {
+        _scenarioMap.remove();
+        _scenarioMap = null;
+    }
+    container.innerHTML = "";
+
+    const midLat = (oLat + dLat) / 2;
+    const midLon = (oLon + dLon) / 2;
+
+    _scenarioMap = L.map("scenario-map", { zoomControl: true, scrollWheelZoom: false });
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 18,
+    }).addTo(_scenarioMap);
+
+    // Fit map to show both markers with padding
+    const bounds = L.latLngBounds([[oLat, oLon], [dLat, dLon]]);
+    _scenarioMap.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+
+    // Custom icon maker
+    function markerIcon(label, color) {
+        return L.divIcon({
+            className: "",
+            html: `<div style="
+                width:28px;height:28px;border-radius:50%;
+                background:${color};color:#fff;
+                font-size:14px;font-weight:700;
+                display:flex;align-items:center;justify-content:center;
+                border:2px solid #fff;
+                box-shadow:0 2px 6px rgba(0,0,0,0.35);">${label}</div>`,
+            iconSize: [28, 28],
+            iconAnchor: [14, 14],
+        });
+    }
+
+    L.marker([oLat, oLon], { icon: markerIcon("A", "#1D9E75") })
+        .addTo(_scenarioMap);
+    L.marker([dLat, dLon], { icon: markerIcon("B", "#E74C3C") })
+        .addTo(_scenarioMap);
+
+    // Dashed line between origin and destination (orientation only, not a route)
+    L.polyline([[oLat, oLon], [dLat, dLon]], {
+        color: "#555",
+        weight: 2,
+        dashArray: "6 6",
+        opacity: 0.6,
+    }).addTo(_scenarioMap);
+}
 
 // ── NEEDS IMPORTANCE → FINAL ──────────────────────────────────
 document.getElementById("save-needs-btn").onclick = async () => {
