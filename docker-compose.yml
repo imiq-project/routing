@@ -1,4 +1,5 @@
 services:
+
   graphhopper:
     build:
       context: .
@@ -16,6 +17,24 @@ services:
       JAVA_OPTS: "-Xms1g -Xmx4g"
     restart: unless-stopped
 
+  mysql:
+    image: mysql:8.0
+    container_name: simple-engine-mysql
+    restart: unless-stopped
+    ports:
+      - "3307:3306"  #host 3307->container 3306 to avoid conflicts with local MySQL
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-simple_engine}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-simple_engine_study}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./user_study/study_schema_mysql.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_PASSWORD:-simple_engine}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   routing-api:
     build:
       context: .
@@ -27,8 +46,6 @@ services:
       - "8000:8000"
     environment:
       GRAPHOPPER_HOST: "http://graphhopper:8989"
-      POIS_FILE: "/app/example_pois.json"
-      POI_PROXIMITY_M: "100"
     command: ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
     restart: unless-stopped
 
@@ -43,7 +60,6 @@ services:
       - "5000:5000"
     environment:
       GRAPHOPPER_HOST: "http://graphhopper:8989"
-      FLASK_ENV: "production"
     command: ["python", "app.py"]
     restart: unless-stopped
 
@@ -53,28 +69,29 @@ services:
       dockerfile: Dockerfile
     container_name: simple-engine-study-app
     depends_on:
-      - graphhopper
+      graphhopper:
+        condition: service_started
+      mysql:
+        condition: service_healthy
     ports:
       - "6001:6000"
+    env_file: .env
     environment:
-      GRAPHOPPER_HOST: "http://graphhopper:8989"
+      GRAPHHOPPER_HOST: "http://graphhopper:8989"
       FLASK_ENV: "production"
-      FLASK_RUN_PORT: "6000"  
-      PYTHONPATH: "/app:/app/user_study"   # ← add this
-    volumes:
-      - ./user_study/study_data.db:/app/user_study/study_data.db
+      FLASK_RUN_PORT: "6000"
+      PYTHONPATH: "/app:/app/user_study"
+      MYSQL_HOST: "mysql"
     command: ["python", "user_study/study_app.py"]
     restart: unless-stopped
 
   # main.py is a CLI, not a long-running web service.
-  # Run it only when needed:
-  #
-  # docker compose run --rm main-cli python main.py \
-  #   --host http://graphhopper:8989 \
-  #   --agent agents/agent_biospheric.json \
-  #   --from 52.1309,11.6266 \
-  #   --to 52.1407,11.6437 \
-  #   --departure 2025-11-15T09:00:00+01:00
+  # Run only when needed:
+  #   docker compose run --rm main-cli python main.py \
+  #     --host http://graphhopper:8989 \
+  #     --agent agents/agent_biospheric.json \
+  #     --from 52.1309,11.6266 --to 52.1407,11.6437 \
+  #     --departure 2025-11-15T09:00:00+01:00
   main-cli:
     build:
       context: .
@@ -83,8 +100,9 @@ services:
     depends_on:
       - graphhopper
     environment:
-      GRAPHOPPER_HOST: "http://graphhopper:8989"
+      GRAPHHOPPER_HOST: "http://graphhopper:8989"
     command: ["python", "main.py", "--host", "http://graphhopper:8989"]
 
 volumes:
   graphhopper-cache:
+  mysql-data:

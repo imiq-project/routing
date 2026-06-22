@@ -94,20 +94,20 @@ class Agent:
     @staticmethod
     def _normalise(values: dict) -> dict:
         """
-        Min-max scale raw need scores to [0, 1].
-        If all values are equal (span == 0) return them as-is
-        so we don't lose the signal entirely.
+        Sum-to-1 (L1) normalise raw need scores so weights sum to 1.0.
+
+        This keeps the dot product bounded and makes profiles comparable
+        across agents. Min-max was incorrect — it scaled relative to the
+        within-profile spread, causing the dot product magnitude to vary
+        wildly between profiles (biospheric sum=3.6, egoistic sum=6.8),
+        making car score 100 for hedonic/egoistic agents regardless of
+        whether other modes were competitive.
         """
-        vals  = list(values.values())
-        v_min = min(vals)
-        v_max = max(vals)
-        span  = v_max - v_min
-
-        if span == 0:
-            # All needs equally weighted — preserve raw value (already 0–1)
-            return dict(values)
-
-        return {k: (v - v_min) / span for k, v in values.items()}
+        total = sum(values.values())
+        if total <= 0:
+            n = len(values)
+            return {k: 1.0 / n for k in values}
+        return {k: v / total for k, v in values.items()}
 
     # ------------------------------------------------------------------
     #  Belief helpers

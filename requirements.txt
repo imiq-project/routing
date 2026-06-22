@@ -5,3 +5,5 @@ python-dateutil==2.8.2
 flask==3.0.0           
 flask-cors==4.0.0      
 pydantic
+mysql-connector-python==8.3.0
+python-dotenv==0.21.0   

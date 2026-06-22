@@ -90,7 +90,12 @@ class IntermodalPolicy:
     # Transfer realism
     transfer_penalty_min: float = 7.0
     pt_boarding_penalty_min: float = 4.0
-    first_mile_penalty_min: float = 3.0
+    first_mile_penalty_min: float = 8.0   # raised: covers parking + walk to platform for car_pt
+
+    # Car overhead: parking search + walk to/from car, not captured by GraphHopper.
+    # Applied to all direct car trips. Arnott & Inci (2006) estimate 4-13 min urban;
+    # we use 8 min as a conservative urban default (adjustable per study context).
+    car_overhead_min: float = 8.0
 
     # Strategy-specific transfer tolerance
     max_transfers_very_short: int = 0
@@ -373,11 +378,14 @@ class IntermodalRouter:
             geometry=r.geometry,
         )
 
+        # Add real-world overhead for car: parking search + walk to/from vehicle.
+        # GraphHopper only models drive time; overhead is typically 4-13 min urban.
+        car_overhead_s = self.policy.car_overhead_min * 60 if mode == "car" else 0
         return IntermodalRoute(
             label=label,
             strategy=strategy,
             legs=[leg],
-            total_duration_s=r.duration_s,
+            total_duration_s=r.duration_s + car_overhead_s,
             total_distance_m=r.distance_m,
             transfers=0,
             geometry=r.geometry or r.points or {},
@@ -705,13 +713,24 @@ class IntermodalRouter:
 
     @staticmethod
     def _profile_limits(profile_type: str) -> dict[str, float]:
-        """Return walk/bike practical limits by profile."""
-        defaults = {"walk": 4.0, "bike": 12.0}
+        """
+        Hard backstop limits for walk/bike by agent profile type.
+
+        These are last-resort rejections only — they fire at distances where
+        the feasibility curves have already decayed to near-zero. The smooth
+        feasibility multiplier in personalised_router.py handles gradual
+        score penalties; these limits just catch the extreme edge cases.
+
+        Curve zero-crossings for reference:
+          walk  → feasibility < 0.01 beyond ~4.5 km
+          bike  → feasibility < 0.01 beyond ~6.5 km
+        """
+        defaults = {"walk": 4.5, "bike": 6.5}
         table = {
-            "biospheric": {"walk": 5.0, "bike": 15.0},
-            "altruistic": {"walk": 4.0, "bike": 12.0},
-            "egoistic": {"walk": 2.5, "bike": 10.0},
-            "hedonic": {"walk": 2.0, "bike": 8.0},
+            "biospheric": {"walk": 6.0, "bike": 8.0},   # physically active, tolerant
+            "altruistic": {"walk": 4.5, "bike": 6.5},
+            "egoistic":   {"walk": 3.0, "bike": 6.0},   # values speed/comfort
+            "hedonic":    {"walk": 2.5, "bike": 5.0},   # comfort-first, low exertion tolerance
         }
         return table.get(profile_type, defaults)
 

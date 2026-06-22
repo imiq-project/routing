@@ -28,6 +28,7 @@ from value_model import (
     speed_score_from_duration, cost_score_from_mode,
     comfort_score_from_transfers,
     walking_distance_penalty, cycling_distance_penalty,
+    mode_distance_feasibility,
 )
 from intermodal_router import IntermodalRouter, IntermodalRoute
 from graphhopper_client import GraphHopperClient
@@ -41,7 +42,7 @@ from graphhopper_client import GraphHopperClient
 class DimensionScore:
     """Score for one need dimension for one route."""
     dimension: str
-    agent_weight: float       # how much this agent cares (0–1)
+    agent_weight: float       # how much this agent cares (0-1)
     mode_attribute: float     # static mode prior (-1 to +1)
     metric_adjustment: float  # real-route adjustment (-1 to +1)
     blended_attribute: float  # blended final attribute (-1 to +1)
@@ -54,8 +55,9 @@ class ScoredRoute:
     route: IntermodalRoute
     mode_key: str
     mode_label: str
-    utility_score: float                    # 0–100 final normalised score
+    utility_score: float                    # 0-100 final normalised score
     raw_score: float                        # pre-normalisation dot product
+    feasibility_score: float                # 0-1 distance plausibility multiplier
     dimension_scores: list[DimensionScore]  # per-dimension breakdown
     rank: int = 0
     available: bool = True
@@ -106,47 +108,73 @@ class PersonalisedRouter:
         )
         candidate_routes = im_router.plan(from_lat, from_lon, to_lat, to_lon)
 
-        scored = []
-        for route in candidate_routes:
-            if not route.feasible:
-                continue
+        # Crow-flies distance for feasibility — not routed distance.
+        # Routed car distance in city one-way networks is often 3-5x the
+        # straight line, pushing car feasibility to ~1.0 for short trips
+        # while bike feasibility collapses to ~0 for the same origin/dest.
+        crow_km = self._haversine_km(from_lat, from_lon, to_lat, to_lon)
 
+        # Two buckets:
+        #   active — available + feasible routes, used to set the 0-100 score range
+        #   greyed — unavailable or infeasible routes, scored but ranked after active
+        # This restores the original UX (all modes shown, unavailable greyed out)
+        # while ensuring unavailable modes don't distort the ranking.
+        active = []
+        greyed = []
+
+        for route in candidate_routes:
             mode_key = self._strategy_to_mode_key(route.strategy)
             if mode_key not in MODE_ATTRIBUTES:
                 continue
 
-            is_feasible, reason = im_router.check_feasibility(route, agent)
-            if not is_feasible:
-                route.feasible          = False
-                route.infeasible_reason = reason
-                continue
-
-            scored_route          = self._score_route(agent, route, mode_key)
-            available_modes       = agent.available_modes()
-            scored_route.available = (
+            # Is this mode available to the agent?
+            available_modes = agent.available_modes()
+            is_available = (
                 agent.can_use(mode_key.split("_")[0])
                 or mode_key in available_modes
                 or mode_key == "foot"
             )
-            scored.append(scored_route)
 
-        if not scored:
+            # Is the route feasible for this distance / profile?
+            is_feasible = route.feasible
+            if is_available and is_feasible:
+                feas_ok, feas_reason = im_router.check_feasibility(route, agent)
+                if not feas_ok:
+                    is_feasible = False
+                    route.feasible = False
+                    route.infeasible_reason = feas_reason
+
+            # Score every route — greyed ones still show their score in the UI
+            scored_route = self._score_route(agent, route, mode_key, crow_km)
+            scored_route.available = is_available
+
+            if is_available and is_feasible:
+                active.append(scored_route)
+            else:
+                greyed.append(scored_route)
+
+        if not active and not greyed:
             return []
 
-        # Normalise raw scores to 0–100
-        raw_scores = [s.raw_score for s in scored]
+        # Normalise 0-100 using only active routes so greyed modes
+        # don't compress or inflate the ranking of available routes.
+        ref_pool   = active if active else greyed
+        raw_scores = [s.raw_score for s in ref_pool]
         min_raw    = min(raw_scores)
         max_raw    = max(raw_scores)
         span       = max_raw - min_raw if max_raw != min_raw else 1.0
 
-        for sr in scored:
+        for sr in active + greyed:
             sr.utility_score = round(((sr.raw_score - min_raw) / span) * 100, 1)
 
-        scored.sort(key=lambda s: s.utility_score, reverse=True)
-        for i, sr in enumerate(scored, 1):
+        # Sort each bucket independently; active routes always rank before greyed
+        active.sort(key=lambda s: s.utility_score, reverse=True)
+        greyed.sort(key=lambda s: s.utility_score, reverse=True)
+        all_routes = active + greyed
+        for i, sr in enumerate(all_routes, 1):
             sr.rank = i
 
-        return scored
+        return all_routes
 
     # ------------------------------------------------------------------
     #  Scoring
@@ -154,7 +182,8 @@ class PersonalisedRouter:
 
     def _score_route(self, agent: Agent,
                      route: IntermodalRoute,
-                     mode_key: str) -> ScoredRoute:
+                     mode_key: str,
+                     crow_km: float = 0.0) -> ScoredRoute:
 
         base_attrs     = MODE_ATTRIBUTES[mode_key]
         metric_adjusts = self._metric_adjustments(route, mode_key, agent)
@@ -189,15 +218,32 @@ class PersonalisedRouter:
             )
             raw_total += poi_boost
 
+        # ── Feasibility multiplier ────────────────────────────────────
+        # Smooth distance-based plausibility: a 6km bike trip scores
+        # 0.135, effectively sinking it below a 3km bike trip (1.0).
+        # Uses actual route distance and transfer count.
+        # Use crow-flies distance for feasibility (not routed distance).
+        # See route() for the rationale.
+        feasibility  = mode_distance_feasibility(
+            mode_key,
+            crow_km,
+            transfers=route.transfers,
+        )
+        # Apply as a multiplier on the raw score.
+        # Protect sign: a negative raw score (bad route) should stay negative
+        # and become less negative when feasibility is low — use abs multiply.
+        penalised_raw = raw_total * feasibility
+
         return ScoredRoute(
-            route            = route,
-            mode_key         = mode_key,
-            mode_label       = MODE_LABELS.get(mode_key, mode_key),
-            utility_score    = 0.0,
-            raw_score        = raw_total,
-            dimension_scores = dim_scores,
-            poi_boost        = poi_boost,
-            matched_pois     = matched_pois,
+            route             = route,
+            mode_key          = mode_key,
+            mode_label        = MODE_LABELS.get(mode_key, mode_key),
+            utility_score     = 0.0,
+            raw_score         = penalised_raw,
+            feasibility_score = round(feasibility, 4),
+            dimension_scores  = dim_scores,
+            poi_boost         = poi_boost,
+            matched_pois      = matched_pois,
         )
 
     def _metric_adjustments(self, route: IntermodalRoute,
@@ -274,11 +320,15 @@ class PersonalisedRouter:
         adj["safety_accident"] = max(-1.0, min(1.0, 1.0 - 2.0 * weighted_risk))
 
         # ── safety_crime ──────────────────────────────────────────────
-        # Car = safest (enclosed), walking outdoors = most exposed
+        # Car = safest (enclosed), pedestrians most exposed outdoors.
+        # Cyclists are distinguished from walkers: mobility reduces exposure.
+        frac_walk = walk_m / total_m
+        frac_bike = bike_m / total_m
         adj["safety_crime"] = max(-1.0, min(1.0,
-            frac_car    *  0.8 +
-            frac_pt     *  0.0 +
-            frac_active * -0.3
+            frac_car  *  0.8 +   # enclosed, very safe
+            frac_pt   *  0.0 +   # neutral (stations vary)
+            frac_bike *  0.1 +   # mobile, harder to target
+            frac_walk * -0.4     # outdoor and slow, most exposed
         ))
 
         # ── comfort ───────────────────────────────────────────────────
@@ -373,6 +423,20 @@ class PersonalisedRouter:
                 * math.cos(math.radians(lat2))
                 * math.sin(dlon / 2) ** 2)
         return R * 2 * math.asin(math.sqrt(a))
+
+    @staticmethod
+    def _haversine_km(lat1: float, lon1: float,
+                      lat2: float, lon2: float) -> float:
+        """Straight-line crow-flies distance in km."""
+        import math
+        R    = 6371.0
+        dlat = math.radians(lat2 - lat1)
+        dlon = math.radians(lon2 - lon1)
+        a    = (math.sin(dlat / 2) ** 2
+                + math.cos(math.radians(lat1))
+                * math.cos(math.radians(lat2))
+                * math.sin(dlon / 2) ** 2)
+        return R * 2 * math.asin(math.sqrt(max(0.0, a)))
 
     @staticmethod
     def _strategy_to_mode_key(strategy: str) -> str:
