@@ -6,9 +6,6 @@ services:
       dockerfile: Dockerfile.graphhopper
     container_name: simple-engine-graphhopper
     command: ["server", "/graphhopper/config/config.docker.yml"]
-    ports:
-      - "8989:8989"
-      - "8990:8990"
     volumes:
       - ./data:/data
       - ./graphhopper:/graphhopper/config
@@ -21,8 +18,6 @@ services:
     image: mysql:8.0
     container_name: simple-engine-mysql
     restart: unless-stopped
-    ports:
-      - "3306:3306"  
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-simple_engine}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-simple_engine_study}
@@ -42,8 +37,6 @@ services:
     container_name: simple-engine-routing-api
     depends_on:
       - graphhopper
-    ports:
-      - "8000:8000"
     environment:
       GRAPHOPPER_HOST: "http://graphhopper:8989"
     command: ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
@@ -56,8 +49,6 @@ services:
     container_name: simple-engine-interface-app
     depends_on:
       - graphhopper
-    ports:
-      - "5000:5000"
     environment:
       GRAPHOPPER_HOST: "http://graphhopper:8989"
     command: ["python", "app.py"]
@@ -73,8 +64,6 @@ services:
         condition: service_started
       mysql:
         condition: service_healthy
-    ports:
-      - "6001:6000"
     env_file: .env
     environment:
       GRAPHHOPPER_HOST: "http://graphhopper:8989"
