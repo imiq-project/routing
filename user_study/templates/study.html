@@ -45,18 +45,18 @@
         </p>
 
         <p>
-            In this survey, we are interested in your opinions on <strong>personalised multimodal route
+            In this study, we are interested in your opinions on <strong>personalised multimodal route
             recommendations</strong>. We would like to emphasise that there are no wrong answers — we
-            are only interested in your personal assessment. This survey is anonymous. Please answer
-            all questions. It will take about <strong>20-25 minutes</strong> to complete.
+            are only interested in your personal assessment. This study is anonymous. Please answer
+            all questions. It will take about <strong>20–25 minutes</strong> to complete.
             Thank you again for your support!
         </p>
 
         <div class="info-box">
             <strong>Contact person for the organisational unit executing the project</strong><br>
             Modou Lamin Manjang<br>
-            Universitätsplatz 2, Building 29-126, 39106 Magdeburg<br>
-            Phone: 0391 67-51291<br>
+            Universitätsplatz 2, Building 29, 39106 Magdeburg<br>
+            Phone: 03916751291<br>
             E-Mail: <a href="mailto:mmanjang@ovgu.de">mmanjang@ovgu.de</a>
         </div>
 
@@ -208,72 +208,84 @@
     <!-- STEP 3 — PROFILE SELECTION                  -->
     <!-- ══════════════════════════════════════════ -->
     <section class="card hidden" id="profile-section">
-        <h2>Your Mobility Value Profile</h2>
+        <h2>Your Travel Style</h2>
         <p class="step-label">Step 2 of 4 — Profile</p>
         <p>
-            Select the profile that best describes how you usually think about
-            getting from A to B. There is no right or wrong answer — choose
-            whichever feels most like you.
+            Read the four descriptions below and select the one that feels most
+            like <strong>you</strong> when planning a typical journey.
+            There are no right or wrong answers — we are interested in your
+            honest personal preference.
+        </p>
+        <p class="profile-note">
+            💡 Think about your everyday trips — commuting, shopping, visiting
+            friends — not an exceptional journey.
         </p>
 
         <div class="profile-grid">
 
-            <div class="profile-card" data-profile="biospheric">
-                <h3>🌱 Sustainable Traveller</h3>
-                <p>
-                    I prioritise low environmental impact. I am willing to accept a
-                    slower or less convenient journey if it means lower emissions.
-                </p>
-                <ul>
-                    <li>Walking, cycling, public transport preferred</li>
-                    <li>Sustainability over speed</li>
-                    <li>Physical activity is a bonus</li>
-                </ul>
+            <!-- Row 1 -->
+            <div class="profile-pill profile-pill-bio" data-profile="biospheric">
+                <div class="pill-avatar pill-avatar-bio">🌱</div>
+                <div class="pill-body">
+                    <h3>The Green Traveller</h3>
+                    <p class="profile-quote">"I am happy to take a slower route if it is better for the planet."</p>
+                    <ul>
+                        <li>Low emissions matter more than speed</li>
+                        <li>Walking and cycling feel like the right choice</li>
+                        <li>Physical activity during travel is welcome</li>
+                    </ul>
+                </div>
             </div>
 
-            <div class="profile-card" data-profile="altruistic">
-                <h3>🤝 Safety-Conscious Traveller</h3>
-                <p>
-                    Safety and reliability matter most to me. I prefer well-lit routes,
-                    predictable timetables, and modes that feel secure.
-                </p>
-                <ul>
-                    <li>Accident and crime safety are key</li>
-                    <li>Reliability and punctuality</li>
-                    <li>Shared transport is acceptable</li>
-                </ul>
+            <div class="profile-pill profile-pill-alt" data-profile="altruistic">
+                <div class="pill-avatar pill-avatar-alt">🛡️</div>
+                <div class="pill-body">
+                    <h3>The Safe &amp; Reliable Traveller</h3>
+                    <p class="profile-quote">"I want to arrive safely and on time, every time."</p>
+                    <ul>
+                        <li>Safety from accidents and crime comes first</li>
+                        <li>Punctuality and predictability are key</li>
+                        <li>Comfortable with PT if it is dependable</li>
+                    </ul>
+                </div>
             </div>
 
-            <div class="profile-card" data-profile="egoistic">
-                <h3>⚡ Efficiency-Oriented Traveller</h3>
-                <p>
-                    My time and autonomy are paramount. I want the fastest, most
-                    direct route with maximum flexibility and personal control.
-                </p>
-                <ul>
-                    <li>Speed and autonomy</li>
-                    <li>Minimal transfers and waiting</li>
-                    <li>Privacy and independence</li>
-                </ul>
+            <!-- Row 2 -->
+            <div class="profile-pill profile-pill-ego" data-profile="egoistic">
+                <div class="pill-avatar pill-avatar-ego">⚡</div>
+                <div class="pill-body">
+                    <h3>The Independent Traveller</h3>
+                    <p class="profile-quote">"I want to get there fast, on my own terms."</p>
+                    <ul>
+                        <li>Speed and directness are top priorities</li>
+                        <li>I prefer not to depend on fixed schedules</li>
+                        <li>Personal space and privacy matter to me</li>
+                    </ul>
+                </div>
             </div>
 
-            <div class="profile-card" data-profile="hedonic">
-                <h3>🛋️ Comfort-Oriented Traveller</h3>
-                <p>
-                    The quality of the journey matters. I want comfortable, low-stress
-                    travel and avoid unnecessary effort or crowding.
-                </p>
-                <ul>
-                    <li>Comfort and convenience</li>
-                    <li>Low physical effort</li>
-                    <li>Avoiding infection risk and crowds</li>
-                </ul>
+            <div class="profile-pill profile-pill-hed" data-profile="hedonic">
+                <div class="pill-avatar pill-avatar-hed">😌</div>
+                <div class="pill-body">
+                    <h3>The Relaxed Traveller</h3>
+                    <p class="profile-quote">"Comfort and ease come first — I want a stress-free journey."</p>
+                    <ul>
+                        <li>Comfort and convenience are non-negotiable</li>
+                        <li>I prefer not to walk long distances</li>
+                        <li>Avoiding crowded or stressful environments</li>
+                    </ul>
+                </div>
             </div>
 
         </div>
 
+        <div class="profile-selected-display hidden" id="profile-selected-display">
+            <span id="profile-selected-text"></span>
+            <button class="profile-change-btn" onclick="clearProfileSelection()">Change</button>
+        </div>
+
         <input type="hidden" id="selected-profile" />
-        <button id="save-profile-btn">Continue to Route Scenarios</button>
+        <button id="save-profile-btn" disabled>Select a profile above to continue</button>
     </section>
 
     <!-- ══════════════════════════════════════════ -->
@@ -469,6 +481,12 @@
         <h2>Final Feedback</h2>
         <p class="step-label">Step 4 of 4 — Overall impressions</p>
 
+        <!-- Profile reminder — populated by JS when this section is shown -->
+        <div id="profile-reminder" class="profile-reminder hidden">
+            <p class="profile-reminder-label">Your chosen profile was:</p>
+            <div id="profile-reminder-card" class="profile-reminder-card"></div>
+        </div>
+
         <div class="question-group">
             <label>How accurately did the profile you selected represent your real values? (1 = not at all, 5 = very accurately)</label>
             <div class="likert-row" data-target="value-profile-accuracy">
@@ -644,13 +662,40 @@ document.getElementById("save-demographics-btn").onclick = async () => {
 };
 
 // ── PROFILE SELECTION ─────────────────────────────────────────
-document.querySelectorAll(".profile-card").forEach(card => {
+const PROFILE_LABELS = {
+    biospheric: "🌱 The Green Traveller",
+    altruistic:  "🛡️ The Safe & Reliable Traveller",
+    egoistic:    "⚡ The Independent Traveller",
+    hedonic:     "😌 The Relaxed Traveller",
+};
+
+document.querySelectorAll(".profile-pill").forEach(card => {
     card.addEventListener("click", () => {
-        document.querySelectorAll(".profile-card").forEach(c => c.classList.remove("selected"));
+        document.querySelectorAll(".profile-pill").forEach(c => c.classList.remove("selected"));
         card.classList.add("selected");
-        document.getElementById("selected-profile").value = card.dataset.profile;
+        const profile = card.dataset.profile;
+        document.getElementById("selected-profile").value = profile;
+
+        // Show confirmation strip and enable button
+        const display = document.getElementById("profile-selected-display");
+        document.getElementById("profile-selected-text").textContent =
+            "Selected: " + PROFILE_LABELS[profile];
+        display.classList.remove("hidden");
+
+        const btn = document.getElementById("save-profile-btn");
+        btn.disabled = false;
+        btn.textContent = "Continue to Route Scenarios";
     });
 });
+
+function clearProfileSelection() {
+    document.querySelectorAll(".profile-pill").forEach(c => c.classList.remove("selected"));
+    document.getElementById("selected-profile").value = "";
+    document.getElementById("profile-selected-display").classList.add("hidden");
+    const btn = document.getElementById("save-profile-btn");
+    btn.disabled = true;
+    btn.textContent = "Select a profile above to continue";
+}
 
 document.getElementById("save-profile-btn").onclick = async () => {
     const profile = document.getElementById("selected-profile").value;
@@ -931,7 +976,69 @@ document.getElementById("save-needs-btn").onclick = async () => {
         body: JSON.stringify(needsPayload),
     });
     show("final-section");
+    showProfileReminder();
 };
+
+// ── PROFILE REMINDER ──────────────────────────────────────────
+const PROFILE_META = {
+    biospheric: {
+        emoji: "🌱",
+        label: "The Green Traveller",
+        bullets: [
+            "I prioritise low environmental impact",
+            "Sustainability over speed",
+            "Walking, cycling, and public transport preferred",
+        ]
+    },
+    altruistic: {
+        emoji: "🛡️",
+        label: "The Safe \& Reliable Traveller",
+        bullets: [
+            "Safety and reliability matter most",
+            "Predictable timetables and secure routes preferred",
+            "Shared transport is acceptable",
+        ]
+    },
+    egoistic: {
+        emoji: "⚡",
+        label: "The Independent Traveller",
+        bullets: [
+            "Speed and autonomy are paramount",
+            "Minimal transfers and waiting",
+            "Privacy and independence valued",
+        ]
+    },
+    hedonic: {
+        emoji: "🛋️",
+        label: "The Relaxed Traveller",
+        bullets: [
+            "Comfort and convenience are key",
+            "Low physical effort preferred",
+            "Avoiding crowds and infection risk",
+        ]
+    },
+};
+
+async function showProfileReminder() {
+    // Fetch the stored profile from the server session
+    const res  = await fetch("/api/participant", { credentials: "same-origin" });
+    const data = await res.json();
+    const profile = data.selected_profile;
+    if (!profile || !PROFILE_META[profile]) return;
+
+    const meta = PROFILE_META[profile];
+    const card = document.getElementById("profile-reminder-card");
+    card.innerHTML = `
+        <div class="profile-reminder-emoji">${meta.emoji}</div>
+        <div class="profile-reminder-content">
+            <strong>${meta.label}</strong>
+            <ul>
+                ${meta.bullets.map(b => `<li>${b}</li>`).join("")}
+            </ul>
+        </div>`;
+
+    document.getElementById("profile-reminder").classList.remove("hidden");
+}
 
 // ── FINAL FEEDBACK → SUBMIT ───────────────────────────────────
 document.getElementById("submit-study-btn").onclick = async () => {
