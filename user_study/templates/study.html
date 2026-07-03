@@ -113,29 +113,42 @@
     </section>
 
     <!-- ══════════════════════════════════════════ -->
-    <!-- STEP 2 — DEMOGRAPHICS                       -->
+    <!-- ══════════════════════════════════════════ -->
+    <!-- STEP 2a — DEMOGRAPHICS: BIOGRAPHY           -->
     <!-- ══════════════════════════════════════════ -->
     <section class="card hidden" id="demographics-section">
-        <h2>Background Information</h2>
-        <p class="step-label">Step 1 of 4 — About you</p>
-        <p>Please answer the following questions about yourself and your typical mobility behaviour.</p>
+        <h2>About You</h2>
+        <p class="step-label">Step 1a of 4 — Personal background</p>
+        <p>Please answer the following questions about yourself.
+           All responses are anonymous and used solely for research purposes.</p>
 
         <div class="question-group">
-            <label>Age group</label>
-            <select id="age-group">
-                <option value="">— select —</option>
-                <option>18–24</option><option>25–34</option>
-                <option>35–44</option><option>45–54</option>
-                <option>55–64</option><option>65+</option>
-            </select>
+            <label>Age <span class="field-hint">(please enter your age in years)</span></label>
+            <input type="number" id="age-input" min="16" max="100"
+                   placeholder="e.g. 34" style="width:120px;" />
         </div>
 
         <div class="question-group">
             <label>Gender</label>
             <select id="gender">
                 <option value="">— select —</option>
-                <option>Female</option><option>Male</option>
+                <option>Female</option>
+                <option>Male</option>
                 <option>Non-binary / third gender</option>
+                <option>Prefer not to say</option>
+            </select>
+        </div>
+
+        <div class="question-group">
+            <label>Highest level of education completed</label>
+            <select id="education">
+                <option value="">— select —</option>
+                <option>No formal qualification</option>
+                <option>Secondary school (Hauptschule / Realschule)</option>
+                <option>Abitur / A-levels</option>
+                <option>Vocational / apprenticeship (Ausbildung)</option>
+                <option>Bachelor's degree</option>
+                <option>Master's degree or higher</option>
                 <option>Prefer not to say</option>
             </select>
         </div>
@@ -144,17 +157,54 @@
             <label>Occupation</label>
             <select id="occupation">
                 <option value="">— select —</option>
-                <option>Student</option><option>Employed full-time</option>
-                <option>Employed part-time</option><option>Self-employed</option>
-                <option>Retired</option><option>Unemployed</option>
+                <option>Student</option>
+                <option>Employed full-time</option>
+                <option>Employed part-time</option>
+                <option>Self-employed</option>
+                <option>Retired</option>
+                <option>Unemployed / seeking work</option>
                 <option>Prefer not to say</option>
             </select>
         </div>
 
         <div class="question-group">
-            <label>City / region where you usually travel</label>
+            <label>City or district where you usually travel</label>
             <input type="text" id="city-of-residence" placeholder="e.g. Magdeburg" />
         </div>
+
+        <!-- Exclusion criteria -->
+        <div class="question-group exclusion-group">
+            <label>
+                Do you have any physical impairment or disability that significantly
+                affects your ability to walk, cycle, or use public transport?
+            </label>
+            <select id="exclusion-disability">
+                <option value="">— select —</option>
+                <option value="0">No</option>
+                <option value="1">Yes — walking is affected</option>
+                <option value="2">Yes — cycling is affected</option>
+                <option value="3">Yes — using public transport is affected</option>
+                <option value="4">Yes — multiple modes are affected</option>
+                <option value="9">Prefer not to say</option>
+            </select>
+            <p class="exclusion-note">
+                ℹ️ This question helps us understand whether our route options
+                are appropriate for your situation. It does not exclude you from
+                participating.
+            </p>
+        </div>
+
+        <button id="save-demographics-btn">Continue — Mobility Habits</button>
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- STEP 2b — DEMOGRAPHICS: MOBILITY HABITS    -->
+    <!-- ══════════════════════════════════════════ -->
+    <section class="card hidden" id="mobility-section">
+        <h2>Your Mobility Habits</h2>
+        <p class="step-label">Step 1b of 4 — How you typically travel</p>
+        <p>These questions help us understand your everyday travel context.
+           There are no right or wrong answers.</p>
 
         <div class="question-group">
             <label>How often do you use public transport?</label>
@@ -180,7 +230,8 @@
             <label>Do you own or have regular access to a car?</label>
             <select id="owns-car">
                 <option value="">— select —</option>
-                <option value="1">Yes</option><option value="0">No</option>
+                <option value="1">Yes</option>
+                <option value="0">No</option>
             </select>
         </div>
 
@@ -188,7 +239,8 @@
             <label>Do you own or have regular access to a bicycle?</label>
             <select id="owns-bike">
                 <option value="">— select —</option>
-                <option value="1">Yes</option><option value="0">No</option>
+                <option value="1">Yes</option>
+                <option value="0">No</option>
             </select>
         </div>
 
@@ -201,7 +253,7 @@
             </div>
         </div>
 
-        <button id="save-demographics-btn">Continue to Profile Selection</button>
+        <button id="save-mobility-btn">Continue to Profile Selection</button>
     </section>
 
     <!-- ══════════════════════════════════════════ -->
@@ -245,7 +297,7 @@
                     <ul>
                         <li>Safety from accidents and crime comes first</li>
                         <li>Punctuality and predictability are key</li>
-                        <li>Comfortable with PT if it is dependable</li>
+                        <li>Comfortable with Public Trnasport if it is dependable</li>
                     </ul>
                 </div>
             </div>
@@ -317,8 +369,6 @@
             system. Both sets are generated for the same journey — the labels
             are intentionally generic so you can judge the routes on their merits.
             <br><br>
-            For <strong>Set A</strong>, review the engine's ranking and select your preferred route. For <strong>Set B</strong>, drag the routes into the order you prefer and choose your top route.
-            <br><br>
             <strong>⏱ Note on driving times:</strong> Travel times shown for car routes
             include an estimated <strong>8 minutes</strong> for parking search and the walk
             to your destination. This overhead is not shown by standard navigation apps
@@ -337,7 +387,8 @@
             <!-- SET A (personalised, blinded) — fixed engine ranking, no drag -->
             <div id="route-set-a" class="route-set-panel set-a-panel">
                 <h3 class="set-label set-a-label">Route Set A</h3>
-                <p class="set-desc">Routes ranked by the engine. Select your preferred route below.</p>
+                <p class="set-desc">This is a ranked set of routes from the 
+                    highest-rated to the lowest-rated based on the profile you selected.</p>
                 <ul id="routes-list-a" class="routes-list"></ul>
                 <div class="question-group">
                     <label>Which route from Set A would you choose?</label>
@@ -356,7 +407,10 @@
             <!-- SET B (baseline, blinded) -->
             <div id="route-set-b" class="route-set-panel set-b-panel">
                 <h3 class="set-label set-b-label">Route Set B</h3>
-                <p class="set-desc">Drag to reorder by preference.</p>
+                <p class="set-desc">This is a set of routes generated by the
+                     standard routing system ranked by travel time and distance. 
+                     Drag and drop the routes to reorder them according to your 
+                     preference, then select your top choice.</p>
                 <ul id="routes-list-b" class="routes-list sortable"></ul>
                 <div class="question-group">
                     <label>Which route from Set B would you choose?</label>
@@ -636,13 +690,29 @@ document.getElementById("start-btn").onclick = () => {
     show("demographics-section");
 };
 
-// ── DEMOGRAPHICS → PROFILE ────────────────────────────────────
-document.getElementById("save-demographics-btn").onclick = async () => {
+// ── PART A: BIOGRAPHY → MOBILITY ──────────────────────────────
+document.getElementById("save-demographics-btn").onclick = () => {
+    // Basic validation — age must be a plausible number
+    const ageVal = document.getElementById("age-input").value;
+    if (!ageVal || parseInt(ageVal) < 16 || parseInt(ageVal) > 100) {
+        alert("Please enter a valid age (16–100).");
+        return;
+    }
+    show("mobility-section");
+};
+
+// ── PART B: MOBILITY → PROFILE ─────────────────────────────────
+document.getElementById("save-mobility-btn").onclick = async () => {
+    const ageVal = document.getElementById("age-input").value;
     const payload = {
-        age_group:             document.getElementById("age-group").value || null,
+        // Biography (Part A)
+        age_group:             ageVal ? String(parseInt(ageVal)) : null,
         gender:                document.getElementById("gender").value || null,
         occupation:            document.getElementById("occupation").value || null,
         city_of_residence:     document.getElementById("city-of-residence").value || null,
+        education:             document.getElementById("education").value || null,
+        exclusion_disability:  document.getElementById("exclusion-disability").value || null,
+        // Mobility habits (Part B)
         mobility_frequency:    document.getElementById("mobility-frequency").value || null,
         has_driving_license:   document.getElementById("driving-license").value
                                ? parseInt(document.getElementById("driving-license").value) : null,
