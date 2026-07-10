@@ -1,235 +1,275 @@
--- study_schema.sql
--- Simple Engine Phase 1 — Value-Based Routing Study
--- Phase 1 tests the 11-dimension value model against a GraphHopper baseline.
--- Schema is versioned (schema_version table) so future phases can migrate cleanly.
+-- study_schema_mysql.sql
+-- Simple Engine Phase 1 — MySQL 8.0+ schema (version 2)
+-- Updated to match Modou_Survey_final.html data collection.
+--
+-- Changes from v1:
+--   participants  : +education, +commute_*, +exclusion_*, +profile_rating_*,
+--                   +profile_selection_confidence, mobility_frequency now TINYINT (Likert)
+--   scenario_responses : +ranking_acceptance_score_b, +participant_selected_route_b,
+--                        +follow_top_route_a
+--   final_feedback     : +overall_intermodal_use
+--
+-- Usage:
+--   mysql -u root -p -e "DROP DATABASE IF EXISTS simple_engine_study; \
+--                         CREATE DATABASE simple_engine_study CHARACTER SET utf8mb4 \
+--                         COLLATE utf8mb4_unicode_ci;"
+--   mysql -u root -p simple_engine_study < study_schema_mysql.sql
 
-PRAGMA foreign_keys = ON;
+SET FOREIGN_KEY_CHECKS = 0;
+SET NAMES utf8mb4;
 
 -- ─────────────────────────────────────────────
---  Schema version (for future migrations)
+--  Schema version
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS schema_version (
-    version     INTEGER PRIMARY KEY,
-    description TEXT,
-    applied_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-INSERT OR IGNORE INTO schema_version (version, description) VALUES (1, 'Phase 1 — value model baseline study');
+    version      INT          PRIMARY KEY,
+    description  VARCHAR(255),
+    applied_at   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT IGNORE INTO schema_version (version, description)
+VALUES (2, 'Phase 1 v2 — profile ratings, Set B acceptance, disability detail');
 
 -- ─────────────────────────────────────────────
 --  Participants
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS participants (
-    id                    INTEGER PRIMARY KEY AUTOINCREMENT,
-    participant_code      TEXT UNIQUE NOT NULL,
-    created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id                    INT           NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    participant_code      VARCHAR(64)   NOT NULL UNIQUE,
+    created_at            TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    -- Study phase (allows reuse of schema across phases)
-    study_phase           INTEGER NOT NULL DEFAULT 1,
+    study_phase           INT           NOT NULL DEFAULT 1,
+    selected_profile      VARCHAR(32)   NULL,   -- biospheric | altruistic | egoistic | hedonic
 
-    -- Profile selection (archetype chosen by participant)
-    selected_profile      TEXT,               -- biospheric | altruistic | egoistic | hedonic
+    -- ── Demographics (Part A) ─────────────────
+    age_group             VARCHAR(16)   NULL,   -- raw age stored as string e.g. "34"
+    gender                VARCHAR(64)   NULL,
+    education             VARCHAR(32)   NULL,   -- no_formal|secondary|abitur|vocational|bachelor|master|phd
+    occupation            VARCHAR(64)   NULL,
 
-    -- Demographics
-    age_group             TEXT,               -- e.g. '18-24', '25-34', ...
-    gender                TEXT,
-    occupation            TEXT,
-    city_of_residence     TEXT,
+    -- Commute geography
+    commute_different_city  VARCHAR(8)  NULL,   -- yes | no
+    commute_city            VARCHAR(64) NULL,   -- halle_saale | berlin | other_city etc
+    commute_district        VARCHAR(64) NULL,   -- altstadt | sudenburg etc (Magdeburg districts)
 
-    -- Mobility background
-    mobility_frequency    TEXT,               -- daily | several_week | weekly | rarely
-    has_driving_license   INTEGER,            -- 0/1
-    owns_car              INTEGER,            -- 0/1
-    owns_bike             INTEGER,            -- 0/1
-    uses_public_transport INTEGER,            -- 0/1
-    cycling_comfort       INTEGER,            -- 1-5: how comfortable cycling in traffic
+    -- Accessibility / exclusion criteria
+    exclusion_disability_yesno  TINYINT NULL,   -- 0=no 1=yes 9=prefer not to say
+    exclusion_disability_modes  JSON    NULL,   -- ["walking","cycling"] etc
 
-    consent_given         INTEGER NOT NULL DEFAULT 0,
+    -- ── Mobility habits (Part B) ──────────────
+    mobility_frequency    TINYINT       NULL,   -- 1-5 Likert (1=never, 5=daily)
+    has_driving_license   TINYINT(1)    NULL,
+    owns_car              TINYINT(1)    NULL,
+    owns_bike             TINYINT(1)    NULL,
+    uses_public_transport TINYINT(1)    NULL,
+    cycling_comfort       TINYINT       NULL,   -- 1-5 Likert
+
+    -- ── Profile selection ─────────────────────
+    -- Per-card soft ratings: "How much does this profile describe you?" 1-5
+    profile_rating_biospheric    TINYINT NULL,
+    profile_rating_altruistic    TINYINT NULL,
+    profile_rating_egoistic      TINYINT NULL,
+    profile_rating_hedonic       TINYINT NULL,
+    -- Overall confidence in the chosen profile
+    profile_selection_confidence TINYINT NULL,  -- 1-5 Likert
+
+    consent_given         TINYINT(1)    NOT NULL DEFAULT 0,
 
     -- Post-scenario needs importance ratings (JSON, collected once after all scenarios)
-    needs_importance      TEXT
-);
+    needs_importance      JSON          NULL
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ─────────────────────────────────────────────
---  Scenarios (travel tasks)
+--  Scenarios
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS scenarios (
-    id              INTEGER PRIMARY KEY AUTOINCREMENT,
-    scenario_code   TEXT UNIQUE NOT NULL,
-    title           TEXT NOT NULL,
-    origin          TEXT NOT NULL,
-    destination     TEXT NOT NULL,
-    origin_lat      REAL,
-    origin_lon      REAL,
-    destination_lat REAL,
-    destination_lon REAL,
-    distance_band   TEXT,   -- short | medium | long  (for stratified analysis)
-    context         TEXT NOT NULL,
-    purpose         TEXT NOT NULL,
-    day_type        TEXT,
-    weather         TEXT
-);
+    id              INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    scenario_code   VARCHAR(16)  NOT NULL UNIQUE,
+    title           VARCHAR(128) NOT NULL,
+    origin          VARCHAR(255) NOT NULL,
+    destination     VARCHAR(255) NOT NULL,
+    origin_lat      DOUBLE       NULL,
+    origin_lon      DOUBLE       NULL,
+    destination_lat DOUBLE       NULL,
+    destination_lon DOUBLE       NULL,
+    distance_band   VARCHAR(16)  NULL,    -- short | medium | long
+    context         TEXT         NOT NULL,
+    purpose         VARCHAR(64)  NOT NULL,
+    day_type        VARCHAR(64)  NULL,
+    weather         VARCHAR(32)  NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ─────────────────────────────────────────────
---  Engine rankings (one row per route per condition per participant)
---  condition: 'personalised' = value model active
---             'baseline'     = GraphHopper fastest (uniform weights)
+--  Engine rankings
+--  One row per route per condition per scenario per participant.
+--  route_condition: 'personalised' (Set A) | 'baseline' (Set B)
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS engine_rankings (
-    id                     INTEGER PRIMARY KEY AUTOINCREMENT,
-    participant_id         INTEGER NOT NULL,
-    selected_profile       TEXT,
-    scenario_id            INTEGER NOT NULL,
-    condition              TEXT NOT NULL DEFAULT 'personalised', -- personalised | baseline
+    id                     INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    participant_id         INT          NOT NULL,
+    selected_profile       VARCHAR(32)  NULL,
+    scenario_id            INT          NOT NULL,
+    route_condition        VARCHAR(16)  NOT NULL DEFAULT 'personalised',
 
-    route_rank             INTEGER NOT NULL,
-    route_id               TEXT NOT NULL,
-    route_summary          TEXT,
+    route_rank             INT          NOT NULL,
+    route_id               VARCHAR(128) NOT NULL,
+    route_summary          VARCHAR(255) NULL,
 
-    transport_modes        TEXT,      -- e.g. "walk,tram,bike"
-    is_intermodal          INTEGER DEFAULT 0,
-    intermodal_type        TEXT,      -- e.g. "bike+pt"
+    transport_modes        VARCHAR(128) NULL,
+    is_intermodal          TINYINT(1)   NOT NULL DEFAULT 0,
+    intermodal_type        VARCHAR(64)  NULL,
 
-    total_duration_minutes REAL,
-    walking_minutes        REAL,
-    cycling_minutes        REAL,
-    pt_minutes             REAL,
-    driving_minutes        REAL,
-    transfer_count         INTEGER,
+    total_duration_minutes DOUBLE       NULL,
+    walking_minutes        DOUBLE       NULL,
+    cycling_minutes        DOUBLE       NULL,
+    pt_minutes             DOUBLE       NULL,
+    driving_minutes        DOUBLE       NULL,
+    transfer_count         INT          NULL,
 
-    -- Engine scores: one column per value dimension (aligns with VALUE_DIMENSIONS)
-    score_pro_env          REAL,
-    score_physical         REAL,
-    score_privacy          REAL,
-    score_autonomy         REAL,
-    score_cost             REAL,
-    score_speed            REAL,
-    score_safety_accident  REAL,
-    score_safety_crime     REAL,
-    score_comfort          REAL,
-    score_reliable         REAL,
-    score_health_infection REAL,
+    -- Engine scores per value dimension (personalised condition only; NULL for baseline)
+    score_pro_env          DOUBLE       NULL,
+    score_physical         DOUBLE       NULL,
+    score_privacy          DOUBLE       NULL,
+    score_autonomy         DOUBLE       NULL,
+    score_cost             DOUBLE       NULL,
+    score_speed            DOUBLE       NULL,
+    score_safety_accident  DOUBLE       NULL,
+    score_safety_crime     DOUBLE       NULL,
+    score_comfort          DOUBLE       NULL,
+    score_reliable         DOUBLE       NULL,
+    score_health_infection DOUBLE       NULL,
 
-    engine_total_score     REAL,
-    raw_route_json         TEXT,      -- full route object for reanalysis
+    engine_total_score     DOUBLE       NULL,
+    raw_route_json         JSON         NULL,
 
     FOREIGN KEY (participant_id) REFERENCES participants(id),
-    FOREIGN KEY (scenario_id)   REFERENCES scenarios(id)
-);
+    FOREIGN KEY (scenario_id)   REFERENCES scenarios(id),
+    INDEX idx_er_participant (participant_id),
+    INDEX idx_er_scenario    (scenario_id),
+    INDEX idx_er_condition   (route_condition)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ─────────────────────────────────────────────
---  Scenario responses (one per participant per scenario)
+--  Scenario responses
+--  One row per participant per scenario.
+--  Stores both Set A and Set B responses together so
+--  the A-vs-B comparison is a single-row operation.
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS scenario_responses (
-    id                              INTEGER PRIMARY KEY AUTOINCREMENT,
-    participant_id                  INTEGER NOT NULL,
-    scenario_id                     INTEGER NOT NULL,
+    id                              INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    participant_id                  INT          NOT NULL,
+    scenario_id                     INT          NOT NULL,
 
-    -- Which route did the engine top-rank (personalised condition)?
-    engine_top_route_id             TEXT,
-    -- Which route did the participant ultimately choose?
-    participant_selected_route_id   TEXT,
-    -- Did participant pick the engine's top recommendation?
-    accepted_engine_top_choice      INTEGER,  -- 0/1
+    -- ── Set A (personalised) ──────────────────
+    engine_top_route_id             VARCHAR(128) NULL,   -- top-ranked route from engine
+    participant_selected_route_id   VARCHAR(128) NULL,   -- which route participant chose from Set A
+    accepted_engine_top_choice      TINYINT(1)   NULL,   -- 1 if chosen == engine top
+    follow_top_route_a              VARCHAR(8)   NULL,   -- yes | maybe | no
+    ranking_acceptance_score        TINYINT      NULL,   -- 1-5: how well Set A ranking matched preference
 
-    -- Overall ranking acceptance (1–5 Likert)
-    ranking_acceptance_score        INTEGER,
+    -- ── Set B (baseline) ─────────────────────
+    participant_selected_route_b    VARCHAR(128) NULL,   -- which route participant chose from Set B
+    ranking_acceptance_score_b      TINYINT      NULL,   -- 1-5: how well Set B ranking matched preference
 
-    -- Participant's re-ordering of the personalised routes (JSON array of route_ids)
-    participant_ranking_json        TEXT,
-    -- Engine's original ranking (JSON array of route_ids)
-    engine_ranking_json             TEXT,
+    -- ── Ranking comparison ────────────────────
+    -- Computed server-side: acceptance_A - acceptance_B
+    -- Positive = engine better than baseline for this participant/scenario
+    ranking_acceptance_delta        TINYINT      NULL,
 
-    -- Kendall tau between engine ranking and participant ranking (-1 to +1)
+    -- Participant's re-ordering of Set A routes (JSON array of route_ids)
+    participant_ranking_json        JSON         NULL,
+    engine_ranking_json             JSON         NULL,
+
+    -- Kendall tau between engine ranking and participant chosen route preference
     -- Computed server-side and stored for fast analysis
-    kendall_tau                     REAL,
+    kendall_tau                     DOUBLE       NULL,
 
-    -- Open text
-    explanation                     TEXT,
-    created_at                      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    explanation                     TEXT         NULL,
+    created_at                      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (participant_id) REFERENCES participants(id),
-    FOREIGN KEY (scenario_id)   REFERENCES scenarios(id)
-);
+    FOREIGN KEY (scenario_id)   REFERENCES scenarios(id),
+    INDEX idx_sr_participant (participant_id),
+    INDEX idx_sr_scenario    (scenario_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ─────────────────────────────────────────────
---  Route ratings  (one row per route shown to participant)
---  Perceived dimensions mapped 1:1 to VALUE_DIMENSIONS.
---  All perceived_* items: 1–5 Likert (1=strongly disagree, 5=strongly agree)
+--  Route ratings
+--  One row per route shown (both conditions).
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS route_ratings (
-    id                          INTEGER PRIMARY KEY AUTOINCREMENT,
-    scenario_response_id        INTEGER NOT NULL,
-    condition                   TEXT NOT NULL,  -- personalised | baseline
-    route_id                    TEXT NOT NULL,
+    id                           INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    scenario_response_id         INT          NOT NULL,
+    route_condition              VARCHAR(16)  NOT NULL,   -- personalised | baseline
+    route_id                     VARCHAR(128) NOT NULL,
 
-    -- Overall
-    participant_rating          INTEGER,  -- 1–5 star satisfaction
-    would_use_route             INTEGER,  -- 0/1
+    participant_rating           TINYINT      NULL,   -- overall satisfaction 1-5
+    would_use_route              TINYINT(1)   NULL,
 
-    -- Per-dimension perceived scores (1–5, matching VALUE_DIMENSIONS order)
-    -- These are used to compute Spearman ρ(engine_score_dim, perceived_dim)
-    perceived_pro_env           INTEGER,
-    perceived_physical          INTEGER,
-    perceived_privacy           INTEGER,
-    perceived_autonomy          INTEGER,
-    perceived_cost              INTEGER,
-    perceived_speed             INTEGER,
-    perceived_safety_accident   INTEGER,
-    perceived_safety_crime      INTEGER,
-    perceived_comfort           INTEGER,
-    perceived_reliable          INTEGER,
-    perceived_health_infection  INTEGER,
+    perceived_pro_env            TINYINT      NULL,
+    perceived_physical           TINYINT      NULL,
+    perceived_privacy            TINYINT      NULL,
+    perceived_autonomy           TINYINT      NULL,
+    perceived_cost               TINYINT      NULL,
+    perceived_speed              TINYINT      NULL,
+    perceived_safety_accident    TINYINT      NULL,
+    perceived_safety_crime       TINYINT      NULL,
+    perceived_comfort            TINYINT      NULL,
+    perceived_reliable           TINYINT      NULL,
+    perceived_health_infection   TINYINT      NULL,
+    perceived_intermodal_quality TINYINT      NULL,
 
-    -- Intermodal-specific
-    perceived_intermodal_quality INTEGER,  -- 1–5, only for intermodal routes
+    route_comment                TEXT         NULL,
 
-    route_comment               TEXT,
-
-    FOREIGN KEY (scenario_response_id) REFERENCES scenario_responses(id)
-);
+    FOREIGN KEY (scenario_response_id) REFERENCES scenario_responses(id),
+    INDEX idx_rr_response (scenario_response_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ─────────────────────────────────────────────
---  Intermodal feedback (per scenario, not per route)
+--  Intermodal feedback (per scenario)
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS intermodal_feedback (
-    id                          INTEGER PRIMARY KEY AUTOINCREMENT,
-    scenario_response_id        INTEGER NOT NULL,
+    id                          INT         NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    scenario_response_id        INT         NOT NULL,
 
-    noticed_intermodal_option   INTEGER,   -- 0/1: did participant notice it?
-    understood_intermodal_logic INTEGER,   -- 1–5
-    intermodal_acceptance_score INTEGER,   -- 1–5
-    intermodal_preference       TEXT,      -- prefer | neutral | avoid
-    intermodal_comment          TEXT,
+    noticed_intermodal_option   TINYINT     NULL,   -- 0=no 1=yes 2=not sure
+    understood_intermodal_logic TINYINT     NULL,   -- 1-5 Likert
+    intermodal_acceptance_score TINYINT     NULL,   -- 1-5 Likert
+    intermodal_preference       VARCHAR(16) NULL,   -- prefer | neutral | avoid
+    intermodal_comment          TEXT        NULL,
 
     FOREIGN KEY (scenario_response_id) REFERENCES scenario_responses(id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ─────────────────────────────────────────────
---  Final feedback (one per participant)
+--  Final feedback (one row per participant)
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS final_feedback (
-    id                          INTEGER PRIMARY KEY AUTOINCREMENT,
-    participant_id              INTEGER NOT NULL,
+    id                          INT        NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    participant_id              INT        NOT NULL,
 
-    -- Profile validity check
-    value_profile_accuracy      INTEGER,   -- 1–5: "The selected profile accurately represents my values"
-    profile_confidence          INTEGER,   -- 1–5: "I was confident choosing my profile"
+    -- Profile validity
+    value_profile_accuracy      TINYINT    NULL,   -- 1-5: profile represented my values
+    profile_confidence          TINYINT    NULL,   -- 1-5: confident choosing profile
 
     -- System evaluation
-    system_usefulness           INTEGER,   -- 1–5 TAM
-    trust_in_ranking            INTEGER,   -- 1–5
-    comparison_with_google_maps INTEGER,   -- 1–5: much worse → much better
-    willingness_to_use          INTEGER,   -- 1–5
-
-    -- Phase 1 specific: did personalisation make a difference?
-    noticed_personalisation     INTEGER,   -- 0/1: "I noticed the routes were adapted to my values"
-    personalisation_quality     INTEGER,   -- 1–5: "The personalised routes matched my values well"
+    personalisation_quality     TINYINT    NULL,   -- 1-5: Set A matched my values well
+    willingness_to_use          TINYINT    NULL,   -- 1-5: would use in daily life
+    trust_in_ranking            TINYINT    NULL,   -- 1-5: trust the route rankings
+    overall_intermodal_use      TINYINT    NULL,   -- 1-5: would consider intermodal routes overall
+    comparison_with_google_maps TINYINT    NULL,   -- 1-5: much worse → much better vs standard nav
+    noticed_personalisation     TINYINT(1) NULL,   -- 0/1: noticed routes adapted to profile
 
     -- Open text
-    best_feature                TEXT,
-    worst_feature               TEXT,
-    improvement_suggestion      TEXT,
+    best_feature                TEXT       NULL,
+    worst_feature               TEXT       NULL,
+    improvement_suggestion      TEXT       NULL,
 
-    created_at                  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (participant_id) REFERENCES participants(id)
-);
+    created_at                  TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (participant_id) REFERENCES participants(id),
+    INDEX idx_ff_participant (participant_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+SET FOREIGN_KEY_CHECKS = 1;

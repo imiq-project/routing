@@ -426,9 +426,19 @@ def new_participant():
 
 @app.route("/api/participant", methods=["GET"])
 def get_participant():
+    pid = session.get("participant_id")
+    selected_profile = None
+    if pid:
+        with get_connection() as conn:
+            row = conn.execute(
+                "SELECT selected_profile FROM participants WHERE id=?", (pid,)
+            ).fetchone()
+        if row:
+            selected_profile = row["selected_profile"]
     return jsonify({
-        "participant_id":   session.get("participant_id"),
+        "participant_id":   pid,
         "participant_code": session.get("participant_code"),
+        "selected_profile": selected_profile,
     })
 
 # ─────────────────────────────────────────────
@@ -439,19 +449,40 @@ def get_participant():
 def save_demographics():
     pid  = get_or_create_participant_id()
     data = request.json or {}
+
+    # exclusion_disability_modes arrives as a list from the checkbox grid
+    disability_modes = data.get("exclusion_disability_modes")
+    disability_modes_json = (
+        json.dumps(disability_modes) if isinstance(disability_modes, list) else None
+    )
+
     with get_connection() as conn:
         conn.execute(
             """UPDATE participants SET
-                age_group=?, gender=?, occupation=?, city_of_residence=?,
+                -- Biography (Part A)
+                age_group=?, gender=?, education=?, occupation=?,
+                commute_different_city=?, commute_city=?, commute_district=?,
+                exclusion_disability_yesno=?, exclusion_disability_modes=?,
+                -- Mobility habits (Part B)
                 mobility_frequency=?, has_driving_license=?,
                 owns_car=?, owns_bike=?, uses_public_transport=?, cycling_comfort=?
                WHERE id=?""",
             (
-                data.get("age_group"),          data.get("gender"),
-                data.get("occupation"),         data.get("city_of_residence"),
-                data.get("mobility_frequency"), data.get("has_driving_license"),
-                data.get("owns_car"),           data.get("owns_bike"),
-                data.get("uses_public_transport"), data.get("cycling_comfort"),
+                data.get("age_group"),
+                data.get("gender"),
+                data.get("education"),
+                data.get("occupation"),
+                data.get("commute_different_city"),
+                data.get("commute_city"),
+                data.get("commute_district"),
+                data.get("exclusion_disability_yesno"),
+                disability_modes_json,
+                data.get("mobility_frequency"),
+                data.get("has_driving_license"),
+                data.get("owns_car"),
+                data.get("owns_bike"),
+                data.get("uses_public_transport"),
+                data.get("cycling_comfort"),
                 pid,
             ),
         )
@@ -469,9 +500,29 @@ def save_profile():
     profile = data.get("selected_profile")
     if profile not in AGENT_FILES:
         return jsonify({"status": "error", "message": "Invalid profile."}), 400
+
+    # profile_fit_ratings: {"biospheric": 4, "altruistic": 2, ...}
+    fit = data.get("profile_fit_ratings", {})
+
     with get_connection() as conn:
         conn.execute(
-            "UPDATE participants SET selected_profile=? WHERE id=?", (profile, pid)
+            """UPDATE participants SET
+                selected_profile=?,
+                profile_rating_biospheric=?,
+                profile_rating_altruistic=?,
+                profile_rating_egoistic=?,
+                profile_rating_hedonic=?,
+                profile_selection_confidence=?
+               WHERE id=?""",
+            (
+                profile,
+                fit.get("biospheric"),
+                fit.get("altruistic"),
+                fit.get("egoistic"),
+                fit.get("hedonic"),
+                data.get("profile_selection_confidence"),
+                pid,
+            ),
         )
         conn.commit()
     return jsonify({"status": "success", "selected_profile": profile})
@@ -531,19 +582,34 @@ def save_scenario_response():
     accepted            = 1 if participant_top == engine_top else 0
     tau                 = kendall_tau(engine_ranking, participant_ranking)
 
+    # Set B fields
+    acceptance_a        = data.get("ranking_acceptance_score")
+    acceptance_b        = data.get("ranking_acceptance_score_b")
+    acceptance_delta    = (
+        (acceptance_a - acceptance_b)
+        if acceptance_a is not None and acceptance_b is not None
+        else None
+    )
+
     with get_connection() as conn:
         cur = conn.execute(
             """INSERT INTO scenario_responses (
                 participant_id, scenario_id,
                 engine_top_route_id, participant_selected_route_id,
-                accepted_engine_top_choice, ranking_acceptance_score,
+                accepted_engine_top_choice, follow_top_route_a,
+                ranking_acceptance_score,
+                participant_selected_route_b, ranking_acceptance_score_b,
+                ranking_acceptance_delta,
                 participant_ranking_json, engine_ranking_json,
                 kendall_tau, explanation
-            ) VALUES (?,?,?,?,?,?,?,?,?,?)""",
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 pid, scenario_id,
                 engine_top, participant_top,
-                accepted, data.get("ranking_acceptance_score"),
+                accepted, data.get("follow_top_route_a"),
+                acceptance_a,
+                data.get("participant_selected_route_b"), acceptance_b,
+                acceptance_delta,
                 json.dumps(participant_ranking), json.dumps(engine_ranking),
                 tau, data.get("explanation"),
             ),
@@ -631,21 +697,21 @@ def save_final_feedback():
             """INSERT INTO final_feedback (
                 participant_id,
                 value_profile_accuracy, profile_confidence,
-                system_usefulness, trust_in_ranking,
-                comparison_with_google_maps, willingness_to_use,
-                noticed_personalisation, personalisation_quality,
+                personalisation_quality, willingness_to_use,
+                trust_in_ranking, overall_intermodal_use,
+                comparison_with_google_maps, noticed_personalisation,
                 best_feature, worst_feature, improvement_suggestion
             ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 pid,
                 data.get("value_profile_accuracy"),
                 data.get("profile_confidence"),
-                data.get("system_usefulness"),
-                data.get("trust_in_ranking"),
-                data.get("comparison_with_google_maps"),
-                data.get("willingness_to_use"),
-                data.get("noticed_personalisation"),
                 data.get("personalisation_quality"),
+                data.get("willingness_to_use"),
+                data.get("trust_in_ranking"),
+                data.get("overall_intermodal_use"),
+                data.get("comparison_with_google_maps"),
+                data.get("noticed_personalisation"),
                 data.get("best_feature"),
                 data.get("worst_feature"),
                 data.get("improvement_suggestion"),

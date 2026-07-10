@@ -6,20 +6,505 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mobility Routing Study</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='study.css') }}" />
+    <link rel="stylesheet" href="study.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+    <style>
+        /* Standalone preview fallback: keeps the page wizard usable even when study.css is not loaded. */
+        .hidden { display: none !important; }
+        body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:#f6f8fb; color:#1f2933; }
+        .container { max-width: 1120px; margin: 0 auto; padding: 24px; }
+        .header { margin-bottom: 20px; }
+        .header h1 { margin-bottom: 4px; }
+        .card { background: #fff; border: 1px solid #dde3ea; border-radius: 14px; padding: 24px; box-shadow: 0 8px 24px rgba(16,24,40,.06); margin-bottom: 20px; }
+        .question-group, .rating-item { margin: 18px 0; }
+        label { display:block; font-weight: 650; margin-bottom: 8px; }
+        input, select, textarea { width: 100%; box-sizing: border-box; border: 1px solid #cfd7e3; border-radius: 8px; padding: 10px 12px; font: inherit; background: #fff; }
+        button { border: 0; border-radius: 9px; background: #1f6feb; color: white; padding: 10px 16px; font-weight: 700; cursor: pointer; }
+        button:disabled { background: #aab4c3; cursor: not-allowed; }
+        .info-box, .loading-box, .validation-block { background: #f1f7ff; border: 1px solid #cfe2ff; border-radius: 12px; padding: 14px 16px; margin: 16px 0; }
+        .route-sets-split { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+        .route-set-panel { border: 1px solid #dde3ea; border-radius: 12px; padding: 16px; background: #fbfcfe; }
+        .routes-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+        .route-card { display: grid; grid-template-columns: 42px 1fr; gap: 12px; border: 1px solid #d6deea; border-radius: 12px; padding: 12px; background: #fff; transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease; }
+        .route-card:hover { transform: translateY(-2px); border-color:#9fc4ff; background:#fcfdff; box-shadow:0 10px 24px rgba(31,111,235,.12); }
+        .route-card:hover .route-rank { background:#1f6feb; color:#fff; }
+        .route-content h4 { margin:0 0 4px; font-size:1.05rem; color:#17466f; }
+        .route-content p { margin:4px 0 8px; color:#526070; }
+        .mode-emoji { display:inline-flex; width:1.5em; justify-content:center; margin-right:4px; }
+        .route-rank { width: 34px; height: 34px; border-radius: 50%; background: #eef4ff; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #1f6feb; }
+        .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-top: 8px; }
+        .metric-card { background: #f6f8fb; border-radius: 8px; padding: 8px; transition: background .16s ease, transform .16s ease; }
+        .route-card:hover .metric-card { background:#eef5ff; }
+        .metric-card strong { display:block; font-size: 12px; color: #556171; }
+        .metric-card span { font-weight: 700; }
+        .intermodal-box { margin-top: 8px; padding: 8px 10px; background: #fff7e6; border: 1px solid #ffd991; border-radius: 8px; }
+        /* Psychometric-style Likert presentation: consistent, symmetric, labelled, and accessible. */
+        .likert-row {
+            display:grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            padding: 18px 20px 20px;
+            background:#f8fafc;
+            border:1px solid #dbe5f0;
+            border-radius:16px;
+            margin-top:10px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
+        }
+        .likert-row:focus-within {
+            border-color:#9bbcff;
+            box-shadow:0 0 0 4px rgba(31,111,235,.10);
+        }
+        .likert-endpoint-row,
+        .likert-point-labels,
+        .likert-options {
+            width:100%;
+            max-width:860px;
+            margin-left:auto;
+            margin-right:auto;
+        }
+        .likert-endpoint-row {
+            display:flex;
+            justify-content:space-between;
+            gap:16px;
+            font-size:14px;
+            color:#405064;
+            font-weight:750;
+        }
+        .likert-options {
+            display:grid;
+            grid-template-columns: repeat(var(--likert-count, 5), minmax(54px, 1fr));
+            gap: 14px;
+            justify-content:center;
+            align-items:center;
+            position:relative;
+        }
+        .likert-options::before {
+            content:"";
+            position:absolute;
+            left:7%;
+            right:7%;
+            top:50%;
+            height:2px;
+            background:#d6e0ec;
+            transform:translateY(-50%);
+            z-index:0;
+        }
+        .likert-btn {
+            position:relative;
+            z-index:1;
+            background:#fff;
+            color:#17202a;
+            width:58px;
+            height:58px;
+            justify-self:center;
+            border:1.5px solid #c9d3df;
+            border-radius:999px;
+            box-shadow:0 2px 6px rgba(16,24,40,.08);
+            font-weight:850;
+            font-size:18px;
+            transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+        }
+        .likert-btn:hover, .likert-btn:focus {
+            outline:3px solid rgba(31,111,235,.18);
+            transform:translateY(-1px);
+        }
+        .likert-btn.selected {
+            background:#1f6feb;
+            color:#fff;
+            border-color:#1f6feb;
+            box-shadow:0 6px 16px rgba(31,111,235,.25);
+        }
+        .likert-label-l, .likert-label-r {
+            display:none; /* replaced by the clearer endpoint row + point labels created by JS */
+        }
+        .likert-point-labels {
+            display:grid;
+            grid-template-columns: repeat(var(--likert-count, 5), minmax(54px, 1fr));
+            gap:14px;
+            align-items:start;
+            color:#526070;
+            font-size:12.5px;
+            line-height:1.25;
+            text-align:center;
+        }
+        .likert-point-labels span {
+            min-height:32px;
+            display:flex;
+            align-items:flex-start;
+            justify-content:center;
+        }
+        .likert-point-labels span:first-child,
+        .likert-point-labels span:last-child,
+        .likert-point-labels span:nth-child(3) {
+            font-weight:700;
+            color:#405064;
+        }
+        .likert-scale-caption {
+            text-align:center;
+            font-size:13px;
+            color:#6b7686;
+            margin-top:2px;
+            line-height:1.35;
+        }
+        .rating-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+        .needs-rating-list { grid-template-columns: 1fr; max-width: 900px; margin: 0 auto; }
+        .needs-rating-list .rating-item { display:grid; grid-template-columns:minmax(180px, 260px) minmax(0, 1fr); gap:18px; align-items:center; }
+        .needs-rating-list .rating-item label { margin:0; font-size:1rem; }
+        .needs-rating-list .likert-row { margin:0; padding:14px 16px 16px; }
+        .needs-rating-list .likert-endpoint-row,
+        .needs-rating-list .likert-point-labels,
+        .needs-rating-list .likert-options { max-width:680px; }
+        .rating-item { border:1px solid #e1e7ef; border-radius:12px; padding:14px; background:#fff; margin:0; }
+        .rating-item label { margin-bottom:8px; }
+        @media (max-width: 720px) {
+            .likert-row { padding:16px 12px 18px; gap:10px; }
+            .likert-endpoint-row { font-size:13px; }
+            .likert-options { grid-template-columns:repeat(var(--likert-count, 5), minmax(44px, 1fr)); gap:8px; }
+            .likert-options::before { left:9%; right:9%; }
+            .likert-btn { width:46px; height:46px; font-size:16px; }
+            .likert-point-labels { grid-template-columns:repeat(var(--likert-count, 5), minmax(44px, 1fr)); gap:8px; font-size:11.5px; }
+            .likert-scale-caption { font-size:12px; }
+        }
+        .profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 18px; align-items:stretch; }
+        .profile-pill { border: 1px solid #d6deea; border-radius: 18px; padding: 18px; background: linear-gradient(180deg,#ffffff 0%,#fbfdff 100%); cursor:default; display:flex; flex-direction:column; gap:14px; min-width:0; overflow:hidden; transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease; }
+        .profile-pill:hover { transform:translateY(-2px); border-color:#9fc4ff; box-shadow:0 12px 28px rgba(31,111,235,.12); }
+        .profile-pill.selected { border-color:#1f6feb; box-shadow: 0 0 0 3px rgba(31,111,235,.14), 0 14px 30px rgba(31,111,235,.10); background:#f7fbff; }
+        .pill-body h3 { margin:0 0 8px; color:#102a43; }
+        .profile-quote { margin:0 0 10px; color:#526070; font-style:italic; line-height:1.45; }
+        .profile-pill ul { margin:0; padding-left:20px; line-height:1.45; }
+        .profile-rating-block { border-top:1px solid #e4ebf4; padding-top:12px; margin-top:auto; }
+        .profile-rating-block label { font-size:.94rem; font-weight:700; color:#25364a; }
+        .profile-rating-block .likert-row { padding:12px 10px 14px; }
+        .profile-rating-block .likert-options { gap:8px; }
+        .profile-rating-block .likert-btn { width:36px; height:36px; font-size:14px; }
+        .profile-rating-block .likert-point-labels { font-size:10.8px; gap:4px; }
+        .profile-rating-block .likert-point-labels span:not(:first-child):not(:last-child):not(:nth-child(4)) { visibility:hidden; }
+        .select-profile-btn { width:100%; margin-top:8px; background:#145a7f; }
+        .select-profile-btn:hover { background:#0f4868; }
+        .profile-confidence-block { margin-top:18px; padding:16px; border:1px solid #d6e2f0; border-radius:16px; background:#f8fbff; }
+        .soft-profile-preview { margin-top:12px; padding:12px 14px; border:1px solid #dbe5f0; border-radius:12px; background:#fff; color:#405064; font-size:.94rem; }
+        .soft-profile-preview strong { color:#102a43; }
+        .soft-profile-bar { height:8px; background:#e9f0f8; border-radius:999px; overflow:hidden; margin-top:4px; }
+        .soft-profile-fill { height:100%; background:#1f6feb; border-radius:999px; }
+        .profile-selected-display { margin-top:16px; padding:12px 14px; border:1px solid #b8dccd; border-radius:12px; background:#ecfff7; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+        .profile-change-btn { background:#fff; color:#1b6b54; border:1px solid #9ed2c0; }
+        .scenario-map { min-height: 260px; border:1px solid #d6deea; border-radius: 12px; background:#eef2f7; }
+        .map-legend { margin-top: 6px; font-size: 14px; color:#5b6778; }
+        .map-legend-a, .map-legend-b { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; color:#fff; font-weight:800; }
+        .map-legend-a { background:#1D9E75; } .map-legend-b { background:#E74C3C; }
+        .preview-banner { background:#fff7e6; border:1px solid #ffd991; border-radius:10px; padding:10px 12px; margin: 0 0 16px; font-size: 14px; }
+        .button-row { display:flex; gap:12px; align-items:center; justify-content:flex-start; flex-wrap:wrap; margin-top:18px; }
+        .back-btn { background:#687386; color:#fff; }
+        .back-btn:hover { background:#505b6d; }
+        #start-btn { display:block; margin:16px 0 0 0; padding:14px 24px; font-size:1.08rem; min-width:180px; }
+        .checkbox-row { display:flex; align-items:flex-start; gap:10px; margin:18px 0 0 0; font-weight:650; }
+        .checkbox-row input[type="checkbox"] { width:auto; margin-top:4px; flex:0 0 auto; transform:scale(1.15); }
+        .required-hint { color:#a43e00; font-size:13px; font-weight:600; margin-left:4px; }
+        input:required, select:required, textarea:required { border-left:4px solid #b9cff5; }
+        .conditional-block { margin-top:12px; padding:14px; background:#f8fafc; border:1px dashed #c8d4e3; border-radius:12px; }
+        .subquestion-label { font-size:14px; color:#526070; font-weight:700; margin-bottom:8px; }
+        .checkbox-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px; }
+        .checkbox-chip { display:flex; align-items:flex-start; gap:9px; padding:10px 12px; border:1px solid #d6deea; border-radius:10px; background:#fff; font-weight:600; }
+        .checkbox-chip input { width:auto; flex:0 0 auto; margin-top:3px; }
+        #start-btn { font-size:1.14rem; padding:15px 28px; }
+        .field-hint { font-weight:500; color:#6b7686; font-size:13px; }
+        @media (max-width: 900px) {
+            .needs-rating-list .rating-item { grid-template-columns:1fr; gap:10px; }
+            .profile-grid { grid-template-columns:1fr; }
+        }
+
+        /* ── Scenario profile badge ─────────────────────────────── */
+        .scenario-profile-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--ovgu-primary-soft, #f8eef4);
+            border: 1.5px solid var(--ovgu-primary-border, #d9a9c3);
+            border-left: 5px solid var(--ovgu-primary, #7c0140);
+            border-radius: 12px;
+            padding: 10px 16px;
+            margin: 12px 0 16px;
+        }
+        .spb-emoji {
+            font-size: 26px;
+            flex-shrink: 0;
+        }
+        .spb-text {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+        .spb-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--ovgu-primary, #7c0140);
+            font-weight: 700;
+            opacity: 0.8;
+        }
+        .spb-text strong {
+            font-size: 15px;
+            color: var(--ovgu-primary-dark, #4a0026);
+            font-weight: 700;
+        }
+
+        .quick-response-row {
+            display:flex;
+            gap:10px;
+            align-items:center;
+            flex-wrap:wrap;
+            margin-top:8px;
+        }
+        .quick-response-btn {
+            background:#eef4ff;
+            color:#17466f;
+            border:1px solid #c7d8f5;
+            border-radius:999px;
+            padding:8px 13px;
+            font-size:.92rem;
+            font-weight:750;
+            transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+        }
+        .quick-response-btn:hover,
+        .quick-response-btn:focus {
+            background:#dfeeff;
+            border-color:#8fb8f5;
+            transform:translateY(-1px);
+            box-shadow:0 6px 14px rgba(31,111,235,.12);
+            outline:3px solid rgba(31,111,235,.14);
+        }
+        .quick-response-hint {
+            color:#6b7686;
+            font-size:13px;
+        }
+
+        @media (max-width: 720px) {
+            .profile-rating-block .likert-btn { width:34px; height:34px; }
+            .profile-rating-block .likert-point-labels span:not(:first-child):not(:last-child):not(:nth-child(4)) { display:none; }
+            .needs-rating-list .likert-point-labels span:not(:first-child):not(:last-child):not(:nth-child(3)) { display:none; }
+        }
+    
+
+        /* OVGU visual theme --------------------------------------------------
+           Palette follows the university logo: deep burgundy, black, white,
+           and restrained neutral greys. These overrides keep the existing
+           survey structure while replacing the former blue accent system. */
+        :root {
+            --ovgu-primary: #7c0140;
+            --ovgu-primary-dark: #4a0026;
+            --ovgu-primary-soft: #f8eef4;
+            --ovgu-primary-border: #d9a9c3;
+            --ovgu-ink: #111827;
+            --ovgu-muted: #5f6673;
+            --ovgu-surface: #ffffff;
+            --ovgu-page: #f7f4f6;
+            --ovgu-line: #e3d6dd;
+            --ovgu-focus: rgba(124, 1, 64, .18);
+        }
+        body {
+            background:
+                linear-gradient(180deg, rgba(124,1,64,.08) 0, rgba(124,1,64,0) 220px),
+                var(--ovgu-page);
+            color: var(--ovgu-ink);
+            border-top: 7px solid var(--ovgu-primary);
+        }
+        a { color: var(--ovgu-primary); }
+        .container { max-width: 1120px; }
+        .ovgu-header {
+            display:flex;
+            align-items:center;
+            gap:22px;
+            margin: 18px 0 22px;
+            padding: 18px 20px;
+            background: var(--ovgu-surface);
+            border:1px solid var(--ovgu-line);
+            border-left:7px solid var(--ovgu-primary);
+            border-radius:18px;
+            box-shadow: 0 10px 28px rgba(74,0,38,.08);
+        }
+        .ovgu-brand-card {
+            flex:0 0 auto;
+            padding:10px 12px;
+            background:#fff;
+            border:1px solid var(--ovgu-line);
+            border-radius:14px;
+            box-shadow:0 4px 14px rgba(17,24,39,.06);
+        }
+        .ovgu-logo {
+            display:block;
+            width:min(270px, 48vw);
+            height:auto;
+            object-fit:contain;
+        }
+        .ovgu-title-block { min-width:0; }
+        .ovgu-kicker {
+            margin-bottom:4px;
+            color:var(--ovgu-primary);
+            font-size:.86rem;
+            font-weight:800;
+            letter-spacing:.045em;
+            text-transform:uppercase;
+        }
+        .header h1 { color: var(--ovgu-ink); margin:0 0 6px; }
+        .header p { color: var(--ovgu-muted); margin:0; }
+        .card {
+            border-color: var(--ovgu-line);
+            box-shadow: 0 10px 28px rgba(74,0,38,.055);
+        }
+        .card h2,
+        .card h3,
+        .pill-body h3,
+        .route-content h4 { color: var(--ovgu-primary-dark); }
+        .step-label, .field-hint, .route-content p, .map-legend, .set-desc {
+            color: var(--ovgu-muted);
+        }
+        input, select, textarea {
+            border-color:#d9c9d2;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline:3px solid var(--ovgu-focus);
+            border-color:var(--ovgu-primary-border);
+        }
+        input:required, select:required, textarea:required {
+            border-left:4px solid var(--ovgu-primary-border);
+        }
+        button,
+        #start-btn,
+        .select-profile-btn {
+            background: var(--ovgu-primary);
+            color:#fff;
+        }
+        button:hover,
+        #start-btn:hover,
+        .select-profile-btn:hover {
+            background: var(--ovgu-primary-dark);
+        }
+        button:disabled { background:#a998a1; }
+        .back-btn { background:#3f3f46; }
+        .back-btn:hover { background:#1f1f23; }
+        .info-box, .loading-box, .validation-block,
+        .conditional-block,
+        .profile-confidence-block,
+        .soft-profile-preview {
+            background: var(--ovgu-primary-soft);
+            border-color: var(--ovgu-primary-border);
+        }
+        .consent-box {
+            border-color: var(--ovgu-primary-border);
+            background: linear-gradient(180deg,#fff 0%, var(--ovgu-primary-soft) 100%);
+        }
+        .preview-banner,
+        .intermodal-box {
+            background:#fff8ec;
+            border-color:#e2bf75;
+        }
+        .likert-row {
+            background:#fbf8fa;
+            border-color:var(--ovgu-line);
+        }
+        .likert-row:focus-within {
+            border-color:var(--ovgu-primary-border);
+            box-shadow:0 0 0 4px var(--ovgu-focus);
+        }
+        .likert-options::before { background:#dfcbd6; }
+        .likert-btn {
+            border-color:#d7c4cf;
+            color:var(--ovgu-ink);
+        }
+        .likert-btn:hover, .likert-btn:focus {
+            outline:3px solid var(--ovgu-focus);
+            border-color:var(--ovgu-primary-border);
+        }
+        .likert-btn.selected {
+            background:var(--ovgu-primary);
+            border-color:var(--ovgu-primary);
+            color:#fff;
+            box-shadow:0 6px 16px rgba(124,1,64,.25);
+        }
+        .likert-endpoint-row,
+        .likert-point-labels span:first-child,
+        .likert-point-labels span:last-child,
+        .likert-point-labels span:nth-child(3) {
+            color:var(--ovgu-primary-dark);
+        }
+        .route-set-panel,
+        .route-card,
+        .profile-pill,
+        .rating-item,
+        .checkbox-chip {
+            border-color:var(--ovgu-line);
+        }
+        .route-card:hover,
+        .profile-pill:hover {
+            border-color:var(--ovgu-primary-border);
+            box-shadow:0 12px 28px rgba(124,1,64,.13);
+        }
+        .route-rank {
+            background:var(--ovgu-primary-soft);
+            color:var(--ovgu-primary);
+        }
+        .route-card:hover .route-rank {
+            background:var(--ovgu-primary);
+            color:#fff;
+        }
+        .route-card:hover .metric-card { background:var(--ovgu-primary-soft); }
+        .metric-card { background:#f8f5f7; }
+        .metric-card strong { color:#6d5964; }
+        .profile-pill.selected {
+            border-color:var(--ovgu-primary);
+            box-shadow:0 0 0 3px rgba(124,1,64,.15), 0 14px 30px rgba(124,1,64,.12);
+            background:linear-gradient(180deg,#fff 0%, var(--ovgu-primary-soft) 100%);
+        }
+        .soft-profile-fill { background:var(--ovgu-primary); }
+        .profile-selected-display {
+            background:#fff6fb;
+            border-color:var(--ovgu-primary-border);
+        }
+        .profile-change-btn,
+        .quick-response-btn {
+            background:#fff;
+            color:var(--ovgu-primary);
+            border:1px solid var(--ovgu-primary-border);
+        }
+        .profile-change-btn:hover,
+        .quick-response-btn:hover,
+        .quick-response-btn:focus {
+            background:var(--ovgu-primary-soft);
+            border-color:var(--ovgu-primary);
+        }
+        .map-legend-a { background:var(--ovgu-primary); }
+        .map-legend-b { background:var(--ovgu-ink); }
+        @media (max-width: 760px) {
+            .ovgu-header {
+                align-items:flex-start;
+                flex-direction:column;
+                gap:14px;
+                padding:16px;
+            }
+            .ovgu-logo { width:min(240px, 78vw); }
+        }
+
+    </style>
 </head>
 <body>
 <div class="container">
+    <div id="preview-mode-banner" class="preview-banner hidden">Preview mode: backend API not detected. Mock scenarios are shown so the full multi-scenario page flow can be tested in Phoenix Code / static preview.</div>
 
     <!-- ══════════════════════════════════════════ -->
     <!-- HEADER                                      -->
     <!-- ══════════════════════════════════════════ -->
-    <header class="header">
-        <h1>Mobility Routing Study</h1>
-        <p>Evaluating personalised multimodal route recommendations — Phase 1</p>
+    <header class="header ovgu-header">
+        <div class="ovgu-brand-card">
+            <img class="ovgu-logo" src="data:image/jpeg;base64,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" alt="Otto von Guericke University Magdeburg logo" />
+        </div>
+        <div class="ovgu-title-block">
+            <div class="ovgu-kicker">Otto von Guericke University Magdeburg</div>
+            <h1>Mobility Routing Study</h1>
+            <p>Evaluating personalised multimodal route recommendations — Phase 1</p>
+        </div>
     </header>
 
     <!-- ══════════════════════════════════════════ -->
@@ -124,13 +609,13 @@
 
         <div class="question-group">
             <label>Age <span class="field-hint">(please enter your age in years)</span></label>
-            <input type="number" id="age-input" min="16" max="100"
+            <input type="number" id="age-input" required min="16" max="100"
                    placeholder="e.g. 34" style="width:120px;" />
         </div>
 
         <div class="question-group">
             <label>Gender</label>
-            <select id="gender">
+            <select id="gender" required>
                 <option value="">— select —</option>
                 <option>Female</option>
                 <option>Male</option>
@@ -141,21 +626,22 @@
 
         <div class="question-group">
             <label>Highest level of education completed</label>
-            <select id="education">
+            <select id="education" required>
                 <option value="">— select —</option>
-                <option>No formal qualification</option>
-                <option>Secondary school (Hauptschule / Realschule)</option>
-                <option>Abitur / A-levels</option>
-                <option>Vocational / apprenticeship (Ausbildung)</option>
-                <option>Bachelor's degree</option>
-                <option>Master's degree or higher</option>
-                <option>Prefer not to say</option>
+                <option value="no_formal">No formal qualification</option>
+                <option value="secondary">Secondary school (Hauptschule / Realschule)</option>
+                <option value="abitur">Abitur / A-levels</option>
+                <option value="vocational">Vocational / apprenticeship (Ausbildung)</option>
+                <option value="bachelor">Bachelor's degree</option>
+                <option value="master">Master's degree</option>
+                <option value="phd">PhD / Doctorate</option>
+                <option value="prefer_not">Prefer not to say</option>
             </select>
         </div>
 
         <div class="question-group">
             <label>Occupation</label>
-            <select id="occupation">
+            <select id="occupation" required>
                 <option value="">— select —</option>
                 <option>Student</option>
                 <option>Employed full-time</option>
@@ -168,25 +654,80 @@
         </div>
 
         <div class="question-group">
-            <label>City or district where you usually travel</label>
-            <input type="text" id="city-of-residence" placeholder="e.g. Magdeburg" />
+            <label>Do you usually commute to a different city than Magdeburg, for example because of work or studies?</label>
+            <select id="commute-different-city" required>
+                <option value="">— select —</option>
+                <option value="no">No, my usual commute is within Magdeburg</option>
+                <option value="yes">Yes, I usually commute to another city</option>
+            </select>
+
+            <div id="commute-city-group" class="conditional-block hidden">
+                <label class="subquestion-label" for="commute-city">Which city do you usually commute to?</label>
+                <select id="commute-city">
+                    <option value="">— select city —</option>
+                    <option value="halle_saale">Halle (Saale)</option>
+                    <option value="leipzig">Leipzig</option>
+                    <option value="berlin">Berlin</option>
+                    <option value="potsdam">Potsdam</option>
+                    <option value="braunschweig">Braunschweig</option>
+                    <option value="wolfsburg">Wolfsburg</option>
+                    <option value="hannover">Hannover</option>
+                    <option value="dessau_rosslau">Dessau-Roßlau</option>
+                    <option value="stendal">Stendal</option>
+                    <option value="other_city">Other city not listed</option>
+                </select>
+            </div>
         </div>
 
-        <!-- Exclusion criteria -->
+        <div class="question-group">
+            <label>On a normal day, which Magdeburg city district do you usually commute to for work or studies?</label>
+            <select id="commute-district" required>
+                <option value="">— select district —</option>
+                <option value="altstadt">Altstadt</option>
+                <option value="alte_neustadt">Alte Neustadt</option>
+                <option value="neue_neustadt">Neue Neustadt</option>
+                <option value="stadtfeld_ost">Stadtfeld Ost</option>
+                <option value="stadtfeld_west">Stadtfeld West</option>
+                <option value="sudenburg">Sudenburg</option>
+                <option value="buckau">Buckau</option>
+                <option value="leipziger_strasse">Leipziger Straße</option>
+                <option value="werder">Werder</option>
+                <option value="cracau">Cracau</option>
+                <option value="herrenkrug">Herrenkrug</option>
+                <option value="reform">Reform</option>
+                <option value="olvenstedt">Olvenstedt</option>
+                <option value="ottersleben">Ottersleben</option>
+                <option value="rothensee">Rothensee</option>
+                <option value="other_or_multiple">Other / several districts</option>
+                <option value="not_applicable">Not applicable</option>
+            </select>
+        </div>
+
+        <!-- Accessibility / mobility constraints -->
         <div class="question-group exclusion-group">
             <label>
-                Do you have any physical impairment or disability that significantly
+                Do you have any physical impairment, disability, or health condition that significantly
                 affects your ability to walk, cycle, or use public transport?
             </label>
-            <select id="exclusion-disability">
+            <select id="exclusion-disability-yesno" required>
                 <option value="">— select —</option>
                 <option value="0">No</option>
-                <option value="1">Yes — walking is affected</option>
-                <option value="2">Yes — cycling is affected</option>
-                <option value="3">Yes — using public transport is affected</option>
-                <option value="4">Yes — multiple modes are affected</option>
+                <option value="1">Yes</option>
                 <option value="9">Prefer not to say</option>
             </select>
+
+            <div id="disability-mode-group" class="conditional-block hidden">
+                <p class="subquestion-label">Which modes or mobility activities are affected? Please select all that apply.</p>
+                <div class="checkbox-grid">
+                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="walking"> Walking</label>
+                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="cycling"> Cycling</label>
+                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="public_transport"> Public transport</label>
+                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="driving"> Driving</label>
+                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="transfers"> Transfers / getting in or out of vehicles</label>
+                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="carrying_items"> Carrying luggage or shopping</label>
+                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="other"> Other mobility limitation</label>
+                </div>
+            </div>
             <p class="exclusion-note">
                 ℹ️ This question helps us understand whether our route options
                 are appropriate for your situation. It does not exclude you from
@@ -208,18 +749,15 @@
 
         <div class="question-group">
             <label>How often do you use public transport?</label>
-            <select id="mobility-frequency">
-                <option value="">— select —</option>
-                <option value="daily">Daily</option>
-                <option value="several_week">Several times per week</option>
-                <option value="weekly">About once per week</option>
-                <option value="rarely">Rarely or never</option>
-            </select>
+            <p class="field-hint">Please answer as a frequency scale for your usual mobility behaviour.</p>
+            <div class="likert-row frequency-likert" data-target="mobility-frequency">
+                <div class="likert-options" id="mobility-frequency"></div>
+            </div>
         </div>
 
         <div class="question-group">
             <label>Do you have a driving licence?</label>
-            <select id="driving-license">
+            <select id="driving-license" required>
                 <option value="">— select —</option>
                 <option value="1">Yes</option>
                 <option value="0">No</option>
@@ -228,7 +766,7 @@
 
         <div class="question-group">
             <label>Do you own or have regular access to a car?</label>
-            <select id="owns-car">
+            <select id="owns-car" required>
                 <option value="">— select —</option>
                 <option value="1">Yes</option>
                 <option value="0">No</option>
@@ -237,7 +775,7 @@
 
         <div class="question-group">
             <label>Do you own or have regular access to a bicycle?</label>
-            <select id="owns-bike">
+            <select id="owns-bike" required>
                 <option value="">— select —</option>
                 <option value="1">Yes</option>
                 <option value="0">No</option>
@@ -263,69 +801,89 @@
         <h2>Your Travel Style</h2>
         <p class="step-label">Step 2 of 4 — Profile</p>
         <p>
-            Read the four descriptions below and select the one that feels most
-            like <strong>you</strong> when planning a typical journey.
-            There are no right or wrong answers — we are interested in your
-            honest personal preference.
+            First, rate how well each travel style describes your everyday travel preferences.
+            Then select the one profile that is the closest overall match. This allows us to capture
+            both your main profile and possible mixed preferences.
         </p>
         <p class="profile-note">
-            Think about your everyday trips — commuting, shopping, visiting
-            friends — not an exceptional journey.
+            Think about your everyday trips — commuting, shopping, visiting friends — not an exceptional journey.
         </p>
 
         <div class="profile-grid">
 
-            <!-- Row 1 -->
             <div class="profile-pill profile-pill-bio" data-profile="biospheric">
-                <div class="pill-avatar pill-avatar-bio"></div>
                 <div class="pill-body">
-                    <h3>The Green Traveller</h3>
-                    <p class="profile-quote">"I am happy to take a slower route if it is better for the planet."</p>
+                    <h3>🌱 The Green Traveller</h3>
+                    <p class="profile-quote">"I prefer routes that reduce environmental impact when this is reasonably possible."</p>
                     <ul>
-                        <li>Low emissions matter more than speed</li>
-                        <li>Walking and cycling feel like the right choice</li>
-                        <li>Physical activity during travel is welcome</li>
+                        <li>Lower environmental impact matters to me.</li>
+                        <li>Active travel is welcome when feasible.</li>
+                        <li>I can accept some extra time for a more sustainable route.</li>
                     </ul>
+                </div>
+                <div class="profile-rating-block">
+                    <label>How much does this profile describe your everyday travel preferences?</label>
+                    <div class="likert-row" data-target="profile-rating-biospheric">
+                        <div class="likert-options" id="profile-rating-biospheric"></div>
+                    </div>
+                    <button type="button" class="select-profile-btn" data-select-profile="biospheric">Select as closest profile</button>
                 </div>
             </div>
 
             <div class="profile-pill profile-pill-alt" data-profile="altruistic">
-                <div class="pill-avatar pill-avatar-alt"></div>
                 <div class="pill-body">
-                    <h3>The Safe &amp; Reliable Traveller</h3>
-                    <p class="profile-quote">"I want to arrive safely and on time, every time."</p>
+                    <h3>🛡️ The Safe &amp; Reliable Traveller</h3>
+                    <p class="profile-quote">"I prefer routes that feel safe, predictable, and dependable."</p>
                     <ul>
-                        <li>Safety from accidents and crime comes first</li>
-                        <li>Punctuality and predictability are key</li>
-                        <li>Comfortable with Public Trnasport if it is dependable</li>
+                        <li>Avoiding accident and personal safety risks is important to me.</li>
+                        <li>I value punctuality and predictable arrival times.</li>
+                        <li>I prefer routes with clear, reliable connections.</li>
                     </ul>
+                </div>
+                <div class="profile-rating-block">
+                    <label>How much does this profile describe your everyday travel preferences?</label>
+                    <div class="likert-row" data-target="profile-rating-altruistic">
+                        <div class="likert-options" id="profile-rating-altruistic"></div>
+                    </div>
+                    <button type="button" class="select-profile-btn" data-select-profile="altruistic">Select as closest profile</button>
                 </div>
             </div>
 
-            <!-- Row 2 -->
             <div class="profile-pill profile-pill-ego" data-profile="egoistic">
-                <div class="pill-avatar pill-avatar-ego"></div>
                 <div class="pill-body">
-                    <h3>The Independent Traveller</h3>
-                    <p class="profile-quote">"I want to get there fast, on my own terms."</p>
+                    <h3>⚡ The Independent Traveller</h3>
+                    <p class="profile-quote">"I prefer routes that let me stay in control of my time and movement."</p>
                     <ul>
-                        <li>Speed and directness are top priorities</li>
-                        <li>I prefer not to depend on fixed schedules</li>
-                        <li>Personal space and privacy matter to me</li>
+                        <li>Flexibility and directness matter to me.</li>
+                        <li>I prefer not to depend too much on fixed schedules.</li>
+                        <li>Personal space and autonomy are important during travel.</li>
                     </ul>
+                </div>
+                <div class="profile-rating-block">
+                    <label>How much does this profile describe your everyday travel preferences?</label>
+                    <div class="likert-row" data-target="profile-rating-egoistic">
+                        <div class="likert-options" id="profile-rating-egoistic"></div>
+                    </div>
+                    <button type="button" class="select-profile-btn" data-select-profile="egoistic">Select as closest profile</button>
                 </div>
             </div>
 
             <div class="profile-pill profile-pill-hed" data-profile="hedonic">
-                <div class="pill-avatar pill-avatar-hed"></div>
                 <div class="pill-body">
-                    <h3>The Relaxed Traveller</h3>
-                    <p class="profile-quote">"Comfort and ease come first — I want a stress-free journey."</p>
+                    <h3>😌 The Relaxed Traveller</h3>
+                    <p class="profile-quote">"I prefer routes that feel easy, comfortable, and low-stress."</p>
                     <ul>
-                        <li>Comfort and convenience are non-negotiable</li>
-                        <li>I prefer not to walk long distances</li>
-                        <li>Avoiding crowded or stressful environments</li>
+                        <li>Comfort matters more than strict optimisation.</li>
+                        <li>I prefer to avoid crowded or stressful environments.</li>
+                        <li>I do not like routes that require too much physical effort.</li>
                     </ul>
+                </div>
+                <div class="profile-rating-block">
+                    <label>How much does this profile describe your everyday travel preferences?</label>
+                    <div class="likert-row" data-target="profile-rating-hedonic">
+                        <div class="likert-options" id="profile-rating-hedonic"></div>
+                    </div>
+                    <button type="button" class="select-profile-btn" data-select-profile="hedonic">Select as closest profile</button>
                 </div>
             </div>
 
@@ -333,11 +891,19 @@
 
         <div class="profile-selected-display hidden" id="profile-selected-display">
             <span id="profile-selected-text"></span>
-            <button class="profile-change-btn" onclick="clearProfileSelection()">Change</button>
+            <button type="button" class="profile-change-btn" onclick="clearProfileSelection()">Change</button>
+        </div>
+
+        <div class="profile-confidence-block">
+            <label>How confident are you in this profile selection?</label>
+            <div class="likert-row" data-target="profile-selection-confidence">
+                <div class="likert-options" id="profile-selection-confidence"></div>
+            </div>
+            <div class="soft-profile-preview hidden" id="soft-profile-preview"></div>
         </div>
 
         <input type="hidden" id="selected-profile" />
-        <button id="save-profile-btn" disabled>Select a profile above to continue</button>
+        <button id="save-profile-btn" disabled>Select a closest profile to continue</button>
     </section>
 
     <!-- ══════════════════════════════════════════ -->
@@ -348,6 +914,15 @@
         <div class="scenario-header">
             <h2 id="scenario-title"></h2>
             <span class="step-label" id="scenario-counter"></span>
+        </div>
+
+        <!-- Sticky profile badge — always visible while evaluating routes -->
+        <div id="scenario-profile-badge" class="scenario-profile-badge hidden">
+            <span id="scenario-profile-emoji" class="spb-emoji"></span>
+            <div class="spb-text">
+                <span class="spb-label">Routes personalised for</span>
+                <strong id="scenario-profile-name"></strong>
+            </div>
         </div>
 
         <p id="scenario-context" class="scenario-context"></p>
@@ -364,10 +939,11 @@
 
         <div class="info-box" id="scenario-instruction">
             <strong>Your task:</strong>
-            Review the two sets of route options below. Set A comes from a
-            value-based routing engine; Set B comes from a standard routing
-            system. Both sets are generated for the same journey — the labels
-            are intentionally generic so you can judge the routes on their merits.
+            Please review both route sets for the same journey.
+            <strong>Route Set A</strong> is the ranked output of our preference-based routing engine.
+            <strong>Route Set B</strong> is a standard time/distance-based routing benchmark.
+            We want to know whether Set A's ranking makes sense to you, whether intermodal routes
+            are noticeable and understandable, and whether you would use this kind of system in daily life.
             <br><br>
             <strong>⏱ Note on driving times:</strong> Travel times shown for car routes
             include an estimated <strong>8 minutes</strong> for parking search and the walk
@@ -381,80 +957,137 @@
             <p>Generating routes…</p>
         </div>
 
-        <!-- ── Sets A and B side by side ── -->
+        <!-- ── Route Set A and B validation ── -->
         <div id="route-sets-container" class="hidden route-sets-split">
 
-            <!-- SET A (personalised, blinded) — fixed engine ranking, no drag -->
+            <!-- SET A — fixed engine ranking, no drag-and-drop -->
             <div id="route-set-a" class="route-set-panel set-a-panel">
-                <h3 class="set-label set-a-label">Route Set A</h3>
-                <p class="set-desc">This is a ranked set of routes from the 
-                    highest-rated to the lowest-rated based on the profile you selected.</p>
+                <h3 class="set-label set-a-label">Route Set A — Engine ranking</h3>
+                <p class="set-desc">
+                    These routes are ranked from the engine's top recommendation to the lowest-ranked option
+                    for this journey.
+                </p>
                 <ul id="routes-list-a" class="routes-list"></ul>
+
                 <div class="question-group">
-                    <label>Which route from Set A would you choose?</label>
+                    <label>Which route from Set A would you choose in this situation?</label>
                     <select id="preferred-route-a"></select>
                 </div>
+
                 <div class="question-group">
-                    <label>How well does Set A's ranking match your preference?</label>
+                    <label>Would you follow the top-ranked route suggested in Route Set A?</label>
+                    <select id="follow-top-route-a" required>
+                        <option value="">— select —</option>
+                        <option value="yes">Yes</option>
+                        <option value="maybe">Maybe</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+
+                <div class="question-group">
+                    <label>How well does Route Set A's ranking match what you would personally prefer in this situation?</label>
                     <div class="likert-row" data-target="ranking-acceptance-a">
-                        <span class="likert-label-l">Very poor</span>
+                        <span class="likert-label-l">Not at all</span>
                         <div class="likert-options" id="ranking-acceptance-a"></div>
-                        <span class="likert-label-r">Excellent</span>
+                        <span class="likert-label-r">Very well</span>
                     </div>
                 </div>
             </div>
 
-            <!-- SET B (baseline, blinded) -->
+            <!-- SET B — fixed standard benchmark ranking, same evaluation structure -->
             <div id="route-set-b" class="route-set-panel set-b-panel">
-                <h3 class="set-label set-b-label">Route Set B</h3>
-                <p class="set-desc">This is a set of routes generated by the
-                     standard routing system ranked by travel time and distance. 
-                     Drag and drop the routes to reorder them according to your 
-                     preference, then select your top choice.</p>
-                <ul id="routes-list-b" class="routes-list sortable"></ul>
+                <h3 class="set-label set-b-label">Route Set B — Standard ranking</h3>
+                <p class="set-desc">
+                    These routes are ranked by the standard routing benchmark, mainly travel time and distance.
+                </p>
+                <ul id="routes-list-b" class="routes-list"></ul>
+
                 <div class="question-group">
-    <!--                <label>Which route from Set B would you choose?</label>    -->
+                    <label>Which route from Set B would you choose in this situation?</label>
                     <select id="preferred-route-b"></select>
+                </div>
+
+                <div class="question-group">
+                    <label>How well does Route Set B's ranking match what you would personally prefer in this situation?</label>
+                    <div class="likert-row" data-target="ranking-acceptance-b">
+                        <span class="likert-label-l">Not at all</span>
+                        <div class="likert-options" id="ranking-acceptance-b"></div>
+                        <span class="likert-label-r">Very well</span>
+                    </div>
                 </div>
             </div>
 
         </div>
 
-        <!-- rating-section moved to standalone needs-rating-section after scenario 4 -->
-
-        <!-- ── Intermodal section ── -->
-        <div id="intermodal-section" class="hidden">
+        <!-- ── Intermodal awareness, understanding, and acceptance ── -->
+        <div id="intermodal-section" class="hidden validation-block">
             <h3>Intermodal Routes</h3>
+            <p class="set-desc">
+                Some route options may combine more than one transport mode, for example walking + tram
+                or bike + public transport.
+            </p>
+
             <div class="question-group">
-                <label>Did you notice that some routes combine multiple transport modes (e.g. bike + tram)?</label>
-                <select id="noticed-intermodal">
+                <label>Did you notice any intermodal route in this scenario?</label>
+                <select id="noticed-intermodal" required>
                     <option value="">— select —</option>
                     <option value="1">Yes</option>
                     <option value="0">No</option>
+                    <option value="2">Not sure</option>
                 </select>
             </div>
+
             <div class="question-group">
-                <label>How easy was it to understand the intermodal route suggestions? (1 = not at all, 5 = very easy)</label>
+                <label>How easy was it to understand how the intermodal route(s) worked?</label>
                 <div class="likert-row" data-target="understood-intermodal">
+                    <span class="likert-label-l">Very difficult</span>
                     <div class="likert-options" id="understood-intermodal"></div>
+                    <span class="likert-label-r">Very easy</span>
                 </div>
             </div>
+
             <div class="question-group">
-                <label>Your general attitude towards intermodal routes (combining modes)</label>
-                <select id="intermodal-preference">
-                    <option value="">— select —</option>
-                    <option value="prefer">I prefer them</option>
-                    <option value="neutral">Neutral</option>
-                    <option value="avoid">I prefer to avoid them</option>
-                </select>
+                <label>Would you consider using an intermodal route if it better matched your travel preferences?</label>
+                <div class="likert-row" data-target="intermodal-acceptance">
+                    <span class="likert-label-l">Definitely not</span>
+                    <div class="likert-options" id="intermodal-acceptance"></div>
+                    <span class="likert-label-r">Definitely yes</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Scenario-level system acceptance ── -->
+        <div id="scenario-system-section" class="validation-block hidden">
+            <h3>Use of this Routing System</h3>
+            <div class="question-group">
+                <label>Based on this scenario, would you use a system that ranks routes according to your travel preferences?</label>
+                <div class="likert-row" data-target="scenario-system-use">
+                    <span class="likert-label-l">Definitely not</span>
+                    <div class="likert-options" id="scenario-system-use"></div>
+                    <span class="likert-label-r">Definitely yes</span>
+                </div>
+            </div>
+
+            <div class="question-group">
+                <label>How much would you trust the top recommendation from Route Set A in this scenario?</label>
+                <div class="likert-row" data-target="scenario-trust-top-recommendation">
+                    <span class="likert-label-l">Not at all</span>
+                    <div class="likert-options" id="scenario-trust-top-recommendation"></div>
+                    <span class="likert-label-r">Very much</span>
+                </div>
             </div>
         </div>
 
         <!-- ── Open comment ── -->
         <div class="question-group">
-            <label>Any comments about the routes shown in this scenario? (optional)</label>
+            <label>Any comments about the routes shown in this scenario?</label>
+            <p class="field-hint">Please add a short comment, or use the quick option below if you have nothing to add.</p>
             <textarea id="scenario-comment" rows="3"
-                      placeholder="What matched or did not match your expectations?"></textarea>
+                      required placeholder="What matched or did not match your expectations?"></textarea>
+            <div class="quick-response-row">
+                <button type="button" class="quick-response-btn" data-fill-textarea="scenario-comment" data-fill-value="No comments">No comments</button>
+                <span class="quick-response-hint">Fills the required text field automatically.</span>
+            </div>
         </div>
 
         <div class="button-row">
@@ -478,7 +1111,7 @@
             (1 = not important at all, 5 = very important)
         </p>
 
-        <div class="rating-grid">
+        <div class="rating-grid needs-rating-list">
             <div class="rating-item">
                 <label>🌱 Environmental friendliness</label>
                 <div class="likert-row"><div class="likert-options" id="need-pro-env"></div></div>
@@ -508,7 +1141,7 @@
                 <div class="likert-row"><div class="likert-options" id="need-safety-accident"></div></div>
             </div>
             <div class="rating-item">
-                <label>🔦 Personal security (crime)</label>
+                <label>🔦 Personal security</label>
                 <div class="likert-row"><div class="likert-options" id="need-safety-crime"></div></div>
             </div>
             <div class="rating-item">
@@ -559,7 +1192,7 @@
 
         <div class="question-group">
             <label>Did you notice that Set A routes were adapted to the profile you selected?</label>
-            <select id="noticed-personalisation">
+            <select id="noticed-personalisation" required>
                 <option value="">— select —</option>
                 <option value="1">Yes, clearly</option>
                 <option value="0">No, I did not notice a difference</option>
@@ -575,7 +1208,7 @@
 
         <div class="question-group">
             <label>How useful is this routing system compared to a standard navigation app like Google Maps?</label>
-            <select id="comparison-google">
+            <select id="comparison-google" required>
                 <option value="">— select —</option>
                 <option value="1">Much worse</option>
                 <option value="2">Slightly worse</option>
@@ -600,13 +1233,28 @@
         </div>
 
         <div class="question-group">
-            <label>What was the best feature of the system? (open text)</label>
-            <textarea id="best-feature" rows="2"></textarea>
+            <label>Overall, would you consider using intermodal route suggestions if they better matched your travel preferences?</label>
+            <div class="likert-row" data-target="overall-intermodal-use">
+                <div class="likert-options" id="overall-intermodal-use"></div>
+            </div>
         </div>
 
         <div class="question-group">
-            <label>What should be improved? (open text)</label>
-            <textarea id="improvement" rows="2"></textarea>
+            <label>What was the best feature of the system?</label>
+            <p class="field-hint">Please write a short answer, or choose the quick option if nothing stood out.</p>
+            <textarea id="best-feature" rows="2" required placeholder="e.g. route ranking, intermodal options, clarity, personalisation..."></textarea>
+            <div class="quick-response-row">
+                <button type="button" class="quick-response-btn" data-fill-textarea="best-feature" data-fill-value="No comments">No comments</button>
+            </div>
+        </div>
+
+        <div class="question-group">
+            <label>What should be improved?</label>
+            <p class="field-hint">Please write a short answer, or choose the quick option if you have no specific suggestion.</p>
+            <textarea id="improvement" rows="2" required placeholder="e.g. route details, interface, explanations, travel times..."></textarea>
+            <div class="quick-response-row">
+                <button type="button" class="quick-response-btn" data-fill-textarea="improvement" data-fill-value="No comments">No comments</button>
+            </div>
         </div>
 
         <button id="submit-study-btn">Submit</button>
@@ -633,21 +1281,192 @@ let scenarios          = [];
 let currentIdx         = 0;
 let currentPersonalised = [];   // routes for Set A
 let currentBaseline     = [];   // routes for Set B
+let selectedProfileForPreview = null;
+let previewModeActive = false;
+let scenarioDrafts = {};          // local per-scenario answers; used for back navigation and updates
+
+const MOCK_SCENARIOS = [
+    {
+        id: "preview-1",
+        title: "Scenario 1: Campus to city centre",
+        context: "Imagine you need to travel from the OVGU campus to the city centre on a normal weekday afternoon.",
+        origin: "OVGU Campus",
+        destination: "Magdeburg City Centre",
+        origin_lat: 52.1402,
+        origin_lon: 11.6460,
+        destination_lat: 52.1305,
+        destination_lon: 11.6267,
+    },
+    {
+        id: "preview-2",
+        title: "Scenario 2: Home to the university hospital",
+        context: "Imagine you need to travel from Stadtfeld Ost to the University Hospital for an appointment during daytime.",
+        origin: "Stadtfeld Ost",
+        destination: "University Hospital Magdeburg",
+        origin_lat: 52.1310,
+        origin_lon: 11.6089,
+        destination_lat: 52.1027,
+        destination_lon: 11.6154,
+    },
+    {
+        id: "preview-3",
+        title: "Scenario 3: Shopping trip",
+        context: "Imagine you want to travel from the university campus to a supermarket area for everyday shopping.",
+        origin: "OVGU Campus",
+        destination: "Kaufland / Sudenburg area",
+        origin_lat: 52.1402,
+        origin_lon: 11.6460,
+        destination_lat: 52.1073,
+        destination_lon: 11.5925,
+    },
+    {
+        id: "preview-4",
+        title: "Scenario 4: Leisure trip in the evening",
+        context: "Imagine you want to travel from the city centre to a leisure destination in the evening.",
+        origin: "Magdeburg City Centre",
+        destination: "Fitness / Leisure area Stadtfeld",
+        origin_lat: 52.1305,
+        origin_lon: 11.6267,
+        destination_lat: 52.1178,
+        destination_lon: 11.5950,
+    }
+];
+
+// Static preview data for Phoenix Code / standalone HTML mode.
+// In the real deployment, /api/scenarios and /api/scenario/:id/ranking remain the source of truth.
+const MOCK_RANKINGS_BY_SCENARIO = {
+    "preview-1": {
+        status: "success",
+        personalised: [
+            { route_id: "s1-a1", route_summary: "Bike + tram", total_duration_minutes: 24, transfer_count: 1, walking_minutes: 5, is_intermodal: true, mode_sequence: ["Bike", "Tram", "Walk"] },
+            { route_id: "s1-a2", route_summary: "Public transport", total_duration_minutes: 29, transfer_count: 0, walking_minutes: 7, is_intermodal: false, mode_sequence: ["Tram"] },
+            { route_id: "s1-a3", route_summary: "Bike", total_duration_minutes: 27, transfer_count: 0, walking_minutes: 0, is_intermodal: false, mode_sequence: ["Bike"] },
+            { route_id: "s1-a4", route_summary: "Car", total_duration_minutes: 31, transfer_count: 0, walking_minutes: 8, is_intermodal: false, mode_sequence: ["Car", "Walk"] },
+        ],
+        baseline: [
+            { route_id: "s1-b1", route_summary: "Car", total_duration_minutes: 22, transfer_count: 0, walking_minutes: 8, is_intermodal: false, mode_sequence: ["Car", "Walk"] },
+            { route_id: "s1-b2", route_summary: "Bike", total_duration_minutes: 27, transfer_count: 0, walking_minutes: 0, is_intermodal: false, mode_sequence: ["Bike"] },
+            { route_id: "s1-b3", route_summary: "Public transport", total_duration_minutes: 29, transfer_count: 0, walking_minutes: 7, is_intermodal: false, mode_sequence: ["Tram"] },
+            { route_id: "s1-b4", route_summary: "Walk + tram", total_duration_minutes: 34, transfer_count: 1, walking_minutes: 11, is_intermodal: true, mode_sequence: ["Walk", "Tram", "Walk"] },
+        ],
+    },
+    "preview-2": {
+        status: "success",
+        personalised: [
+            { route_id: "s2-a1", route_summary: "Tram + walk", total_duration_minutes: 32, transfer_count: 0, walking_minutes: 9, is_intermodal: true, mode_sequence: ["Walk", "Tram", "Walk"] },
+            { route_id: "s2-a2", route_summary: "Bike", total_duration_minutes: 26, transfer_count: 0, walking_minutes: 0, is_intermodal: false, mode_sequence: ["Bike"] },
+            { route_id: "s2-a3", route_summary: "Car", total_duration_minutes: 25, transfer_count: 0, walking_minutes: 8, is_intermodal: false, mode_sequence: ["Car", "Walk"] },
+            { route_id: "s2-a4", route_summary: "Walk", total_duration_minutes: 58, transfer_count: 0, walking_minutes: 58, is_intermodal: false, mode_sequence: ["Walk"] },
+        ],
+        baseline: [
+            { route_id: "s2-b1", route_summary: "Car", total_duration_minutes: 25, transfer_count: 0, walking_minutes: 8, is_intermodal: false, mode_sequence: ["Car", "Walk"] },
+            { route_id: "s2-b2", route_summary: "Bike", total_duration_minutes: 26, transfer_count: 0, walking_minutes: 0, is_intermodal: false, mode_sequence: ["Bike"] },
+            { route_id: "s2-b3", route_summary: "Public transport", total_duration_minutes: 35, transfer_count: 1, walking_minutes: 8, is_intermodal: true, mode_sequence: ["Walk", "Tram", "Bus", "Walk"] },
+            { route_id: "s2-b4", route_summary: "Walk", total_duration_minutes: 58, transfer_count: 0, walking_minutes: 58, is_intermodal: false, mode_sequence: ["Walk"] },
+        ],
+    },
+    "preview-3": {
+        status: "success",
+        personalised: [
+            { route_id: "s3-a1", route_summary: "Bike", total_duration_minutes: 21, transfer_count: 0, walking_minutes: 0, is_intermodal: false, mode_sequence: ["Bike"] },
+            { route_id: "s3-a2", route_summary: "Tram + walk", total_duration_minutes: 30, transfer_count: 0, walking_minutes: 12, is_intermodal: true, mode_sequence: ["Walk", "Tram", "Walk"] },
+            { route_id: "s3-a3", route_summary: "Car", total_duration_minutes: 24, transfer_count: 0, walking_minutes: 8, is_intermodal: false, mode_sequence: ["Car", "Walk"] },
+            { route_id: "s3-a4", route_summary: "Walk", total_duration_minutes: 64, transfer_count: 0, walking_minutes: 64, is_intermodal: false, mode_sequence: ["Walk"] },
+        ],
+        baseline: [
+            { route_id: "s3-b1", route_summary: "Car", total_duration_minutes: 24, transfer_count: 0, walking_minutes: 8, is_intermodal: false, mode_sequence: ["Car", "Walk"] },
+            { route_id: "s3-b2", route_summary: "Bike", total_duration_minutes: 21, transfer_count: 0, walking_minutes: 0, is_intermodal: false, mode_sequence: ["Bike"] },
+            { route_id: "s3-b3", route_summary: "Public transport", total_duration_minutes: 33, transfer_count: 1, walking_minutes: 10, is_intermodal: true, mode_sequence: ["Walk", "Tram", "Walk"] },
+            { route_id: "s3-b4", route_summary: "Walk", total_duration_minutes: 64, transfer_count: 0, walking_minutes: 64, is_intermodal: false, mode_sequence: ["Walk"] },
+        ],
+    },
+    "preview-4": {
+        status: "success",
+        personalised: [
+            { route_id: "s4-a1", route_summary: "Public transport", total_duration_minutes: 23, transfer_count: 0, walking_minutes: 8, is_intermodal: false, mode_sequence: ["Tram", "Walk"] },
+            { route_id: "s4-a2", route_summary: "Car", total_duration_minutes: 22, transfer_count: 0, walking_minutes: 8, is_intermodal: false, mode_sequence: ["Car", "Walk"] },
+            { route_id: "s4-a3", route_summary: "Bike", total_duration_minutes: 19, transfer_count: 0, walking_minutes: 0, is_intermodal: false, mode_sequence: ["Bike"] },
+            { route_id: "s4-a4", route_summary: "Walk", total_duration_minutes: 41, transfer_count: 0, walking_minutes: 41, is_intermodal: false, mode_sequence: ["Walk"] },
+        ],
+        baseline: [
+            { route_id: "s4-b1", route_summary: "Bike", total_duration_minutes: 19, transfer_count: 0, walking_minutes: 0, is_intermodal: false, mode_sequence: ["Bike"] },
+            { route_id: "s4-b2", route_summary: "Car", total_duration_minutes: 22, transfer_count: 0, walking_minutes: 8, is_intermodal: false, mode_sequence: ["Car", "Walk"] },
+            { route_id: "s4-b3", route_summary: "Public transport", total_duration_minutes: 23, transfer_count: 0, walking_minutes: 8, is_intermodal: false, mode_sequence: ["Tram", "Walk"] },
+            { route_id: "s4-b4", route_summary: "Walk", total_duration_minutes: 41, transfer_count: 0, walking_minutes: 41, is_intermodal: false, mode_sequence: ["Walk"] },
+        ],
+    },
+};
+
+function getMockRankingForUrl(url) {
+    const match = String(url).match(/\/api\/scenario\/([^/]+)\/ranking/);
+    const scenarioId = match ? decodeURIComponent(match[1]) : "preview-1";
+    return MOCK_RANKINGS_BY_SCENARIO[scenarioId] || MOCK_RANKINGS_BY_SCENARIO["preview-1"];
+}
+
+function activatePreviewMode(reason) {
+    previewModeActive = true;
+    console.warn("Preview mode active:", reason || "backend API unavailable");
+    const banner = document.getElementById("preview-mode-banner");
+    if (banner) banner.classList.remove("hidden");
+}
+
+async function apiGetJson(url) {
+    try {
+        const res = await fetch(url, { credentials: "same-origin" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+    } catch (err) {
+        activatePreviewMode(`${url} → ${err.message}`);
+        if (url === "/api/scenarios") return MOCK_SCENARIOS;
+        if (url.includes("/api/scenario/") && url.includes("/ranking")) return getMockRankingForUrl(url);
+        if (url === "/api/participant") return { selected_profile: selectedProfileForPreview, participant_code: "PREVIEW-CODE" };
+        return {};
+    }
+}
+
+async function apiPostJson(url, payload) {
+    try {
+        const res = await fetch(url, {
+            method: "POST", credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res;
+    } catch (err) {
+        activatePreviewMode(`${url} → ${err.message}`);
+        console.log("Preview payload for", url, payload);
+        return { ok: true, json: async () => ({ status: "preview" }) };
+    }
+}
 
 // ── Likert builder ─────────────────────────────────────────────
 function buildLikert(containerId, max = 5) {
     const el = document.getElementById(containerId);
     if (!el) return;
     el.innerHTML = "";
+    el.style.setProperty("--likert-count", String(max));
+    el.classList.toggle("likert-options-7", max === 7);
+    el.setAttribute("role", "radiogroup");
+    el.setAttribute("aria-label", containerId.replace(/-/g, " "));
     for (let i = 1; i <= max; i++) {
         const btn = document.createElement("button");
         btn.type      = "button";
         btn.className = "likert-btn";
         btn.textContent = i;
         btn.dataset.value = i;
-        btn.onclick = () => {
-            el.querySelectorAll(".likert-btn").forEach(b => b.classList.remove("selected"));
+        btn.setAttribute("role", "radio");
+        btn.setAttribute("aria-checked", "false");
+        btn.setAttribute("aria-label", `Rating ${i} of ${max}`);
+        btn.onclick = (event) => {
+            event.stopPropagation();
+            el.querySelectorAll(".likert-btn").forEach(b => {
+                b.classList.remove("selected");
+                b.setAttribute("aria-checked", "false");
+            });
             btn.classList.add("selected");
+            btn.setAttribute("aria-checked", "true");
+            updateSoftProfilePreview();
         };
         el.appendChild(btn);
     }
@@ -660,25 +1479,302 @@ function getLikert(containerId) {
     return sel ? parseInt(sel.dataset.value) : null;
 }
 
+const LIKERT_ANCHORS = {
+    "mobility-frequency": ["1 = Never", "3 = Sometimes", "5 = Daily"],
+    "cycling-comfort": ["1 = Not comfortable", "3 = Moderately comfortable", "5 = Very comfortable"],
+    "ranking-acceptance-a": ["1 = Does not match", "3 = Partly matches", "5 = Matches very well"],
+    "ranking-acceptance-b": ["1 = Does not match", "3 = Partly matches", "5 = Matches very well"],
+    "understood-intermodal": ["1 = Very difficult", "3 = Neither easy nor difficult", "5 = Very easy"],
+    "intermodal-acceptance": ["1 = Definitely not", "3 = Maybe", "5 = Definitely yes"],
+    "scenario-system-use": ["1 = Definitely not", "3 = Maybe", "5 = Definitely yes"],
+    "scenario-trust-top-recommendation": ["1 = Not at all", "3 = Moderately", "5 = Very much"],
+    "profile-rating-biospheric": ["1 = Not at all", "4 = Moderately", "7 = Fully describes me"],
+    "profile-rating-altruistic": ["1 = Not at all", "4 = Moderately", "7 = Fully describes me"],
+    "profile-rating-egoistic": ["1 = Not at all", "4 = Moderately", "7 = Fully describes me"],
+    "profile-rating-hedonic": ["1 = Not at all", "4 = Moderately", "7 = Fully describes me"],
+    "profile-selection-confidence": ["1 = Not confident", "4 = Moderately confident", "7 = Very confident"],
+    "value-profile-accuracy": ["1 = Not at all", "3 = Moderately", "5 = Very accurately"],
+    "profile-confidence": ["1 = Not confident", "3 = Moderately confident", "5 = Very confident"],
+    "personalisation-quality": ["1 = Poorly", "3 = Moderately", "5 = Very well"],
+    "willingness-use": ["1 = Very unlikely", "3 = Unsure", "5 = Very likely"],
+    "trust-ranking": ["1 = Not at all", "3 = Moderately", "5 = A great deal"],
+    "overall-intermodal-use": ["1 = Definitely not", "3 = Maybe", "5 = Definitely yes"],
+    "need-pro-env": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
+    "need-physical": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
+    "need-privacy": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
+    "need-autonomy": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
+    "need-cost": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
+    "need-speed": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
+    "need-safety-accident": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
+    "need-safety-crime": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
+    "need-comfort": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
+    "need-reliable": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
+    "need-health-infection": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
+};
+
+const LIKERT_POINT_LABELS = {
+    "mobility-frequency": ["Never / almost never", "Rarely", "Sometimes", "Often", "Daily / almost daily"],
+    "cycling-comfort": ["Not at all", "Slightly", "Moderately", "Comfortable", "Very comfortable"],
+    "ranking-acceptance-a": ["Not at all", "Slightly", "Partly", "Mostly", "Very well"],
+    "ranking-acceptance-b": ["Not at all", "Slightly", "Partly", "Mostly", "Very well"],
+    "understood-intermodal": ["Very difficult", "Difficult", "Neither", "Easy", "Very easy"],
+    "intermodal-acceptance": ["Definitely not", "Probably not", "Maybe", "Probably yes", "Definitely yes"],
+    "scenario-system-use": ["Definitely not", "Probably not", "Maybe", "Probably yes", "Definitely yes"],
+    "scenario-trust-top-recommendation": ["Not at all", "A little", "Moderately", "Quite a lot", "Very much"],
+    "profile-rating-biospheric": ["Not at all", "Very little", "A little", "Moderately", "Quite well", "Very well", "Fully describes me"],
+    "profile-rating-altruistic": ["Not at all", "Very little", "A little", "Moderately", "Quite well", "Very well", "Fully describes me"],
+    "profile-rating-egoistic": ["Not at all", "Very little", "A little", "Moderately", "Quite well", "Very well", "Fully describes me"],
+    "profile-rating-hedonic": ["Not at all", "Very little", "A little", "Moderately", "Quite well", "Very well", "Fully describes me"],
+    "profile-selection-confidence": ["Not confident", "Very low", "Low", "Moderate", "Rather confident", "Confident", "Very confident"],
+    "value-profile-accuracy": ["Not at all", "A little", "Moderately", "Quite accurately", "Very accurately"],
+    "profile-confidence": ["Not confident", "Slightly", "Moderately", "Confident", "Very confident"],
+    "personalisation-quality": ["Very poorly", "Poorly", "Moderately", "Well", "Very well"],
+    "willingness-use": ["Very unlikely", "Unlikely", "Unsure", "Likely", "Very likely"],
+    "trust-ranking": ["Not at all", "A little", "Moderately", "Quite a lot", "A great deal"],
+    "overall-intermodal-use": ["Definitely not", "Probably not", "Maybe", "Probably yes", "Definitely yes"]
+};
+
+const NEED_LIKERT_POINT_LABELS = ["Not important", "Slightly important", "Moderately important", "Important", "Very important"];
+
+function getLikertPointLabels(id, labels) {
+    if (LIKERT_POINT_LABELS[id]) return LIKERT_POINT_LABELS[id];
+    if (id && id.startsWith("need-")) return NEED_LIKERT_POINT_LABELS;
+    return [
+        labels[0].replace(/^1\s*=\s*/, ""),
+        "",
+        labels[1].replace(/^\d+\s*=\s*/, ""),
+        "",
+        labels[2].replace(/^\d+\s*=\s*/, "")
+    ];
+}
+
+
+function installLikertAnchors() {
+    Object.entries(LIKERT_ANCHORS).forEach(([id, labels]) => {
+        const options = document.getElementById(id);
+        if (!options) return;
+        const row = options.closest(".likert-row");
+        if (!row) return;
+
+        const pointLabels = getLikertPointLabels(id, labels);
+
+        // Preserve semantic endpoint anchors but render them in a clearer full-width row.
+        if (!row.querySelector(".likert-endpoint-row")) {
+            const endpointRow = document.createElement("div");
+            endpointRow.className = "likert-endpoint-row";
+            endpointRow.innerHTML = `<span>${pointLabels[0]}</span><span>${pointLabels[pointLabels.length - 1]}</span>`;
+            row.insertBefore(endpointRow, options);
+        }
+
+        if (!row.querySelector(".likert-point-labels")) {
+            const pointLabelRow = document.createElement("div");
+            pointLabelRow.className = "likert-point-labels";
+            pointLabelRow.setAttribute("aria-hidden", "true");
+            pointLabelRow.style.setProperty("--likert-count", String(pointLabels.length));
+            pointLabelRow.innerHTML = pointLabels.map(label => `<span>${label}</span>`).join("");
+            options.insertAdjacentElement("afterend", pointLabelRow);
+        }
+
+        if (!row.querySelector(".likert-scale-caption")) {
+            const caption = document.createElement("div");
+            caption.className = "likert-scale-caption";
+            caption.textContent = labels.join(" · ");
+            row.appendChild(caption);
+        }
+    });
+}
+
 // Build all Likerts on load
 const LIKERT_IDS = [
-    "cycling-comfort", "ranking-acceptance-a",
-    "understood-intermodal",
+    "mobility-frequency", "cycling-comfort",
+    "profile-rating-biospheric", "profile-rating-altruistic", "profile-rating-egoistic", "profile-rating-hedonic",
+    "profile-selection-confidence",
+    "ranking-acceptance-a", "ranking-acceptance-b",
+    "understood-intermodal", "intermodal-acceptance",
+    "scenario-system-use", "scenario-trust-top-recommendation",
     "need-pro-env", "need-physical", "need-privacy", "need-autonomy",
     "need-cost", "need-speed", "need-safety-accident", "need-safety-crime",
     "need-comfort", "need-reliable", "need-health-infection",
     "value-profile-accuracy", "profile-confidence", "personalisation-quality",
-    "willingness-use", "trust-ranking",
+    "willingness-use", "trust-ranking", "overall-intermodal-use",
 ];
+const LIKERT_MAX = {
+    "profile-rating-biospheric": 7,
+    "profile-rating-altruistic": 7,
+    "profile-rating-egoistic": 7,
+    "profile-rating-hedonic": 7,
+    "profile-selection-confidence": 7,
+};
 window.addEventListener("DOMContentLoaded", () => {
-    LIKERT_IDS.forEach(id => buildLikert(id));
+    LIKERT_IDS.forEach(id => buildLikert(id, LIKERT_MAX[id] || 5));
+    installLikertAnchors();
+    initPage1Logic();
+    installBackButtons();
+    markRequiredFields();
+    installQuickResponseButtons();
 });
+
+function markRequiredFields() {
+    [
+        "age-input", "gender", "education", "occupation", "commute-different-city", "commute-district", "exclusion-disability-yesno",
+        "driving-license", "owns-car", "owns-bike",
+        "preferred-route-a", "follow-top-route-a", "preferred-route-b", "noticed-intermodal",
+        "scenario-comment", "noticed-personalisation", "comparison-google", "best-feature", "improvement"
+    ].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.required = true;
+    });
+}
+
+function initPage1Logic() {
+    const commuteDifferentCity = document.getElementById("commute-different-city");
+    const commuteCityGroup = document.getElementById("commute-city-group");
+    const commuteCity = document.getElementById("commute-city");
+    const disabilityYesNo = document.getElementById("exclusion-disability-yesno");
+    const disabilityModeGroup = document.getElementById("disability-mode-group");
+
+    function updateCommuteCityLogic() {
+        const showCity = commuteDifferentCity && commuteDifferentCity.value === "yes";
+        if (commuteCityGroup) commuteCityGroup.classList.toggle("hidden", !showCity);
+        if (commuteCity) {
+            commuteCity.required = showCity;
+            if (!showCity) commuteCity.value = "";
+        }
+    }
+
+    function updateDisabilityLogic() {
+        const showModes = disabilityYesNo && disabilityYesNo.value === "1";
+        if (disabilityModeGroup) disabilityModeGroup.classList.toggle("hidden", !showModes);
+        if (!showModes) {
+            document.querySelectorAll("input[name='disability-mode']").forEach(cb => cb.checked = false);
+        }
+    }
+
+    if (commuteDifferentCity) commuteDifferentCity.addEventListener("change", updateCommuteCityLogic);
+    if (disabilityYesNo) disabilityYesNo.addEventListener("change", updateDisabilityLogic);
+    updateCommuteCityLogic();
+    updateDisabilityLogic();
+}
+
+function getCheckedValues(name) {
+    return Array.from(document.querySelectorAll(`input[name='${name}']:checked`)).map(cb => cb.value);
+}
+
+function requireDisabilityModesIfNeeded() {
+    const disability = document.getElementById("exclusion-disability-yesno").value;
+    if (disability === "1" && getCheckedValues("disability-mode").length === 0) {
+        alert("Please select which modes or mobility activities are affected.");
+        const group = document.getElementById("disability-mode-group");
+        if (group) group.scrollIntoView({ behavior: "smooth", block: "center" });
+        return false;
+    }
+    return true;
+}
+
+function installBackButtons() {
+    addBackButton("save-demographics-btn", () => show("consent-section"));
+    addBackButton("save-mobility-btn", () => show("demographics-section"));
+    addBackButton("save-profile-btn", () => show("mobility-section"));
+    addBackButton("next-scenario-btn", async () => {
+        snapshotCurrentScenarioDraft();
+        if (currentIdx > 0) {
+            currentIdx -= 1;
+            await loadScenario();
+        } else {
+            show("profile-section");
+        }
+    });
+    addBackButton("save-needs-btn", async () => {
+        if (scenarios.length) {
+            currentIdx = Math.max(0, Math.min(currentIdx, scenarios.length - 1));
+            if (currentIdx >= scenarios.length) currentIdx = scenarios.length - 1;
+            show("scenario-section");
+            await loadScenario();
+        } else {
+            show("profile-section");
+        }
+    });
+    addBackButton("submit-study-btn", () => show("needs-rating-section"));
+}
+
+function addBackButton(beforeBtnId, onClick) {
+    const nextBtn = document.getElementById(beforeBtnId);
+    if (!nextBtn || document.getElementById(beforeBtnId + "-back")) return;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.id = beforeBtnId + "-back";
+    btn.className = "back-btn";
+    btn.textContent = "Back";
+    btn.onclick = onClick;
+    nextBtn.parentNode.insertBefore(btn, nextBtn);
+}
 
 // ── Section navigation ─────────────────────────────────────────
 function show(id) {
     document.querySelectorAll(".card").forEach(s => s.classList.add("hidden"));
     document.getElementById(id).classList.remove("hidden");
     window.scrollTo(0, 0);
+}
+
+function isBlank(value) {
+    return value === null || value === undefined || String(value).trim() === "";
+}
+
+function requireFields(fieldDefs) {
+    for (const [id, message] of fieldDefs) {
+        const el = document.getElementById(id);
+        if (!el || isBlank(el.value)) {
+            alert(message);
+            if (el && typeof el.focus === "function") el.focus();
+            return false;
+        }
+    }
+    return true;
+}
+
+function requireLikerts(likertDefs) {
+    for (const [id, message] of likertDefs) {
+        if (getLikert(id) === null) {
+            alert(message);
+            const el = document.getElementById(id);
+            if (el && typeof el.scrollIntoView === "function") el.scrollIntoView({ behavior: "smooth", block: "center" });
+            return false;
+        }
+    }
+    return true;
+}
+
+function setLikert(containerId, value) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    el.querySelectorAll(".likert-btn").forEach(b => {
+        const selected = String(b.dataset.value) === String(value);
+        b.classList.toggle("selected", selected);
+        b.setAttribute("aria-checked", selected ? "true" : "false");
+    });
+}
+
+function clearLikert(containerId) {
+    const el = document.getElementById(containerId);
+    if (el) el.querySelectorAll(".likert-btn").forEach(b => {
+        b.classList.remove("selected");
+        b.setAttribute("aria-checked", "false");
+    });
+}
+
+
+function installQuickResponseButtons() {
+    document.querySelectorAll("[data-fill-textarea]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const targetId = btn.dataset.fillTextarea;
+            const value = btn.dataset.fillValue || "No comments";
+            const target = document.getElementById(targetId);
+            if (!target) return;
+            target.value = value;
+            target.dispatchEvent(new Event("input", { bubbles: true }));
+            target.focus({ preventScroll: true });
+        });
+    });
 }
 
 // ── CONSENT → DEMOGRAPHICS ────────────────────────────────────
@@ -692,28 +1788,66 @@ document.getElementById("start-btn").onclick = () => {
 
 // ── PART A: BIOGRAPHY → MOBILITY ──────────────────────────────
 document.getElementById("save-demographics-btn").onclick = () => {
-    // Basic validation — age must be a plausible number
     const ageVal = document.getElementById("age-input").value;
     if (!ageVal || parseInt(ageVal) < 16 || parseInt(ageVal) > 100) {
         alert("Please enter a valid age (16–100).");
+        document.getElementById("age-input").focus();
         return;
     }
+    if (!requireFields([
+        ["gender", "Please select your gender."],
+        ["education", "Please select your highest completed education."],
+        ["occupation", "Please select your occupation."],
+        ["commute-different-city", "Please indicate whether you usually commute to a different city than Magdeburg."],
+        ["commute-district", "Please select the Magdeburg district where you usually commute for work or studies."],
+        ["exclusion-disability-yesno", "Please answer the mobility impairment/disability question."]
+    ])) return;
+    if (document.getElementById("commute-different-city").value === "yes" &&
+        !requireFields([["commute-city", "Please select the city you usually commute to."]])) return;
+    if (!requireDisabilityModesIfNeeded()) return;
     show("mobility-section");
 };
 
 // ── PART B: MOBILITY → PROFILE ─────────────────────────────────
 document.getElementById("save-mobility-btn").onclick = async () => {
+    if (!requireFields([
+        ["driving-license", "Please indicate whether you have a driving licence."],
+        ["owns-car", "Please indicate whether you have regular access to a car."],
+        ["owns-bike", "Please indicate whether you have regular access to a bicycle."]
+    ])) return;
+    if (!requireLikerts([
+        ["mobility-frequency", "Please rate how often you use public transport."],
+        ["cycling-comfort", "Please rate how comfortable you are cycling in city traffic."]
+    ])) return;
+
+    const mobilityFrequencyScore = getLikert("mobility-frequency");
+    const mobilityFrequencyLabels = {
+        1: "never_almost_never",
+        2: "rarely",
+        3: "sometimes",
+        4: "often",
+        5: "daily_almost_daily"
+    };
+
     const ageVal = document.getElementById("age-input").value;
     const payload = {
         // Biography (Part A)
         age_group:             ageVal ? String(parseInt(ageVal)) : null,
         gender:                document.getElementById("gender").value || null,
         occupation:            document.getElementById("occupation").value || null,
-        city_of_residence:     document.getElementById("city-of-residence").value || null,
         education:             document.getElementById("education").value || null,
-        exclusion_disability:  document.getElementById("exclusion-disability").value || null,
+        // Page 1 commuting context
+        commute_different_city: document.getElementById("commute-different-city").value || null,
+        commute_city:           document.getElementById("commute-different-city").value === "yes"
+                                ? document.getElementById("commute-city").value : null,
+        commute_district:       document.getElementById("commute-district").value || null,
+        city_of_residence:      document.getElementById("commute-district").value || null, // backward-compatible field name
+        // Page 1 accessibility / mobility constraints
+        exclusion_disability:   document.getElementById("exclusion-disability-yesno").value || null,
+        disability_affected_modes: getCheckedValues("disability-mode"),
         // Mobility habits (Part B)
-        mobility_frequency:    document.getElementById("mobility-frequency").value || null,
+        mobility_frequency:    mobilityFrequencyScore,
+        mobility_frequency_label: mobilityFrequencyScore ? mobilityFrequencyLabels[mobilityFrequencyScore] : null,
         has_driving_license:   document.getElementById("driving-license").value
                                ? parseInt(document.getElementById("driving-license").value) : null,
         owns_car:              document.getElementById("owns-car").value
@@ -723,11 +1857,7 @@ document.getElementById("save-mobility-btn").onclick = async () => {
         uses_public_transport: null,
         cycling_comfort:       getLikert("cycling-comfort"),
     };
-    await fetch("/api/demographics", {
-        method: "POST", credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-    });
+    await apiPostJson("/api/demographics", payload);
     show("profile-section");
 };
 
@@ -739,50 +1869,122 @@ const PROFILE_LABELS = {
     hedonic:     "😌 The Relaxed Traveller",
 };
 
+function selectClosestProfile(profile) {
+    document.querySelectorAll(".profile-pill").forEach(c => c.classList.remove("selected"));
+    const card = document.querySelector(`.profile-pill[data-profile="${profile}"]`);
+    if (card) card.classList.add("selected");
+    selectedProfileForPreview = profile;
+    document.getElementById("selected-profile").value = profile;
+
+    const display = document.getElementById("profile-selected-display");
+    document.getElementById("profile-selected-text").textContent =
+        "Closest profile selected: " + PROFILE_LABELS[profile];
+    display.classList.remove("hidden");
+
+    const btn = document.getElementById("save-profile-btn");
+    btn.disabled = false;
+    btn.textContent = "Continue to Route Scenarios";
+    updateSoftProfilePreview();
+}
+
 document.querySelectorAll(".profile-pill").forEach(card => {
-    card.addEventListener("click", () => {
-        document.querySelectorAll(".profile-pill").forEach(c => c.classList.remove("selected"));
-        card.classList.add("selected");
-        const profile = card.dataset.profile;
-        document.getElementById("selected-profile").value = profile;
-
-        // Show confirmation strip and enable button
-        const display = document.getElementById("profile-selected-display");
-        document.getElementById("profile-selected-text").textContent =
-            "Selected: " + PROFILE_LABELS[profile];
-        display.classList.remove("hidden");
-
-        const btn = document.getElementById("save-profile-btn");
-        btn.disabled = false;
-        btn.textContent = "Continue to Route Scenarios";
+    card.addEventListener("click", (event) => {
+        if (event.target.closest(".likert-row, .likert-btn, .select-profile-btn, button")) return;
+        selectClosestProfile(card.dataset.profile);
     });
 });
 
+document.querySelectorAll(".select-profile-btn").forEach(btn => {
+    btn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        selectClosestProfile(btn.dataset.selectProfile);
+    });
+});
+
+function getProfileRatings() {
+    return {
+        biospheric: getLikert("profile-rating-biospheric"),
+        altruistic: getLikert("profile-rating-altruistic"),
+        egoistic: getLikert("profile-rating-egoistic"),
+        hedonic: getLikert("profile-rating-hedonic"),
+    };
+}
+
+function computeSoftProfileVector() {
+    const ratings = getProfileRatings();
+    const values = Object.values(ratings);
+    if (values.some(v => v === null)) return null;
+    const sum = values.reduce((a, b) => a + b, 0);
+    if (!sum) return null;
+    return Object.fromEntries(Object.entries(ratings).map(([k, v]) => [k, Number((v / sum).toFixed(4))]));
+}
+
+function updateSoftProfilePreview() {
+    const preview = document.getElementById("soft-profile-preview");
+    if (!preview) return;
+    const vector = computeSoftProfileVector();
+    if (!vector) {
+        preview.classList.add("hidden");
+        return;
+    }
+    const rows = Object.entries(vector).map(([key, value]) => {
+        const label = PROFILE_LABELS[key] || key;
+        const pct = Math.round(value * 100);
+        return `<div><strong>${label}:</strong> ${pct}%<div class="soft-profile-bar"><div class="soft-profile-fill" style="width:${pct}%"></div></div></div>`;
+    }).join("");
+    preview.innerHTML = `<strong>Soft profile vector generated from the ratings:</strong>${rows}`;
+    preview.classList.remove("hidden");
+}
+
 function clearProfileSelection() {
     document.querySelectorAll(".profile-pill").forEach(c => c.classList.remove("selected"));
+    selectedProfileForPreview = null;
     document.getElementById("selected-profile").value = "";
     document.getElementById("profile-selected-display").classList.add("hidden");
     const btn = document.getElementById("save-profile-btn");
     btn.disabled = true;
-    btn.textContent = "Select a profile above to continue";
+    btn.textContent = "Select a closest profile to continue";
 }
 
 document.getElementById("save-profile-btn").onclick = async () => {
     const profile = document.getElementById("selected-profile").value;
-    if (!profile) { alert("Please select a profile."); return; }
-    await fetch("/api/profile", {
-        method: "POST", credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ selected_profile: profile }),
+    if (!requireLikerts([
+        ["profile-rating-biospheric", "Please rate how well the Green Traveller profile describes you."],
+        ["profile-rating-altruistic", "Please rate how well the Safe & Reliable Traveller profile describes you."],
+        ["profile-rating-egoistic", "Please rate how well the Independent Traveller profile describes you."],
+        ["profile-rating-hedonic", "Please rate how well the Relaxed Traveller profile describes you."],
+        ["profile-selection-confidence", "Please rate how confident you are in your closest profile selection."]
+    ])) return;
+    if (!profile) { alert("Please select the closest overall profile."); return; }
+    selectedProfileForPreview = profile;
+    const profileFitRatings = getProfileRatings();
+    const softProfileVector = computeSoftProfileVector();
+    await apiPostJson("/api/profile", {
+        selected_profile: profile,
+        profile_fit_ratings: profileFitRatings,
+        profile_selection_confidence: getLikert("profile-selection-confidence"),
+        soft_profile_vector: softProfileVector,
     });
     show("scenario-section");
-    await loadScenarios();
+    updateScenarioProfileBadge(profile);
+    if (!scenarios.length) {
+        await loadScenarios();
+    } else {
+        await loadScenario();
+    }
 };
+
+function updateScenarioProfileBadge(profile) {
+    const meta = PROFILE_META[profile];
+    if (!meta) return;
+    document.getElementById("scenario-profile-emoji").textContent = meta.emoji;
+    document.getElementById("scenario-profile-name").textContent  = meta.label;
+    document.getElementById("scenario-profile-badge").classList.remove("hidden");
+}
 
 // ── SCENARIO LOADING ──────────────────────────────────────────
 async function loadScenarios() {
-    const res = await fetch("/api/scenarios", { credentials: "same-origin" });
-    scenarios = await res.json();
+    scenarios = await apiGetJson("/api/scenarios");
     currentIdx = 0;
     await loadScenario();
 }
@@ -800,27 +2002,24 @@ async function loadScenario() {
     document.getElementById("map-dest-label").textContent   = s.destination;
     initScenarioMap(s.origin_lat, s.origin_lon, s.destination_lat, s.destination_lon);
 
-    // Hide route sets, show loading
-    ["route-sets-container","intermodal-section"].forEach(
+    // Hide validation blocks, show loading
+    ["route-sets-container", "intermodal-section", "scenario-system-section"].forEach(
         id => document.getElementById(id).classList.add("hidden")
     );
     document.getElementById("routes-loading").classList.remove("hidden");
     document.getElementById("next-scenario-btn").disabled = true;
     document.getElementById("scenario-comment").value = "";
-    // Reset Likerts for this scenario
-    ["ranking-acceptance-a","perceived-pro-env","perceived-physical","perceived-privacy",
-     "perceived-autonomy","perceived-cost","perceived-speed","perceived-safety-accident",
-     "perceived-safety-crime","perceived-comfort","perceived-reliable",
-     "perceived-health-infection","perceived-intermodal","overall-satisfaction",
-     "understood-intermodal"].forEach(id => {
+    // Reset scenario-specific inputs
+    ["ranking-acceptance-a", "ranking-acceptance-b", "understood-intermodal",
+     "intermodal-acceptance", "scenario-system-use", "scenario-trust-top-recommendation"].forEach(clearLikert);
+    ["follow-top-route-a", "noticed-intermodal"].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.querySelectorAll(".likert-btn").forEach(b => b.classList.remove("selected"));
+        if (el) el.value = "";
     });
 
     let data;
     try {
-        const res = await fetch(`/api/scenario/${s.id}/ranking`, { credentials: "same-origin" });
-        data = await res.json();
+        data = await apiGetJson(`/api/scenario/${s.id}/ranking`);
     } catch (err) {
         document.getElementById("routes-loading").classList.add("hidden");
         console.error("Network error fetching routes:", err);
@@ -843,16 +2042,90 @@ async function loadScenario() {
     console.log(`Personalised routes: ${currentPersonalised.length}, Baseline routes: ${currentBaseline.length}`);
 
     renderRouteSet("routes-list-a", "preferred-route-a", currentPersonalised, false);
-    renderRouteSet("routes-list-b", "preferred-route-b", currentBaseline, true);
+    renderRouteSet("routes-list-b", "preferred-route-b", currentBaseline, false);
 
     document.getElementById("route-sets-container").classList.remove("hidden");
-    document.getElementById("intermodal-section").classList.remove("hidden");
-    document.getElementById("next-scenario-btn").disabled = false;
+    document.getElementById("scenario-system-section").classList.remove("hidden");
 
-    // Show intermodal quality item only if any personalised route is intermodal
-    const hasIntermodal = currentPersonalised.some(r => r.is_intermodal);
-    document.getElementById("intermodal-rating-box").style.display =
-        hasIntermodal ? "block" : "none";
+    // Show intermodal block only when at least one displayed route is intermodal
+    const hasIntermodal = [...currentPersonalised, ...currentBaseline].some(r => r.is_intermodal);
+    document.getElementById("intermodal-section").classList.toggle("hidden", !hasIntermodal);
+
+    restoreScenarioDraft(s.id);
+    document.getElementById("next-scenario-btn").disabled = false;
+}
+
+function getCurrentScenarioDraft() {
+    return {
+        preferredRouteA: document.getElementById("preferred-route-a")?.value || "",
+        followTopA: document.getElementById("follow-top-route-a")?.value || "",
+        rankingAcceptanceA: getLikert("ranking-acceptance-a"),
+        preferredRouteB: document.getElementById("preferred-route-b")?.value || "",
+        rankingAcceptanceB: getLikert("ranking-acceptance-b"),
+        noticedIntermodal: document.getElementById("noticed-intermodal")?.value || "",
+        understoodIntermodal: getLikert("understood-intermodal"),
+        intermodalAcceptance: getLikert("intermodal-acceptance"),
+        scenarioSystemUse: getLikert("scenario-system-use"),
+        scenarioTrustTopRecommendation: getLikert("scenario-trust-top-recommendation"),
+        scenarioComment: document.getElementById("scenario-comment")?.value || "",
+    };
+}
+
+function snapshotCurrentScenarioDraft() {
+    const s = scenarios[currentIdx];
+    if (!s || !document.getElementById("scenario-section") || document.getElementById("scenario-section").classList.contains("hidden")) return;
+    scenarioDrafts[s.id] = getCurrentScenarioDraft();
+}
+
+function restoreScenarioDraft(scenarioId) {
+    const draft = scenarioDrafts[scenarioId];
+    if (!draft) return;
+    document.getElementById("preferred-route-a").value = draft.preferredRouteA || "";
+    document.getElementById("follow-top-route-a").value = draft.followTopA || "";
+    setLikert("ranking-acceptance-a", draft.rankingAcceptanceA);
+    document.getElementById("preferred-route-b").value = draft.preferredRouteB || "";
+    setLikert("ranking-acceptance-b", draft.rankingAcceptanceB);
+    document.getElementById("noticed-intermodal").value = draft.noticedIntermodal || "";
+    setLikert("understood-intermodal", draft.understoodIntermodal);
+    setLikert("intermodal-acceptance", draft.intermodalAcceptance);
+    setLikert("scenario-system-use", draft.scenarioSystemUse);
+    setLikert("scenario-trust-top-recommendation", draft.scenarioTrustTopRecommendation);
+    document.getElementById("scenario-comment").value = draft.scenarioComment || "";
+}
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch] || ch));
+}
+
+function getModeEmoji(route) {
+    const summary = String(route.route_summary || "").toLowerCase();
+    const seq = Array.isArray(route.mode_sequence) ? route.mode_sequence.join(" ").toLowerCase() : "";
+    const text = `${summary} ${seq}`;
+    if (route.is_intermodal) return "🔀";
+    if (text.includes("car")) return "🚗";
+    if (text.includes("bike") || text.includes("cycling")) return "🚴";
+    if (text.includes("walk") || text.includes("foot")) return "🚶";
+    if (text.includes("tram") || text.includes("train")) return "🚋";
+    if (text.includes("public") || text.includes("pt") || text.includes("bus")) return "🚌";
+    return "🧭";
+}
+
+function routeDisplayName(route) {
+    const name = route.route_summary || route.route_id || "Route option";
+    return `${getModeEmoji(route)} ${name}`;
+}
+
+function formatModeSequence(route) {
+    // Prefer explicit mode sequences when the API provides them; otherwise fall back gracefully.
+    if (Array.isArray(route.mode_sequence) && route.mode_sequence.length) {
+        return route.mode_sequence.join(" → ");
+    }
+    if (Array.isArray(route.legs) && route.legs.length) {
+        const modes = route.legs.map(l => l.mode || l.transport_mode || l.type).filter(Boolean);
+        if (modes.length) return modes.join(" → ");
+    }
+    if (route.intermodal_type) return String(route.intermodal_type).replace(/\+/g, " → ");
+    return route.transport_modes || route.route_summary || "—";
 }
 
 function renderRouteSet(listId, selectId, routes, draggable=false) {
@@ -861,16 +2134,24 @@ function renderRouteSet(listId, selectId, routes, draggable=false) {
     list.innerHTML   = "";
     select.innerHTML = "";
 
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.text = "— select —";
+    select.appendChild(placeholder);
+
     routes.forEach((route, i) => {
-        // List item (draggable)
+        const modeSequence = formatModeSequence(route);
+        const displayName = routeDisplayName(route);
+
+        // List item
         const li = document.createElement("li");
         li.className    = "route-card";
         li.dataset.routeId = route.route_id;
         li.innerHTML = `
             <div class="route-rank">#${i + 1}</div>
             <div class="route-content">
-                <h4>${route.route_summary}</h4>
-                <p><strong>Modes:</strong> ${route.transport_modes || "—"}</p>
+                <h4><span class="mode-emoji">${getModeEmoji(route)}</span>${escapeHTML(route.route_summary || "Route option")}</h4>
+                <p><strong>Mode sequence:</strong> ${escapeHTML(modeSequence)}</p>
                 <div class="metric-grid">
                     <div class="metric-card"><strong>Duration</strong>
                         <span>${route.total_duration_minutes != null
@@ -884,7 +2165,7 @@ function renderRouteSet(listId, selectId, routes, draggable=false) {
                         <span>${route.is_intermodal ? "Intermodal 🔀" : "Single mode"}</span></div>
                 </div>
                 ${route.is_intermodal
-                  ? `<div class="intermodal-box">Combines: ${route.intermodal_type}</div>`
+                  ? `<div class="intermodal-box"><strong>Intermodal route:</strong> ${escapeHTML(modeSequence)}</div>`
                   : ""}
             </div>`;
         list.appendChild(li);
@@ -892,21 +2173,54 @@ function renderRouteSet(listId, selectId, routes, draggable=false) {
         // Select option
         const opt  = document.createElement("option");
         opt.value  = route.route_id;
-        opt.text   = `${i + 1}. ${route.route_summary || route.route_id}`;
+        opt.text   = `${i + 1}. ${displayName}`;
         select.appendChild(opt);
     });
 
+    const none = document.createElement("option");
+    none.value = "__none__";
+    none.text = "I would not choose any of these routes";
+    select.appendChild(none);
+
+    // Drag-and-drop is intentionally disabled for validation symmetry.
     if (draggable) {
         new Sortable(list, { animation: 150 });
     }
 }
 
+function validateScenarioResponse(hasIntermodal) {
+    const required = [
+        [document.getElementById("preferred-route-a").value, "Please select which route you would choose from Route Set A."],
+        [document.getElementById("follow-top-route-a").value, "Please indicate whether you would follow the top-ranked route in Route Set A."],
+        [getLikert("ranking-acceptance-a"), "Please rate how well Route Set A's ranking matches your preference."],
+        [document.getElementById("preferred-route-b").value, "Please select which route you would choose from Route Set B."],
+        [getLikert("ranking-acceptance-b"), "Please rate how well Route Set B's ranking matches your preference."],
+        [getLikert("scenario-system-use"), "Please rate whether you would use this kind of routing system."],
+        [getLikert("scenario-trust-top-recommendation"), "Please rate how much you trust the top recommendation from Route Set A."],
+        [document.getElementById("scenario-comment").value.trim(), "Please add a short comment about the routes shown in this scenario."],
+    ];
+    if (hasIntermodal) {
+        required.push(
+            [document.getElementById("noticed-intermodal").value, "Please indicate whether you noticed an intermodal route."],
+            [getLikert("understood-intermodal"), "Please rate how easy the intermodal route was to understand."],
+            [getLikert("intermodal-acceptance"), "Please rate whether you would consider using an intermodal route."]
+        );
+    }
+    for (const [value, message] of required) {
+        if (value === null || value === "" || value === undefined) {
+            alert(message);
+            return false;
+        }
+    }
+    return true;
+}
+
+
 // ── NEXT SCENARIO ─────────────────────────────────────────────
 document.getElementById("next-scenario-btn").onclick = async () => {
     // Guard: if scenarios lost from memory (page refresh), re-fetch before proceeding
     if (!scenarios.length) {
-        const res = await fetch("/api/scenarios", { credentials: "same-origin" });
-        scenarios = await res.json();
+        scenarios = await apiGetJson("/api/scenarios");
     }
     const s = scenarios[currentIdx];
     if (!s) {
@@ -914,49 +2228,87 @@ document.getElementById("next-scenario-btn").onclick = async () => {
         return;
     }
 
-    // Set A is not draggable — engine ranking is fixed, participant ranking = engine ranking
-    const participantRankingA = currentPersonalised.map(r => r.route_id);
+    const hasIntermodal = [...currentPersonalised, ...currentBaseline].some(r => r.is_intermodal);
+    if (!validateScenarioResponse(hasIntermodal)) return;
+
+    // Set A is the engine ranking. It is fixed and evaluated as displayed.
     const engineRankingA = currentPersonalised.map(r => r.route_id);
+    const standardRankingB = currentBaseline.map(r => r.route_id);
 
-    // Chosen route ratings (personalised/Set A)
     const chosenRouteIdA = document.getElementById("preferred-route-a").value;
-    const chosenRoute    = currentPersonalised.find(r => r.route_id === chosenRouteIdA) || {};
+    const chosenRouteIdB = document.getElementById("preferred-route-b").value;
+    const chosenRouteA = currentPersonalised.find(r => r.route_id === chosenRouteIdA) || null;
+    const chosenRouteB = currentBaseline.find(r => r.route_id === chosenRouteIdB) || null;
+    const topRouteA = currentPersonalised[0] || null;
 
-    // Per-route ratings: no longer collected per scenario.
-    // The 11-dimension needs importance is asked once after all scenarios
-    // on the needs-rating-section page.
+    const followTopA = document.getElementById("follow-top-route-a").value;
+    const participantAcceptsTopA = followTopA === "yes";
+    const participantMaybeAcceptsTopA = followTopA === "maybe";
+
     const routeRatings = [
         {
-            condition:    "personalised",
-            route_id:     chosenRouteIdA,
-            would_use_route: 1,
+            condition: "engine_set_a",
+            route_id: chosenRouteIdA,
+            route_summary: chosenRouteA ? chosenRouteA.route_summary : null,
+            is_top_ranked_route: topRouteA ? chosenRouteIdA === topRouteA.route_id : null,
+            would_follow_top_ranked_route: followTopA,
+            would_use_route: chosenRouteIdA && chosenRouteIdA !== "__none__" ? 1 : 0,
+            route_comment: null,
+        },
+        {
+            condition: "standard_set_b",
+            route_id: chosenRouteIdB,
+            route_summary: chosenRouteB ? chosenRouteB.route_summary : null,
+            would_use_route: chosenRouteIdB && chosenRouteIdB !== "__none__" ? 1 : 0,
             route_comment: null,
         },
     ];
 
     const payload = {
-        scenario_id:                    s.id,
-        engine_ranking:                 engineRankingA,
-        participant_ranking:            participantRankingA,
-        participant_selected_route_id:  chosenRouteIdA,
-        ranking_acceptance_score:       getLikert("ranking-acceptance-a"),
-        explanation:                    document.getElementById("scenario-comment").value,
-        route_ratings:                  routeRatings,
+        scenario_id: s.id,
+        scenario_response_key: s.id,
+        replace_existing: true,
+
+        // Primary outcome 1: acceptance of ranked engine output
+        engine_ranking: engineRankingA,
+        participant_ranking: engineRankingA, // Set A is fixed; participant evaluates the displayed engine ranking
+        participant_selected_route_id: chosenRouteIdA,
+        set_a_selected_route_id: chosenRouteIdA,
+        set_a_top_route_id: topRouteA ? topRouteA.route_id : null,
+        set_a_follow_top_route: followTopA,
+        set_a_accepts_top_route: participantAcceptsTopA,
+        set_a_maybe_accepts_top_route: participantMaybeAcceptsTopA,
+        ranking_acceptance_score: getLikert("ranking-acceptance-a"),
+        set_a_ranking_acceptance_score: getLikert("ranking-acceptance-a"),
+
+        // Benchmark comparison: standard time/distance ranking
+        baseline_ranking: standardRankingB,
+        standard_ranking: standardRankingB,
+        baseline_selected_route_id: chosenRouteIdB,
+        set_b_selected_route_id: chosenRouteIdB,
+        set_b_ranking_acceptance_score: getLikert("ranking-acceptance-b"),
+
+        // Primary outcome 2: intermodal noticing, understanding, and acceptance
+        has_intermodal_routes: hasIntermodal,
         intermodal_feedback: {
-            noticed_intermodal_option:   document.getElementById("noticed-intermodal").value
-                                         ? parseInt(document.getElementById("noticed-intermodal").value) : null,
-            understood_intermodal_logic: getLikert("understood-intermodal"),
-            intermodal_acceptance_score: null,
-            intermodal_preference:       document.getElementById("intermodal-preference").value || null,
-            intermodal_comment:          null,
+            noticed_intermodal_option: hasIntermodal && document.getElementById("noticed-intermodal").value
+                ? parseInt(document.getElementById("noticed-intermodal").value) : null,
+            understood_intermodal_logic: hasIntermodal ? getLikert("understood-intermodal") : null,
+            intermodal_acceptance_score: hasIntermodal ? getLikert("intermodal-acceptance") : null,
+            intermodal_preference: null,
+            intermodal_comment: null,
         },
+
+        // Primary outcome 3: willingness to use such a system
+        scenario_system_use_intention: getLikert("scenario-system-use"),
+        scenario_trust_top_recommendation: getLikert("scenario-trust-top-recommendation"),
+
+        explanation: document.getElementById("scenario-comment").value,
+        route_ratings: routeRatings,
     };
 
-    await fetch("/api/scenario-response", {
-        method: "POST", credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-    });
+    scenarioDrafts[s.id] = getCurrentScenarioDraft();
+    await apiPostJson("/api/scenario-response", payload);
 
     currentIdx++;
     if (currentIdx >= scenarios.length) {
@@ -967,11 +2319,20 @@ document.getElementById("next-scenario-btn").onclick = async () => {
     await loadScenario();
 };
 
+
 // ── SCENARIO MAP ─────────────────────────────────────────────
 let _scenarioMap = null;
 
 function initScenarioMap(oLat, oLon, dLat, dLon) {
     const container = document.getElementById("scenario-map");
+
+    // Static preview fallback when Leaflet is not available/offline.
+    if (typeof L === "undefined") {
+        container.innerHTML = `<div style="height:260px;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;color:#536173;">
+            Map preview unavailable offline.<br>Origin and destination labels are still shown below.
+        </div>`;
+        return;
+    }
 
     // Destroy previous map instance if it exists
     if (_scenarioMap) {
@@ -979,9 +2340,6 @@ function initScenarioMap(oLat, oLon, dLat, dLon) {
         _scenarioMap = null;
     }
     container.innerHTML = "";
-
-    const midLat = (oLat + dLat) / 2;
-    const midLon = (oLon + dLon) / 2;
 
     _scenarioMap = L.map("scenario-map", { zoomControl: true, scrollWheelZoom: false });
 
@@ -1010,9 +2368,9 @@ function initScenarioMap(oLat, oLon, dLat, dLon) {
         });
     }
 
-    L.marker([oLat, oLon], { icon: markerIcon("A", "#1D9E75") })
+    L.marker([oLat, oLon], { icon: markerIcon("A", "#7c0140") })
         .addTo(_scenarioMap);
-    L.marker([dLat, dLon], { icon: markerIcon("B", "#E74C3C") })
+    L.marker([dLat, dLon], { icon: markerIcon("B", "#111827") })
         .addTo(_scenarioMap);
 
     // Dashed line between origin and destination (orientation only, not a route)
@@ -1026,6 +2384,20 @@ function initScenarioMap(oLat, oLon, dLat, dLon) {
 
 // ── NEEDS IMPORTANCE → FINAL ──────────────────────────────────
 document.getElementById("save-needs-btn").onclick = async () => {
+    if (!requireLikerts([
+        ["need-pro-env", "Please rate environmental friendliness."],
+        ["need-physical", "Please rate physical activity opportunity."],
+        ["need-privacy", "Please rate privacy/personal space."],
+        ["need-autonomy", "Please rate autonomy/flexibility."],
+        ["need-cost", "Please rate affordability."],
+        ["need-speed", "Please rate speed."],
+        ["need-safety-accident", "Please rate traffic/accident safety."],
+        ["need-safety-crime", "Please rate personal security."],
+        ["need-comfort", "Please rate comfort."],
+        ["need-reliable", "Please rate reliability/punctuality."],
+        ["need-health-infection", "Please rate infection/crowding risk."]
+    ])) return;
+
     const needsPayload = {
         need_pro_env:           getLikert("need-pro-env"),
         need_physical:          getLikert("need-physical"),
@@ -1040,11 +2412,7 @@ document.getElementById("save-needs-btn").onclick = async () => {
         need_health_infection:  getLikert("need-health-infection"),
     };
     // Store on participant record
-    await fetch("/api/needs-importance", {
-        method: "POST", credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(needsPayload),
-    });
+    await apiPostJson("/api/needs-importance", needsPayload);
     show("final-section");
     showProfileReminder();
 };
@@ -1055,44 +2423,43 @@ const PROFILE_META = {
         emoji: "🌱",
         label: "The Green Traveller",
         bullets: [
-            "I prioritise low environmental impact",
-            "Sustainability over speed",
-            "Walking, cycling, and public transport preferred",
+            "Lower environmental impact matters to me",
+            "Active travel is welcome when feasible",
+            "Some extra time is acceptable for sustainability",
         ]
     },
     altruistic: {
         emoji: "🛡️",
-        label: "The Safe \& Reliable Traveller",
+        label: "The Safe & Reliable Traveller",
         bullets: [
-            "Safety and reliability matter most",
-            "Predictable timetables and secure routes preferred",
-            "Shared transport is acceptable",
+            "Accident safety and personal security matter",
+            "Predictable arrival times are valued",
+            "Clear, reliable connections are preferred",
         ]
     },
     egoistic: {
         emoji: "⚡",
         label: "The Independent Traveller",
         bullets: [
-            "Speed and autonomy are paramount",
-            "Minimal transfers and waiting",
-            "Privacy and independence valued",
+            "Flexibility and directness matter",
+            "Less dependence on fixed schedules",
+            "Personal space and autonomy are valued",
         ]
     },
     hedonic: {
         emoji: "🛋️",
         label: "The Relaxed Traveller",
         bullets: [
-            "Comfort and convenience are key",
-            "Low physical effort preferred",
-            "Avoiding crowds and infection risk",
+            "Comfort and ease matter",
+            "Low-stress environments are preferred",
+            "Excessive physical effort is avoided",
         ]
     },
 };
 
 async function showProfileReminder() {
     // Fetch the stored profile from the server session
-    const res  = await fetch("/api/participant", { credentials: "same-origin" });
-    const data = await res.json();
+    const data = await apiGetJson("/api/participant");
     const profile = data.selected_profile;
     if (!profile || !PROFILE_META[profile]) return;
 
@@ -1112,6 +2479,21 @@ async function showProfileReminder() {
 
 // ── FINAL FEEDBACK → SUBMIT ───────────────────────────────────
 document.getElementById("submit-study-btn").onclick = async () => {
+    if (!requireLikerts([
+        ["value-profile-accuracy", "Please rate how accurately the selected profile represented your values."],
+        ["profile-confidence", "Please rate your confidence when choosing your profile."],
+        ["personalisation-quality", "Please rate how well Set A matched your values."],
+        ["willingness-use", "Please rate how likely you are to use this app in daily life."],
+        ["trust-ranking", "Please rate how much you trust the route rankings."],
+        ["overall-intermodal-use", "Please rate whether you would consider using intermodal route suggestions overall."]
+    ])) return;
+    if (!requireFields([
+        ["noticed-personalisation", "Please indicate whether you noticed Set A was adapted to your profile."],
+        ["comparison-google", "Please compare the system with a standard navigation app."],
+        ["best-feature", "Please describe the best feature of the system."],
+        ["improvement", "Please describe what should be improved."]
+    ])) return;
+
     const payload = {
         value_profile_accuracy:      getLikert("value-profile-accuracy"),
         profile_confidence:          getLikert("profile-confidence"),
@@ -1122,19 +2504,15 @@ document.getElementById("submit-study-btn").onclick = async () => {
                                      ? parseInt(document.getElementById("comparison-google").value) : null,
         willingness_to_use:          getLikert("willingness-use"),
         trust_in_ranking:            getLikert("trust-ranking"),
+        overall_intermodal_use:      getLikert("overall-intermodal-use"),
         best_feature:                document.getElementById("best-feature").value,
         worst_feature:               null,
         improvement_suggestion:      document.getElementById("improvement").value,
     };
-    await fetch("/api/final-feedback", {
-        method: "POST", credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-    });
+    await apiPostJson("/api/final-feedback", payload);
     show("thankyou-section");
     // Show participant code
-    const info = await fetch("/api/participant", { credentials: "same-origin" });
-    const d    = await info.json();
+    const d = await apiGetJson("/api/participant");
     if (d.participant_code) {
         document.getElementById("participant-code-display").textContent =
             "Your participation code: " + d.participant_code;
