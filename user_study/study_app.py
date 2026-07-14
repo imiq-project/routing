@@ -30,7 +30,9 @@ from study_db_mysql import get_connection, init_database, seed_scenarios, create
 #  Flask setup
 # ─────────────────────────────────────────────
 
-app = Flask(__name__)
+app = Flask(__name__,
+             static_folder="static",
+             template_folder="templates")
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "change-this-in-production")
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_HTTPONLY"] = True
@@ -50,6 +52,10 @@ from agent import Agent
 from graphhopper_client import GraphHopperClient
 from personalised_router import PersonalisedRouter
 from value_model import VALUE_DIMENSIONS
+
+# Study-specific router — shows all modes, no belief/feasibility filtering
+sys.path.insert(0, str(CURRENT_DIR))
+from study_router import StudyRouter
 
 AGENT_FILES = {
     "biospheric": AGENTS_PATH / "agent_biospheric.json",
@@ -145,8 +151,14 @@ def ensure_database():
     global _db_initialised
     if not _db_initialised:
         create_database_if_not_exists()
-        init_database()
-        seed_scenarios()
+        try:
+            init_database()
+        except Exception as e:
+            print(f"[info] init_database skipped (schema already applied): {e}")
+        try:
+            seed_scenarios()
+        except Exception as e:
+            print(f"[warn] seed_scenarios: {e}")
         _db_initialised = True
 
 # ─────────────────────────────────────────────
@@ -154,17 +166,63 @@ def ensure_database():
 # ─────────────────────────────────────────────
 
 def create_participant() -> int:
+    import random
     code = str(uuid.uuid4())[:8].upper()
+    condition, set_order = assign_study_condition()
     with get_connection() as conn:
         cursor = conn.execute(
-            "INSERT INTO participants (participant_code, consent_given, study_phase) VALUES (?, 1, 1)",
-            (code,),
+            """INSERT INTO participants
+               (participant_code, consent_given, study_phase, study_condition, set_order)
+               VALUES (?, 1, 1, ?, ?)""",
+            (code, condition, set_order),
         )
         conn.commit()
         pid = cursor.lastrowid
-    session["participant_id"]   = pid
-    session["participant_code"] = code
+        if pid is None:
+            raise RuntimeError("Failed to get participant ID from database")
+    session["participant_id"]    = pid
+    session["participant_code"]  = code
+    session["study_condition"]   = condition
+    session["set_order"]         = set_order
     return pid
+
+
+def assign_study_condition() -> tuple[int, str]:
+    """
+    Balanced random assignment to study condition and set order.
+
+    study_condition:
+        1 = no intermodal (walk/bike/car/PT only)
+        2 = with intermodal (adds bike+PT, car+PT)
+
+    set_order:
+        AB = value-ranked (Set A) shown before time-ranked (Set B)
+        BA = time-ranked (Set B) shown before value-ranked (Set A)
+
+    Balancing: count existing participants per condition and assign
+    to the smaller group.  Ties broken randomly.
+    """
+    import random
+    with get_connection() as conn:
+        counts = conn.execute(
+            """SELECT study_condition, COUNT(*) AS n
+               FROM participants
+               GROUP BY study_condition"""
+        ).fetchall()
+
+    count_map = {row["study_condition"]: row["n"] for row in counts}
+    n1 = count_map.get(1, 0)
+    n2 = count_map.get(2, 0)
+
+    if n1 < n2:
+        condition = 1
+    elif n2 < n1:
+        condition = 2
+    else:
+        condition = random.choice([1, 2])
+
+    set_order = random.choice(["AB", "BA"])
+    return condition, set_order
 
 
 def get_or_create_participant_id() -> int:
@@ -289,23 +347,18 @@ def convert_route(result, scenario_id: int, condition: str) -> dict:
 
 DEPARTURE = datetime(2025, 11, 15, 9, 0, tzinfo=timezone.utc)
 
-def _generate_routes(scenario: dict, agent: Agent, condition: str) -> list[dict]:
-    gh = GraphHopperClient(base_url=os.getenv("GRAPHHOPPER_HOST", "http://localhost:8080"))
-    router = PersonalisedRouter(gh, pois=None)
-    results = router.route(
-        agent=agent,
-        from_lat=scenario["origin_lat"],
-        from_lon=scenario["origin_lon"],
-        to_lat=scenario["destination_lat"],
-        to_lon=scenario["destination_lon"],
-        departure=DEPARTURE.isoformat(),
-        max_walk_m=1500,
-    )
-    return [convert_route(r, scenario["id"], condition) for r in results]
 
+def generate_both_conditions(scenario_id: int, selected_profile: str,
+                              study_condition: int = 1) -> dict:
+    """
+    Generate both route sets using StudyRouter.
 
-def generate_both_conditions(scenario_id: int, selected_profile: str) -> dict:
-    """Return personalised and baseline route sets for one scenario."""
+    StudyRouter guarantees:
+    - All modes visible (walk, bike, car, PT + intermodal if condition=2)
+    - No filtering by agent beliefs or feasibility caps
+    - Set A ranked by value score, Set B ranked by duration
+    - Both sets derived from the same GraphHopper calls
+    """
     with get_connection() as conn:
         scenario = conn.execute(
             "SELECT * FROM scenarios WHERE id = ?", (scenario_id,)
@@ -314,14 +367,26 @@ def generate_both_conditions(scenario_id: int, selected_profile: str) -> dict:
         raise ValueError(f"Scenario not found: {scenario_id}")
     scenario = dict(scenario)
 
-    personalised_agent  = load_agent(selected_profile)
-    personalised_routes = _generate_routes(scenario, personalised_agent, "personalised")
-    baseline_routes     = _generate_baseline_routes(scenario, personalised_agent)
+    agent = load_agent(selected_profile)
 
-    return {
-        "personalised": personalised_routes,
-        "baseline":     baseline_routes,
-    }
+    gh     = GraphHopperClient(base_url=os.getenv("GRAPHHOPPER_HOST", "http://localhost:8080"))
+    router = StudyRouter(gh)
+
+    both = router.generate_both(
+        agent           = agent,
+        scenario        = scenario,
+        study_condition = study_condition,
+        departure       = DEPARTURE,
+        max_walk_m      = 1500,
+    )
+
+    # Tag each route with study metadata for DB storage
+    intermodal_flag = 1 if study_condition == 2 else 0
+    for r in both["personalised"] + both["baseline"]:
+        r["study_condition"]      = study_condition
+        r["intermodal_available"] = intermodal_flag
+
+    return both
 
 
 def save_engine_routes(participant_id: int, selected_profile: str,
@@ -350,7 +415,8 @@ def save_engine_routes(participant_id: int, selected_profile: str,
                     score_pro_env, score_physical, score_privacy, score_autonomy,
                     score_cost, score_speed, score_safety_accident, score_safety_crime,
                     score_comfort, score_reliable, score_health_infection,
-                    engine_total_score, raw_route_json
+                    engine_total_score, raw_route_json,
+                    study_condition, intermodal_available
                 ) VALUES (
                     ?,?,?,?, ?,?,?,
                     ?,?,?,
@@ -358,6 +424,7 @@ def save_engine_routes(participant_id: int, selected_profile: str,
                     ?,?,?,?,
                     ?,?,?,?,
                     ?,?,?,
+                    ?,?,
                     ?,?
                 )
                 """,
@@ -374,6 +441,7 @@ def save_engine_routes(participant_id: int, selected_profile: str,
                     r.get("score_comfort"),   r.get("score_reliable"),
                     r.get("score_health_infection"),
                     r["engine_total_score"],  r["raw_route_json"],
+                    r.get("study_condition"), r.get("intermodal_available", 0),
                 ),
             )
         conn.commit()
@@ -435,10 +503,27 @@ def get_participant():
             ).fetchone()
         if row:
             selected_profile = row["selected_profile"]
+    # Also retrieve study_condition and set_order if not in session
+    # (handles browser refresh after session loss)
+    study_condition = session.get("study_condition")
+    set_order       = session.get("set_order")
+    if (study_condition is None or set_order is None) and pid:
+        with get_connection() as conn:
+            row = conn.execute(
+                "SELECT study_condition, set_order FROM participants WHERE id=?", (pid,)
+            ).fetchone()
+        if row:
+            study_condition = row["study_condition"]
+            set_order       = row["set_order"]
+            session["study_condition"] = study_condition
+            session["set_order"]       = set_order
+
     return jsonify({
         "participant_id":   pid,
         "participant_code": session.get("participant_code"),
         "selected_profile": selected_profile,
+        "study_condition":  study_condition,
+        "set_order":        set_order,
     })
 
 # ─────────────────────────────────────────────
@@ -548,16 +633,21 @@ def get_ranking(scenario_id):
     if not profile:
         return jsonify({"status": "error", "message": "No profile selected."}), 400
 
+    condition = session.get("study_condition", 1)
+    order     = session.get("set_order", "AB")
+
     try:
-        both = generate_both_conditions(scenario_id, profile)
+        both = generate_both_conditions(scenario_id, profile, study_condition=condition)
         save_engine_routes(pid, profile, both["personalised"])
         save_engine_routes(pid, profile, both["baseline"])
         return jsonify({
-            "status":       "success",
-            "scenario_id":  scenario_id,
-            "profile":      profile,
-            "personalised": both["personalised"],
-            "baseline":     both["baseline"],
+            "status":            "success",
+            "scenario_id":       scenario_id,
+            "profile":           profile,
+            "study_condition":   condition,
+            "set_order":         order,
+            "personalised":      both["personalised"],
+            "baseline":          both["baseline"],
         })
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
@@ -601,8 +691,9 @@ def save_scenario_response():
                 participant_selected_route_b, ranking_acceptance_score_b,
                 ranking_acceptance_delta,
                 participant_ranking_json, engine_ranking_json,
-                kendall_tau, explanation
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                kendall_tau, explanation,
+                study_condition, set_order
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 pid, scenario_id,
                 engine_top, participant_top,
@@ -612,6 +703,7 @@ def save_scenario_response():
                 acceptance_delta,
                 json.dumps(participant_ranking), json.dumps(engine_ranking),
                 tau, data.get("explanation"),
+                session.get("study_condition"), session.get("set_order"),
             ),
         )
         sr_id = cur.lastrowid

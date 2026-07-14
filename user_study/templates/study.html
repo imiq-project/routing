@@ -6,7 +6,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mobility Routing Study</title>
-    <link rel="stylesheet" href="study.css" />
+    <link rel="stylesheet" href="/static/study.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
@@ -945,6 +945,7 @@
             We want to know whether Set A's ranking makes sense to you, whether intermodal routes
             are noticeable and understandable, and whether you would use this kind of system in daily life.
             <br><br>
+            <span id="study-condition-note" class="hidden" style="display:block;margin-bottom:6px;font-style:italic;color:#1B4F72;"></span>
             <strong>⏱ Note on driving times:</strong> Travel times shown for car routes
             include an estimated <strong>8 minutes</strong> for parking search and the walk
             to your destination. This overhead is not shown by standard navigation apps
@@ -1281,6 +1282,8 @@ let scenarios          = [];
 let currentIdx         = 0;
 let currentPersonalised = [];   // routes for Set A
 let currentBaseline     = [];   // routes for Set B
+let studyCondition      = 1;    // 1 = no intermodal, 2 = with intermodal
+let setOrder            = "AB"; // AB = value first, BA = time first
 let selectedProfileForPreview = null;
 let previewModeActive = false;
 let scenarioDrafts = {};          // local per-scenario answers; used for back navigation and updates
@@ -1411,16 +1414,34 @@ function activatePreviewMode(reason) {
 }
 
 async function apiGetJson(url) {
+    // Only use mock data when running as a local file (Phoenix Code / static preview)
+    const isLocalFile = window.location.protocol === "file:";
     try {
         const res = await fetch(url, { credentials: "same-origin" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+            if (isLocalFile) {
+                activatePreviewMode(`${url} → HTTP ${res.status}`);
+                if (url === "/api/scenarios") return MOCK_SCENARIOS;
+                if (url.includes("/api/scenario/") && url.includes("/ranking")) return getMockRankingForUrl(url);
+                if (url === "/api/participant") return { selected_profile: selectedProfileForPreview, participant_code: "PREVIEW-CODE" };
+                return {};
+            }
+            // In production: surface the real error so it is visible
+            const errBody = await res.json().catch(() => ({}));
+            throw new Error(`API error ${res.status}: ${errBody.message || res.statusText}`);
+        }
         return await res.json();
     } catch (err) {
-        activatePreviewMode(`${url} → ${err.message}`);
-        if (url === "/api/scenarios") return MOCK_SCENARIOS;
-        if (url.includes("/api/scenario/") && url.includes("/ranking")) return getMockRankingForUrl(url);
-        if (url === "/api/participant") return { selected_profile: selectedProfileForPreview, participant_code: "PREVIEW-CODE" };
-        return {};
+        if (isLocalFile) {
+            activatePreviewMode(`${url} → ${err.message}`);
+            if (url === "/api/scenarios") return MOCK_SCENARIOS;
+            if (url.includes("/api/scenario/") && url.includes("/ranking")) return getMockRankingForUrl(url);
+            if (url === "/api/participant") return { selected_profile: selectedProfileForPreview, participant_code: "PREVIEW-CODE" };
+            return {};
+        }
+        // Production: show the error clearly
+        console.error("API call failed:", url, err.message);
+        throw err;
     }
 }
 
@@ -2041,6 +2062,14 @@ async function loadScenario() {
 
     console.log(`Personalised routes: ${currentPersonalised.length}, Baseline routes: ${currentBaseline.length}`);
 
+    // Swap column order for BA group (time-ranked shown first)
+    if (setOrder === "BA") {
+        document.getElementById("route-set-a").style.order = "2";
+        document.getElementById("route-set-b").style.order = "1";
+    } else {
+        document.getElementById("route-set-a").style.order = "1";
+        document.getElementById("route-set-b").style.order = "2";
+    }
     renderRouteSet("routes-list-a", "preferred-route-a", currentPersonalised, false);
     renderRouteSet("routes-list-b", "preferred-route-b", currentBaseline, false);
 

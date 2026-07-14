@@ -24,14 +24,16 @@ SCHEMA_PATH = BASE_DIR / "study_schema_mysql.sql"
 # ─────────────────────────────────────────────
 
 DB_CONFIG = {
-    "host":     os.getenv("MYSQL_HOST",     "localhost"),
-    "port":     int(os.getenv("MYSQL_PORT", "3306")),
-    "user":     os.getenv("MYSQL_USER",     "root"),
-    "password": os.getenv("MYSQL_PASSWORD", ""),
-    "database": os.getenv("MYSQL_DATABASE", "simple_engine_study"),
-    "charset":  "utf8mb4",
-    "use_unicode": True,
-    "autocommit": False,
+    "host":             os.getenv("MYSQL_HOST",     "localhost"),
+    "port":             int(os.getenv("MYSQL_PORT", "3306")),
+    "user":             os.getenv("MYSQL_USER",     "root"),
+    "password":         os.getenv("MYSQL_PASSWORD", ""),
+    "database":         os.getenv("MYSQL_DATABASE", "simple_engine_study"),
+    "charset":          "utf8mb4",
+    "collation":        "utf8mb4_unicode_ci",
+    "use_unicode":      True,
+    "autocommit":       False,
+    "connection_timeout": 30,
 }
 
 # Connection pool — shared across requests (size 5 is fine for study load)
@@ -220,26 +222,42 @@ def create_database_if_not_exists() -> None:
 
 
 def init_database() -> None:
-    """Run the MySQL schema SQL file against the configured database."""
+    """
+    Apply the MySQL schema file statement by statement.
+    Skips comment lines before splitting, so semicolons inside
+    comments never corrupt the statement stream.
+    Idempotent: ignores table-exists, duplicate-column, duplicate-entry errors.
+    """
     if not SCHEMA_PATH.exists():
         raise FileNotFoundError(f"Schema file not found: {SCHEMA_PATH}")
 
-    sql = SCHEMA_PATH.read_text(encoding="utf-8")
-
-    # Execute statement by statement (mysql.connector doesn't support
-    # multi-statement execute by default)
+    raw = SCHEMA_PATH.read_text(encoding="utf-8")
     cfg = dict(DB_CONFIG)
     conn = mysql.connector.connect(**cfg)
     cur  = conn.cursor()
-    for statement in sql.split(";"):
-        stmt = statement.strip()
-        if stmt and not stmt.startswith("--"):
+
+    buf = []
+    for line in raw.splitlines():
+        s = line.strip()
+        if not s or s.startswith("--"):
+            continue          # drop comments and blanks
+        buf.append(s)
+        if s.endswith(";"):   # end of statement
+            stmt = " ".join(buf)[:-1].strip()   # strip trailing ;
+            buf = []
+            if not stmt:
+                continue
             try:
                 cur.execute(stmt)
+                # consume any unread result sets (e.g. SET statements)
+                try:
+                    cur.fetchall()
+                except Exception:
+                    pass
             except mysql.connector.Error as e:
-                # Skip "table already exists" — idempotent
-                if e.errno != 1050:
+                if e.errno not in (1050, 1060, 1062):
                     raise
+
     conn.commit()
     cur.close()
     conn.close()

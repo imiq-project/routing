@@ -1,15 +1,3 @@
--- study_schema_mysql.sql
--- Simple Engine Phase 1 — MySQL 8.0+ schema
--- Converted from SQLite. Run once to initialise the database.
---
--- Usage:
---   mysql -u <user> -p simple_engine_study < study_schema_mysql.sql
---
--- Or from within MySQL:
---   CREATE DATABASE IF NOT EXISTS simple_engine_study CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
---   USE simple_engine_study;
---   SOURCE study_schema_mysql.sql;
-
 SET FOREIGN_KEY_CHECKS = 0;
 SET NAMES utf8mb4;
 
@@ -23,7 +11,7 @@ CREATE TABLE IF NOT EXISTS schema_version (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT IGNORE INTO schema_version (version, description)
-VALUES (1, 'Phase 1 — value model baseline study');
+VALUES (3, 'Phase 1 v3 — between-subjects study condition, set order counterbalancing');
 
 -- ─────────────────────────────────────────────
 --  Participants
@@ -34,24 +22,51 @@ CREATE TABLE IF NOT EXISTS participants (
     created_at            TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     study_phase           INT           NOT NULL DEFAULT 1,
-    selected_profile      VARCHAR(32)   NULL,       -- biospheric | altruistic | egoistic | hedonic
+    selected_profile      VARCHAR(32)   NULL,   -- biospheric | altruistic | egoistic | hedonic
 
-    -- Demographics
-    age_group             VARCHAR(16)   NULL,
+    -- ── Demographics (Part A) ─────────────────
+    age_group             VARCHAR(16)   NULL,   -- raw age stored as string e.g. "34"
     gender                VARCHAR(64)   NULL,
+    education             VARCHAR(32)   NULL,   -- no_formal|secondary|abitur|vocational|bachelor|master|phd
     occupation            VARCHAR(64)   NULL,
-    city_of_residence     VARCHAR(128)  NULL,
 
-    -- Mobility background
-    mobility_frequency    VARCHAR(32)   NULL,       -- daily | several_week | weekly | rarely
+    -- Commute geography
+    commute_different_city  VARCHAR(8)  NULL,   -- yes | no
+    commute_city            VARCHAR(64) NULL,   -- halle_saale | berlin | other_city etc
+    commute_district        VARCHAR(64) NULL,   -- altstadt | sudenburg etc (Magdeburg districts)
+
+    -- Accessibility / exclusion criteria
+    exclusion_disability_yesno  TINYINT NULL,   -- 0=no 1=yes 9=prefer not to say
+    exclusion_disability_modes  JSON    NULL,   -- ["walking","cycling"] etc
+
+    -- ── Mobility habits (Part B) ──────────────
+    mobility_frequency    TINYINT       NULL,   -- 1-5 Likert (1=never, 5=daily)
     has_driving_license   TINYINT(1)    NULL,
     owns_car              TINYINT(1)    NULL,
     owns_bike             TINYINT(1)    NULL,
     uses_public_transport TINYINT(1)    NULL,
-    cycling_comfort       TINYINT       NULL,       -- 1-5
+    cycling_comfort       TINYINT       NULL,   -- 1-5 Likert
+
+    -- ── Profile selection ─────────────────────
+    -- Per-card soft ratings: "How much does this profile describe you?" 1-5
+    profile_rating_biospheric    TINYINT NULL,
+    profile_rating_altruistic    TINYINT NULL,
+    profile_rating_egoistic      TINYINT NULL,
+    profile_rating_hedonic       TINYINT NULL,
+    -- Overall confidence in the chosen profile
+    profile_selection_confidence TINYINT NULL,  -- 1-5 Likert
 
     consent_given         TINYINT(1)    NOT NULL DEFAULT 0,
-    needs_importance      JSON          NULL        -- post-scenario needs ratings
+
+    -- Post-scenario needs importance ratings (JSON, collected once after all scenarios)
+    needs_importance      JSON          NULL,
+
+    -- ── Study assignment (between-subjects) ──────
+    -- study_condition: 1 = no intermodal, 2 = with intermodal
+    -- set_order: 'AB' = value-ranked first, 'BA' = time-ranked first
+    study_condition       TINYINT       NOT NULL DEFAULT 1,
+    set_order             VARCHAR(2)    NOT NULL DEFAULT 'AB'
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ─────────────────────────────────────────────
@@ -67,7 +82,7 @@ CREATE TABLE IF NOT EXISTS scenarios (
     origin_lon      DOUBLE       NULL,
     destination_lat DOUBLE       NULL,
     destination_lon DOUBLE       NULL,
-    distance_band   VARCHAR(16)  NULL,              -- short | medium | long
+    distance_band   VARCHAR(16)  NULL,    -- short | medium | long
     context         TEXT         NOT NULL,
     purpose         VARCHAR(64)  NOT NULL,
     day_type        VARCHAR(64)  NULL,
@@ -76,6 +91,8 @@ CREATE TABLE IF NOT EXISTS scenarios (
 
 -- ─────────────────────────────────────────────
 --  Engine rankings
+--  One row per route per condition per scenario per participant.
+--  route_condition: 'personalised' (Set A) | 'baseline' (Set B)
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS engine_rankings (
     id                     INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -99,7 +116,7 @@ CREATE TABLE IF NOT EXISTS engine_rankings (
     driving_minutes        DOUBLE       NULL,
     transfer_count         INT          NULL,
 
-    -- Engine scores per value dimension
+    -- Engine scores per value dimension (personalised condition only; NULL for baseline)
     score_pro_env          DOUBLE       NULL,
     score_physical         DOUBLE       NULL,
     score_privacy          DOUBLE       NULL,
@@ -115,6 +132,10 @@ CREATE TABLE IF NOT EXISTS engine_rankings (
     engine_total_score     DOUBLE       NULL,
     raw_route_json         JSON         NULL,
 
+    -- Which study condition was this participant in when this route was shown
+    study_condition        TINYINT      NULL,
+    intermodal_available   TINYINT(1)   NOT NULL DEFAULT 0,
+
     FOREIGN KEY (participant_id) REFERENCES participants(id),
     FOREIGN KEY (scenario_id)   REFERENCES scenarios(id),
     INDEX idx_er_participant (participant_id),
@@ -124,40 +145,64 @@ CREATE TABLE IF NOT EXISTS engine_rankings (
 
 -- ─────────────────────────────────────────────
 --  Scenario responses
+--  One row per participant per scenario.
+--  Stores both Set A and Set B responses together so
+--  the A-vs-B comparison is a single-row operation.
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS scenario_responses (
     id                              INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
     participant_id                  INT          NOT NULL,
     scenario_id                     INT          NOT NULL,
 
-    engine_top_route_id             VARCHAR(128) NULL,
-    participant_selected_route_id   VARCHAR(128) NULL,
-    accepted_engine_top_choice      TINYINT(1)   NULL,
-    ranking_acceptance_score        INT          NULL,
+    -- ── Set A (personalised) ──────────────────
+    engine_top_route_id             VARCHAR(128) NULL,   -- top-ranked route from engine
+    participant_selected_route_id   VARCHAR(128) NULL,   -- which route participant chose from Set A
+    accepted_engine_top_choice      TINYINT(1)   NULL,   -- 1 if chosen == engine top
+    follow_top_route_a              VARCHAR(8)   NULL,   -- yes | maybe | no
+    ranking_acceptance_score        TINYINT      NULL,   -- 1-5: how well Set A ranking matched preference
 
+    -- ── Set B (baseline) ─────────────────────
+    participant_selected_route_b    VARCHAR(128) NULL,   -- which route participant chose from Set B
+    ranking_acceptance_score_b      TINYINT      NULL,   -- 1-5: how well Set B ranking matched preference
+
+    -- ── Ranking comparison ────────────────────
+    -- Computed server-side: acceptance_A - acceptance_B
+    -- Positive = engine better than baseline for this participant/scenario
+    ranking_acceptance_delta        TINYINT      NULL,
+
+    -- Participant's re-ordering of Set A routes (JSON array of route_ids)
     participant_ranking_json        JSON         NULL,
     engine_ranking_json             JSON         NULL,
+
+    -- Kendall tau between engine ranking and participant chosen route preference
+    -- Computed server-side and stored for fast analysis
     kendall_tau                     DOUBLE       NULL,
 
     explanation                     TEXT         NULL,
     created_at                      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
+    -- Denormalised for easy analysis queries — mirrors participants.study_condition
+    study_condition                 TINYINT      NULL,
+    set_order                       VARCHAR(2)   NULL,
+
     FOREIGN KEY (participant_id) REFERENCES participants(id),
     FOREIGN KEY (scenario_id)   REFERENCES scenarios(id),
     INDEX idx_sr_participant (participant_id),
-    INDEX idx_sr_scenario    (scenario_id)
+    INDEX idx_sr_scenario    (scenario_id),
+    INDEX idx_sr_condition   (study_condition)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ─────────────────────────────────────────────
 --  Route ratings
+--  One row per route shown (both conditions).
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS route_ratings (
     id                           INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
     scenario_response_id         INT          NOT NULL,
-    route_condition              VARCHAR(16)  NOT NULL,
+    route_condition              VARCHAR(16)  NOT NULL,   -- personalised | baseline
     route_id                     VARCHAR(128) NOT NULL,
 
-    participant_rating           TINYINT      NULL,
+    participant_rating           TINYINT      NULL,   -- overall satisfaction 1-5
     would_use_route              TINYINT(1)   NULL,
 
     perceived_pro_env            TINYINT      NULL,
@@ -180,15 +225,15 @@ CREATE TABLE IF NOT EXISTS route_ratings (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ─────────────────────────────────────────────
---  Intermodal feedback
+--  Intermodal feedback (per scenario)
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS intermodal_feedback (
     id                          INT         NOT NULL AUTO_INCREMENT PRIMARY KEY,
     scenario_response_id        INT         NOT NULL,
 
-    noticed_intermodal_option   TINYINT(1)  NULL,
-    understood_intermodal_logic TINYINT     NULL,
-    intermodal_acceptance_score TINYINT     NULL,
+    noticed_intermodal_option   TINYINT     NULL,   -- 0=no 1=yes 2=not sure
+    understood_intermodal_logic TINYINT     NULL,   -- 1-5 Likert
+    intermodal_acceptance_score TINYINT     NULL,   -- 1-5 Likert
     intermodal_preference       VARCHAR(16) NULL,   -- prefer | neutral | avoid
     intermodal_comment          TEXT        NULL,
 
@@ -196,21 +241,25 @@ CREATE TABLE IF NOT EXISTS intermodal_feedback (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ─────────────────────────────────────────────
---  Final feedback
+--  Final feedback (one row per participant)
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS final_feedback (
     id                          INT        NOT NULL AUTO_INCREMENT PRIMARY KEY,
     participant_id              INT        NOT NULL,
 
-    value_profile_accuracy      TINYINT    NULL,
-    profile_confidence          TINYINT    NULL,
-    system_usefulness           TINYINT    NULL,
-    trust_in_ranking            TINYINT    NULL,
-    comparison_with_google_maps TINYINT    NULL,
-    willingness_to_use          TINYINT    NULL,
-    noticed_personalisation     TINYINT(1) NULL,
-    personalisation_quality     TINYINT    NULL,
+    -- Profile validity
+    value_profile_accuracy      TINYINT    NULL,   -- 1-5: profile represented my values
+    profile_confidence          TINYINT    NULL,   -- 1-5: confident choosing profile
 
+    -- System evaluation
+    personalisation_quality     TINYINT    NULL,   -- 1-5: Set A matched my values well
+    willingness_to_use          TINYINT    NULL,   -- 1-5: would use in daily life
+    trust_in_ranking            TINYINT    NULL,   -- 1-5: trust the route rankings
+    overall_intermodal_use      TINYINT    NULL,   -- 1-5: would consider intermodal routes overall
+    comparison_with_google_maps TINYINT    NULL,   -- 1-5: much worse → much better vs standard nav
+    noticed_personalisation     TINYINT(1) NULL,   -- 0/1: noticed routes adapted to profile
+
+    -- Open text
     best_feature                TEXT       NULL,
     worst_feature               TEXT       NULL,
     improvement_suggestion      TEXT       NULL,

@@ -99,7 +99,8 @@ class PersonalisedRouter:
               from_lat: float, from_lon: float,
               to_lat: float,   to_lon: float,
               departure: Optional[str] = None,
-              max_walk_m: int = 500) -> list[ScoredRoute]:
+              max_walk_m: int = 500,
+              study_mode: bool = False) -> list[ScoredRoute]:
 
         im_router = IntermodalRouter(
             client     = self.client,
@@ -137,7 +138,7 @@ class PersonalisedRouter:
 
             # Is the route feasible for this distance / profile?
             is_feasible = route.feasible
-            if is_available and is_feasible:
+            if is_available and is_feasible and not study_mode:
                 feas_ok, feas_reason = im_router.check_feasibility(route, agent)
                 if not feas_ok:
                     is_feasible = False
