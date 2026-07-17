@@ -347,6 +347,60 @@ def convert_route(result, scenario_id: int, condition: str) -> dict:
 
 DEPARTURE = datetime(2025, 11, 15, 9, 0, tzinfo=timezone.utc)
 
+# 11 value dimensions in canonical order
+VALUE_DIMS = [
+    "pro_env", "physical", "privacy", "autonomy", "cost", "speed",
+    "safety_accident", "safety_crime", "comfort", "reliable", "health_infection",
+]
+
+
+def build_agent_from_needs(needs_ratings: dict) -> Agent:
+    """
+    Build an Agent from participant needs ratings (1-7 Likert per dimension).
+
+    Strategy:
+    - L1-normalise the ratings to form a proper probability distribution
+    - All beliefs set to True so all modes are available to all participants
+    - Returns a unique cognitive passport for this individual participant
+    """
+    # Ensure all 11 dimensions are present, default to 4 (midpoint) if missing
+    raw = {dim: float(needs_ratings.get(dim, 4) or 4) for dim in VALUE_DIMS}
+    total = sum(raw.values())
+    if total == 0:
+        total = 1.0
+    weights = {dim: raw[dim] / total for dim in VALUE_DIMS}
+
+    agent_dict = {
+        "cognitive_passport": {
+            "profile": {
+                "type": "custom",
+                "needs": weights,
+            },
+            "beliefs": {
+                "owns_car":      True,
+                "owns_bike":     True,
+                "has_pt_access": True,
+            },
+        }
+    }
+    return Agent.from_dict(agent_dict)
+
+
+def get_participant_needs(participant_id: int) -> dict | None:
+    """Retrieve pre-study needs ratings from DB for a participant."""
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT needs_importance_pre FROM participants WHERE id = ?",
+            (participant_id,)
+        ).fetchone()
+    if row and row["needs_importance_pre"]:
+        import json as _json
+        stored = row["needs_importance_pre"]
+        if isinstance(stored, str):
+            return _json.loads(stored)
+        return stored
+    return None
+
 
 def generate_both_conditions(scenario_id: int, selected_profile: str,
                               study_condition: int = 1) -> dict:
@@ -367,7 +421,17 @@ def generate_both_conditions(scenario_id: int, selected_profile: str,
         raise ValueError(f"Scenario not found: {scenario_id}")
     scenario = dict(scenario)
 
-    agent = load_agent(selected_profile)
+    pid = session.get("participant_id")
+
+    # Try to load agent from participant's pre-study needs ratings
+    needs = get_participant_needs(pid) if pid else None
+    if needs:
+        agent = build_agent_from_needs(needs)
+    elif selected_profile and selected_profile in AGENT_FILES:
+        agent = load_agent(selected_profile)
+    else:
+        # Last resort — use biospheric defaults so routing never crashes
+        agent = load_agent("biospheric")
 
     gh     = GraphHopperClient(base_url=os.getenv("GRAPHHOPPER_HOST", "http://localhost:8080"))
     router = StudyRouter(gh)
@@ -482,6 +546,23 @@ def kendall_tau(engine_order: list, participant_order: list) -> float:
 def index():
     if "participant_id" not in session:
         create_participant()
+
+    # Dev override: ?condition=1&order=AB forces a specific study assignment.
+    # Only active when FLASK_DEBUG=1 env var is set — never use in production.
+    if os.getenv("FLASK_DEBUG") == "1":
+        force_condition = request.args.get("condition")
+        force_order     = request.args.get("order", "AB")
+        if force_condition in ("1", "2"):
+            pid = session.get("participant_id")
+            if pid:
+                with get_connection() as conn:
+                    conn.execute(
+                        "UPDATE participants SET study_condition=?, set_order=? WHERE id=?",
+                        (int(force_condition), force_order, pid)
+                    )
+                session["study_condition"] = int(force_condition)
+                session["set_order"]       = force_order
+
     return render_template("study.html")
 
 
@@ -586,30 +667,50 @@ def save_profile():
     if profile not in AGENT_FILES:
         return jsonify({"status": "error", "message": "Invalid profile."}), 400
 
-    # profile_fit_ratings: {"biospheric": 4, "altruistic": 2, ...}
-    fit = data.get("profile_fit_ratings", {})
+    fit            = data.get("profile_fit_ratings", {})
+    confidence     = data.get("profile_selection_confidence")
+    collection_pt  = data.get("collection_point", "pre_study")
 
-    with get_connection() as conn:
-        conn.execute(
-            """UPDATE participants SET
-                selected_profile=?,
-                profile_rating_biospheric=?,
-                profile_rating_altruistic=?,
-                profile_rating_egoistic=?,
-                profile_rating_hedonic=?,
-                profile_selection_confidence=?
-               WHERE id=?""",
-            (
-                profile,
-                fit.get("biospheric"),
-                fit.get("altruistic"),
-                fit.get("egoistic"),
-                fit.get("hedonic"),
-                data.get("profile_selection_confidence"),
-                pid,
-            ),
-        )
-        conn.commit()
+    # post_study collection → save to dedicated post-study columns
+    # pre_study (old flow) → save to standard columns
+    if collection_pt == "post_study":
+        with get_connection() as conn:
+            conn.execute(
+                """UPDATE participants SET
+                    post_study_profile=?,
+                    post_profile_rating_biospheric=?,
+                    post_profile_rating_altruistic=?,
+                    post_profile_rating_egoistic=?,
+                    post_profile_rating_hedonic=?,
+                    post_profile_selection_confidence=?
+                   WHERE id=?""",
+                (
+                    profile,
+                    fit.get("biospheric"), fit.get("altruistic"),
+                    fit.get("egoistic"),   fit.get("hedonic"),
+                    confidence, pid,
+                ),
+            )
+            conn.commit()
+    else:
+        with get_connection() as conn:
+            conn.execute(
+                """UPDATE participants SET
+                    selected_profile=?,
+                    profile_rating_biospheric=?,
+                    profile_rating_altruistic=?,
+                    profile_rating_egoistic=?,
+                    profile_rating_hedonic=?,
+                    profile_selection_confidence=?
+                   WHERE id=?""",
+                (
+                    profile,
+                    fit.get("biospheric"), fit.get("altruistic"),
+                    fit.get("egoistic"),   fit.get("hedonic"),
+                    confidence, pid,
+                ),
+            )
+            conn.commit()
     return jsonify({"status": "success", "selected_profile": profile})
 
 # ─────────────────────────────────────────────
@@ -630,16 +731,20 @@ def get_scenarios():
 def get_ranking(scenario_id):
     pid     = get_or_create_participant_id()
     profile = get_selected_profile(pid)
-    if not profile:
-        return jsonify({"status": "error", "message": "No profile selected."}), 400
+
+    # Profile may be None if participant used the new needs-vector flow
+    # (no profile selection step). generate_both_conditions handles this.
+    needs = get_participant_needs(pid) if pid else None
+    if not profile and not needs:
+        return jsonify({"status": "error", "message": "No profile or needs vector found."}), 400
 
     condition = session.get("study_condition", 1)
     order     = session.get("set_order", "AB")
 
     try:
-        both = generate_both_conditions(scenario_id, profile, study_condition=condition)
-        save_engine_routes(pid, profile, both["personalised"])
-        save_engine_routes(pid, profile, both["baseline"])
+        both = generate_both_conditions(scenario_id, profile or "biospheric", study_condition=condition)
+        save_engine_routes(pid, profile or "biospheric", both["personalised"])
+        save_engine_routes(pid, profile or "biospheric", both["baseline"])
         return jsonify({
             "status":            "success",
             "scenario_id":       scenario_id,
@@ -763,6 +868,43 @@ def save_scenario_response():
 # ─────────────────────────────────────────────
 #  Final feedback
 # ─────────────────────────────────────────────
+
+@app.route("/api/needs-pre", methods=["POST"])
+def save_needs_pre():
+    """
+    Save pre-study needs ratings and build agent cognitive passport.
+    Called before scenarios — ratings drive personalised routing.
+    """
+    pid  = get_or_create_participant_id()
+    data = request.json or {}
+
+    # Store as JSON in needs_importance_pre column
+    needs_json = json.dumps({
+        "pro_env":          data.get("pro_env"),
+        "physical":         data.get("physical"),
+        "privacy":          data.get("privacy"),
+        "autonomy":         data.get("autonomy"),
+        "cost":             data.get("cost"),
+        "speed":            data.get("speed"),
+        "safety_accident":  data.get("safety_accident"),
+        "safety_crime":     data.get("safety_crime"),
+        "comfort":          data.get("comfort"),
+        "reliable":         data.get("reliable"),
+        "health_infection": data.get("health_infection"),
+    })
+
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE participants SET needs_importance_pre = ? WHERE id = ?",
+            (needs_json, pid)
+        )
+        conn.commit()
+
+    # Store in session for fast access during routing
+    session["needs_pre"] = needs_json
+
+    return jsonify({"status": "success"})
+
 
 @app.route("/api/needs-importance", methods=["POST"])
 def save_needs_importance():

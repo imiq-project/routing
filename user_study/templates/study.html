@@ -216,41 +216,6 @@
             .profile-grid { grid-template-columns:1fr; }
         }
 
-        /* ── Scenario profile badge ─────────────────────────────── */
-        .scenario-profile-badge {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: var(--ovgu-primary-soft, #f8eef4);
-            border: 1.5px solid var(--ovgu-primary-border, #d9a9c3);
-            border-left: 5px solid var(--ovgu-primary, #7c0140);
-            border-radius: 12px;
-            padding: 10px 16px;
-            margin: 12px 0 16px;
-        }
-        .spb-emoji {
-            font-size: 26px;
-            flex-shrink: 0;
-        }
-        .spb-text {
-            display: flex;
-            flex-direction: column;
-            gap: 1px;
-        }
-        .spb-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: .06em;
-            color: var(--ovgu-primary, #7c0140);
-            font-weight: 700;
-            opacity: 0.8;
-        }
-        .spb-text strong {
-            font-size: 15px;
-            color: var(--ovgu-primary-dark, #4a0026);
-            font-weight: 700;
-        }
-
         .quick-response-row {
             display:flex;
             gap:10px;
@@ -654,53 +619,105 @@
         </div>
 
         <div class="question-group">
-            <label>Do you usually commute to a different city than Magdeburg, for example because of work or studies?</label>
-            <select id="commute-different-city" required>
+            <label>Where do you usually travel <strong>from</strong> for your regular commute (work, studies, or similar)?</label>
+            <select id="commute-origin-type" required>
                 <option value="">— select —</option>
-                <option value="no">No, my usual commute is within Magdeburg</option>
-                <option value="yes">Yes, I usually commute to another city</option>
+                <option value="magdeburg_district">From a district within Magdeburg</option>
+                <option value="other_city">From another city or town</option>
+                <option value="no_regular_commute">I do not have a regular commute</option>
             </select>
 
-            <div id="commute-city-group" class="conditional-block hidden">
-                <label class="subquestion-label" for="commute-city">Which city do you usually commute to?</label>
-                <select id="commute-city">
+            <div id="commute-origin-district-group" class="conditional-block hidden">
+                <label class="subquestion-label" for="commute-origin-district">Which Magdeburg district do you commute from?</label>
+                <select id="commute-origin-district">
+                    <option value="">— select district —</option>
+                    <option value="altstadt">Altstadt</option>
+                    <option value="alte_neustadt">Alte Neustadt</option>
+                    <option value="neue_neustadt">Neue Neustadt</option>
+                    <option value="stadtfeld_ost">Stadtfeld Ost</option>
+                    <option value="stadtfeld_west">Stadtfeld West</option>
+                    <option value="sudenburg">Sudenburg</option>
+                    <option value="buckau">Buckau</option>
+                    <option value="leipziger_strasse">Leipziger Straße</option>
+                    <option value="werder">Werder</option>
+                    <option value="cracau">Cracau</option>
+                    <option value="herrenkrug">Herrenkrug</option>
+                    <option value="reform">Reform</option>
+                    <option value="olvenstedt">Olvenstedt</option>
+                    <option value="ottersleben">Ottersleben</option>
+                    <option value="rothensee">Rothensee</option>
+                    <option value="westerhuesen">Westerhüsen</option>
+                    <option value="other_or_multiple">Other / several districts</option>
+                </select>
+            </div>
+
+            <div id="commute-origin-city-group" class="conditional-block hidden">
+                <label class="subquestion-label" for="commute-origin-city">Which city or town do you commute from?</label>
+                <select id="commute-origin-city">
                     <option value="">— select city —</option>
                     <option value="halle_saale">Halle (Saale)</option>
                     <option value="leipzig">Leipzig</option>
                     <option value="berlin">Berlin</option>
-                    <option value="potsdam">Potsdam</option>
-                    <option value="braunschweig">Braunschweig</option>
-                    <option value="wolfsburg">Wolfsburg</option>
-                    <option value="hannover">Hannover</option>
                     <option value="dessau_rosslau">Dessau-Roßlau</option>
                     <option value="stendal">Stendal</option>
+                    <option value="schoenebeck">Schönebeck (Elbe)</option>
+                    <option value="wolfsburg">Wolfsburg</option>
+                    <option value="braunschweig">Braunschweig</option>
+                    <option value="hannover">Hannover</option>
                     <option value="other_city">Other city not listed</option>
                 </select>
             </div>
         </div>
 
         <div class="question-group">
-            <label>On a normal day, which Magdeburg city district do you usually commute to for work or studies?</label>
-            <select id="commute-district" required>
-                <option value="">— select district —</option>
-                <option value="altstadt">Altstadt</option>
-                <option value="alte_neustadt">Alte Neustadt</option>
-                <option value="neue_neustadt">Neue Neustadt</option>
-                <option value="stadtfeld_ost">Stadtfeld Ost</option>
-                <option value="stadtfeld_west">Stadtfeld West</option>
-                <option value="sudenburg">Sudenburg</option>
-                <option value="buckau">Buckau</option>
-                <option value="leipziger_strasse">Leipziger Straße</option>
-                <option value="werder">Werder</option>
-                <option value="cracau">Cracau</option>
-                <option value="herrenkrug">Herrenkrug</option>
-                <option value="reform">Reform</option>
-                <option value="olvenstedt">Olvenstedt</option>
-                <option value="ottersleben">Ottersleben</option>
-                <option value="rothensee">Rothensee</option>
-                <option value="other_or_multiple">Other / several districts</option>
-                <option value="not_applicable">Not applicable</option>
+            <label>Where do you usually travel <strong>to</strong> for your regular commute?</label>
+            <select id="commute-destination-type" required>
+                <option value="">— select —</option>
+                <option value="magdeburg_district">To a district within Magdeburg</option>
+                <option value="other_city">To another city or town</option>
+                <option value="no_regular_commute">I do not have a regular commute</option>
             </select>
+
+            <div id="commute-dest-district-group" class="conditional-block hidden">
+                <label class="subquestion-label" for="commute-dest-district">Which Magdeburg district do you commute to?</label>
+                <select id="commute-dest-district">
+                    <option value="">— select district —</option>
+                    <option value="altstadt">Altstadt (City Centre)</option>
+                    <option value="alte_neustadt">Alte Neustadt</option>
+                    <option value="neue_neustadt">Neue Neustadt</option>
+                    <option value="stadtfeld_ost">Stadtfeld Ost</option>
+                    <option value="stadtfeld_west">Stadtfeld West</option>
+                    <option value="sudenburg">Sudenburg</option>
+                    <option value="buckau">Buckau</option>
+                    <option value="leipziger_strasse">Leipziger Straße (OVGU area)</option>
+                    <option value="werder">Werder</option>
+                    <option value="cracau">Cracau</option>
+                    <option value="herrenkrug">Herrenkrug</option>
+                    <option value="reform">Reform (Klinikum)</option>
+                    <option value="olvenstedt">Olvenstedt</option>
+                    <option value="ottersleben">Ottersleben</option>
+                    <option value="rothensee">Rothensee</option>
+                    <option value="westerhuesen">Westerhüsen</option>
+                    <option value="other_or_multiple">Other / several districts</option>
+                </select>
+            </div>
+
+            <div id="commute-dest-city-group" class="conditional-block hidden">
+                <label class="subquestion-label" for="commute-dest-city">Which city or town do you commute to?</label>
+                <select id="commute-dest-city">
+                    <option value="">— select city —</option>
+                    <option value="halle_saale">Halle (Saale)</option>
+                    <option value="leipzig">Leipzig</option>
+                    <option value="berlin">Berlin</option>
+                    <option value="dessau_rosslau">Dessau-Roßlau</option>
+                    <option value="stendal">Stendal</option>
+                    <option value="schoenebeck">Schönebeck (Elbe)</option>
+                    <option value="wolfsburg">Wolfsburg</option>
+                    <option value="braunschweig">Braunschweig</option>
+                    <option value="hannover">Hannover</option>
+                    <option value="other_city">Other city not listed</option>
+                </select>
+            </div>
         </div>
 
         <!-- Accessibility / mobility constraints -->
@@ -795,7 +812,72 @@
     </section>
 
     <!-- ══════════════════════════════════════════ -->
-    <!-- STEP 3 — PROFILE SELECTION                  -->
+    <!-- STEP 2c — PRE-STUDY NEEDS ELICITATION       -->
+    <!-- ══════════════════════════════════════════ -->
+    <section class="card hidden" id="needs-pre-section">
+        <h2>Your Travel Priorities</h2>
+        <p class="step-label">Step 1c of 4 — What matters to you when travelling</p>
+        <p>
+            Before we show you any routes, we would like to understand what matters
+            most to you when choosing how to travel. Please rate the importance of
+            each factor below on a scale from 1 (not important at all) to 7 (extremely important).
+        </p>
+        <p style="font-size:13px;color:#888;margin-top:-8px;">
+            There are no right or wrong answers — we are interested in your honest personal priorities.
+        </p>
+
+        <div class="rating-grid needs-rating-list" style="margin-top:20px;">
+            <div class="rating-item">
+                <label>🌱 Environmental friendliness<br><span style="font-size:12px;color:#888;font-weight:400;">Low emissions, sustainable transport</span></label>
+                <div class="likert-row" data-target="pre-need-pro-env"><div class="likert-options" id="pre-need-pro-env"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>🚴 Physical activity<br><span style="font-size:12px;color:#888;font-weight:400;">Getting exercise during the journey</span></label>
+                <div class="likert-row" data-target="pre-need-physical"><div class="likert-options" id="pre-need-physical"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>🔒 Privacy &amp; personal space<br><span style="font-size:12px;color:#888;font-weight:400;">Avoiding crowded shared environments</span></label>
+                <div class="likert-row" data-target="pre-need-privacy"><div class="likert-options" id="pre-need-privacy"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>🗺️ Autonomy &amp; flexibility<br><span style="font-size:12px;color:#888;font-weight:400;">Travelling on your own schedule</span></label>
+                <div class="likert-row" data-target="pre-need-autonomy"><div class="likert-options" id="pre-need-autonomy"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>💶 Affordability<br><span style="font-size:12px;color:#888;font-weight:400;">Keeping travel costs low</span></label>
+                <div class="likert-row" data-target="pre-need-cost"><div class="likert-options" id="pre-need-cost"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>⚡ Speed<br><span style="font-size:12px;color:#888;font-weight:400;">Getting there as fast as possible</span></label>
+                <div class="likert-row" data-target="pre-need-speed"><div class="likert-options" id="pre-need-speed"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>🚦 Accident safety<br><span style="font-size:12px;color:#888;font-weight:400;">Low risk of traffic accidents</span></label>
+                <div class="likert-row" data-target="pre-need-safety-accident"><div class="likert-options" id="pre-need-safety-accident"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>🔦 Personal security<br><span style="font-size:12px;color:#888;font-weight:400;">Feeling safe from crime en route</span></label>
+                <div class="likert-row" data-target="pre-need-safety-crime"><div class="likert-options" id="pre-need-safety-crime"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>🛋️ Comfort<br><span style="font-size:12px;color:#888;font-weight:400;">Comfortable, low-effort travel</span></label>
+                <div class="likert-row" data-target="pre-need-comfort"><div class="likert-options" id="pre-need-comfort"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>🕐 Reliability<br><span style="font-size:12px;color:#888;font-weight:400;">Arriving on time, predictable journey</span></label>
+                <div class="likert-row" data-target="pre-need-reliable"><div class="likert-options" id="pre-need-reliable"></div></div>
+            </div>
+            <div class="rating-item">
+                <label>😷 Infection &amp; crowding risk<br><span style="font-size:12px;color:#888;font-weight:400;">Avoiding crowded enclosed spaces</span></label>
+                <div class="likert-row" data-target="pre-need-health-infection"><div class="likert-options" id="pre-need-health-infection"></div></div>
+            </div>
+        </div>
+
+        <button id="save-needs-pre-btn">Continue to Route Scenarios</button>
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- STEP 3 — PROFILE SELECTION (hidden, not used in routing) -->
     <!-- ══════════════════════════════════════════ -->
     <section class="card hidden" id="profile-section">
         <h2>Your Travel Style</h2>
@@ -916,15 +998,6 @@
             <span class="step-label" id="scenario-counter"></span>
         </div>
 
-        <!-- Sticky profile badge — always visible while evaluating routes -->
-        <div id="scenario-profile-badge" class="scenario-profile-badge hidden">
-            <span id="scenario-profile-emoji" class="spb-emoji"></span>
-            <div class="spb-text">
-                <span class="spb-label">Routes personalised for</span>
-                <strong id="scenario-profile-name"></strong>
-            </div>
-        </div>
-
         <p id="scenario-context" class="scenario-context"></p>
 
         <!-- ── Orientation map ── -->
@@ -963,7 +1036,7 @@
 
             <!-- SET A — fixed engine ranking, no drag-and-drop -->
             <div id="route-set-a" class="route-set-panel set-a-panel">
-                <h3 class="set-label set-a-label">Route Set A — Engine ranking</h3>
+                <h3 class="set-label set-a-label">Route Set A </h3>
                 <p class="set-desc">
                     These routes are ranked from the engine's top recommendation to the lowest-ranked option
                     for this journey.
@@ -997,7 +1070,7 @@
 
             <!-- SET B — fixed standard benchmark ranking, same evaluation structure -->
             <div id="route-set-b" class="route-set-panel set-b-panel">
-                <h3 class="set-label set-b-label">Route Set B — Standard ranking</h3>
+                <h3 class="set-label set-b-label">Route Set B</h3>
                 <p class="set-desc">
                     These routes are ranked by the standard routing benchmark, mainly travel time and distance.
                 </p>
@@ -1098,68 +1171,117 @@
     </section>
 
     <!-- ══════════════════════════════════════════ -->
-    <!-- STEP 4b — NEEDS IMPORTANCE RATING            -->
-    <!-- After all 4 scenarios, ask how important     -->
-    <!-- each need dimension is to the participant    -->
+    <!-- STEP 4b — POST-STUDY PROFILE IDENTIFICATION  -->
+    <!-- After all 4 scenarios, ask which value       -->
+    <!-- profile best describes the participant       -->
     <!-- ══════════════════════════════════════════ -->
     <section class="card hidden" id="needs-rating-section">
-        <h2>Your Mobility Needs</h2>
-        <p class="step-label">Step 3b of 4 — How you weigh different travel factors</p>
+        <h2>Your Travel Style</h2>
+        <p class="step-label">Step 3b of 4 — How would you describe yourself as a traveller?</p>
         <p>
-            You have now seen routes across four different journeys.
-            Thinking back across all of them, please rate how important
-            each of the following factors is to you when choosing a route.
-            (1 = not important at all, 5 = very important)
+            Now that you have seen how different routes are ranked, we would like to know
+            which of the following travel styles best describes you.
+            First rate how well each profile describes your everyday travel preferences,
+            then select the one that is the closest overall match.
+        </p>
+        <p class="profile-note">
+            Think about your everyday trips — commuting, shopping, visiting friends —
+            not just the scenarios you saw today.
         </p>
 
-        <div class="rating-grid needs-rating-list">
-            <div class="rating-item">
-                <label>🌱 Environmental friendliness</label>
-                <div class="likert-row"><div class="likert-options" id="need-pro-env"></div></div>
+        <div class="profile-grid">
+
+            <div class="profile-pill profile-pill-bio" data-profile="biospheric">
+                <div class="pill-body">
+                    <h3>🌱 The Green Traveller</h3>
+                    <p class="profile-quote">"I prefer routes that reduce environmental impact when this is reasonably possible."</p>
+                    <ul>
+                        <li>Lower environmental impact matters to me.</li>
+                        <li>Active travel is welcome when feasible.</li>
+                        <li>I can accept some extra time for a more sustainable route.</li>
+                    </ul>
+                </div>
+                <div class="profile-rating-block">
+                    <label>How much does this profile describe your everyday travel preferences?</label>
+                    <div class="likert-row" data-target="post-profile-rating-biospheric">
+                        <div class="likert-options" id="post-profile-rating-biospheric"></div>
+                    </div>
+                    <button type="button" class="select-profile-btn" data-select-post-profile="biospheric">Select as closest profile</button>
+                </div>
             </div>
-            <div class="rating-item">
-                <label>🚴 Physical activity opportunity</label>
-                <div class="likert-row"><div class="likert-options" id="need-physical"></div></div>
+
+            <div class="profile-pill profile-pill-alt" data-profile="altruistic">
+                <div class="pill-body">
+                    <h3>🛡️ The Safe &amp; Reliable Traveller</h3>
+                    <p class="profile-quote">"I prefer routes that feel safe, predictable, and dependable."</p>
+                    <ul>
+                        <li>Avoiding accident and personal safety risks is important to me.</li>
+                        <li>I value punctuality and predictable arrival times.</li>
+                        <li>I prefer routes with clear, reliable connections.</li>
+                    </ul>
+                </div>
+                <div class="profile-rating-block">
+                    <label>How much does this profile describe your everyday travel preferences?</label>
+                    <div class="likert-row" data-target="post-profile-rating-altruistic">
+                        <div class="likert-options" id="post-profile-rating-altruistic"></div>
+                    </div>
+                    <button type="button" class="select-profile-btn" data-select-post-profile="altruistic">Select as closest profile</button>
+                </div>
             </div>
-            <div class="rating-item">
-                <label>🔒 Privacy / personal space</label>
-                <div class="likert-row"><div class="likert-options" id="need-privacy"></div></div>
+
+            <div class="profile-pill profile-pill-ego" data-profile="egoistic">
+                <div class="pill-body">
+                    <h3>⚡ The Independent Traveller</h3>
+                    <p class="profile-quote">"I prefer routes that let me stay in control of my time and movement."</p>
+                    <ul>
+                        <li>Flexibility and directness matter to me.</li>
+                        <li>I prefer not to depend too much on fixed schedules.</li>
+                        <li>Personal space and autonomy are important during travel.</li>
+                    </ul>
+                </div>
+                <div class="profile-rating-block">
+                    <label>How much does this profile describe your everyday travel preferences?</label>
+                    <div class="likert-row" data-target="post-profile-rating-egoistic">
+                        <div class="likert-options" id="post-profile-rating-egoistic"></div>
+                    </div>
+                    <button type="button" class="select-profile-btn" data-select-post-profile="egoistic">Select as closest profile</button>
+                </div>
             </div>
-            <div class="rating-item">
-                <label>🗺️ Autonomy / flexibility</label>
-                <div class="likert-row"><div class="likert-options" id="need-autonomy"></div></div>
+
+            <div class="profile-pill profile-pill-hed" data-profile="hedonic">
+                <div class="pill-body">
+                    <h3>🛋️ The Relaxed Traveller</h3>
+                    <p class="profile-quote">"I prefer routes that feel easy, comfortable, and low-stress."</p>
+                    <ul>
+                        <li>Comfort matters more than strict optimisation.</li>
+                        <li>I prefer to avoid crowded or stressful environments.</li>
+                        <li>I do not like routes that require too much physical effort.</li>
+                    </ul>
+                </div>
+                <div class="profile-rating-block">
+                    <label>How much does this profile describe your everyday travel preferences?</label>
+                    <div class="likert-row" data-target="post-profile-rating-hedonic">
+                        <div class="likert-options" id="post-profile-rating-hedonic"></div>
+                    </div>
+                    <button type="button" class="select-profile-btn" data-select-post-profile="hedonic">Select as closest profile</button>
+                </div>
             </div>
-            <div class="rating-item">
-                <label>💶 Affordability</label>
-                <div class="likert-row"><div class="likert-options" id="need-cost"></div></div>
-            </div>
-            <div class="rating-item">
-                <label>⚡ Speed</label>
-                <div class="likert-row"><div class="likert-options" id="need-speed"></div></div>
-            </div>
-            <div class="rating-item">
-                <label>🚦 Traffic / accident safety</label>
-                <div class="likert-row"><div class="likert-options" id="need-safety-accident"></div></div>
-            </div>
-            <div class="rating-item">
-                <label>🔦 Personal security</label>
-                <div class="likert-row"><div class="likert-options" id="need-safety-crime"></div></div>
-            </div>
-            <div class="rating-item">
-                <label>🛋️ Comfort</label>
-                <div class="likert-row"><div class="likert-options" id="need-comfort"></div></div>
-            </div>
-            <div class="rating-item">
-                <label>🕐 Reliability / punctuality</label>
-                <div class="likert-row"><div class="likert-options" id="need-reliable"></div></div>
-            </div>
-            <div class="rating-item">
-                <label>😷 Infection / crowding risk</label>
-                <div class="likert-row"><div class="likert-options" id="need-health-infection"></div></div>
+
+        </div>
+
+        <!-- Selection confirmation + confidence -->
+        <div id="post-profile-selected-display" class="info-box hidden" style="margin-top:20px;">
+            <strong>Selected profile:</strong> <span id="post-profile-selected-label">—</span>
+        </div>
+
+        <div class="question-group" style="margin-top:20px;">
+            <label>How confident are you in this profile selection?</label>
+            <div class="likert-row" data-target="post-profile-confidence">
+                <div class="likert-options" id="post-profile-confidence"></div>
             </div>
         </div>
 
-        <button id="save-needs-btn">Continue to Final Feedback</button>
+        <button id="save-needs-btn" disabled>Continue to Final Feedback</button>
     </section>
 
     <!-- ══════════════════════════════════════════ -->
@@ -1280,10 +1402,10 @@
 // ── State ──────────────────────────────────────────────────────
 let scenarios          = [];
 let currentIdx         = 0;
+let studyCondition     = 1;   // 1 = no intermodal, 2 = with intermodal
+let setOrder           = "AB"; // AB = value first, BA = time first
 let currentPersonalised = [];   // routes for Set A
 let currentBaseline     = [];   // routes for Set B
-let studyCondition      = 1;    // 1 = no intermodal, 2 = with intermodal
-let setOrder            = "AB"; // AB = value first, BA = time first
 let selectedProfileForPreview = null;
 let previewModeActive = false;
 let scenarioDrafts = {};          // local per-scenario answers; used for back navigation and updates
@@ -1414,50 +1536,45 @@ function activatePreviewMode(reason) {
 }
 
 async function apiGetJson(url) {
-    // Only use mock data when running as a local file (Phoenix Code / static preview)
-    const isLocalFile = window.location.protocol === "file:";
     try {
         const res = await fetch(url, { credentials: "same-origin" });
-        if (!res.ok) {
-            if (isLocalFile) {
-                activatePreviewMode(`${url} → HTTP ${res.status}`);
-                if (url === "/api/scenarios") return MOCK_SCENARIOS;
-                if (url.includes("/api/scenario/") && url.includes("/ranking")) return getMockRankingForUrl(url);
-                if (url === "/api/participant") return { selected_profile: selectedProfileForPreview, participant_code: "PREVIEW-CODE" };
-                return {};
-            }
-            // In production: surface the real error so it is visible
-            const errBody = await res.json().catch(() => ({}));
-            throw new Error(`API error ${res.status}: ${errBody.message || res.statusText}`);
-        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return await res.json();
     } catch (err) {
-        if (isLocalFile) {
-            activatePreviewMode(`${url} → ${err.message}`);
-            if (url === "/api/scenarios") return MOCK_SCENARIOS;
-            if (url.includes("/api/scenario/") && url.includes("/ranking")) return getMockRankingForUrl(url);
-            if (url === "/api/participant") return { selected_profile: selectedProfileForPreview, participant_code: "PREVIEW-CODE" };
-            return {};
-        }
-        // Production: show the error clearly
-        console.error("API call failed:", url, err.message);
-        throw err;
+        activatePreviewMode(`${url} → ${err.message}`);
+        if (url === "/api/scenarios") return MOCK_SCENARIOS;
+        if (url.includes("/api/scenario/") && url.includes("/ranking")) return getMockRankingForUrl(url);
+        if (url === "/api/participant") return { selected_profile: selectedProfileForPreview, participant_code: "PREVIEW-CODE" };
+        return {};
     }
 }
 
 async function apiPostJson(url, payload) {
+    const isLocalFile = window.location.protocol === "file:";
     try {
         const res = await fetch(url, {
             method: "POST", credentials: "same-origin",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
         });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+            const errBody = await res.json().catch(() => ({}));
+            const msg = errBody.message || res.statusText || `HTTP ${res.status}`;
+            if (isLocalFile) {
+                activatePreviewMode(`${url} → ${msg}`);
+                return { ok: true, json: async () => ({ status: "preview" }) };
+            }
+            throw new Error(`API error ${res.status}: ${msg}`);
+        }
         return res;
     } catch (err) {
-        activatePreviewMode(`${url} → ${err.message}`);
-        console.log("Preview payload for", url, payload);
-        return { ok: true, json: async () => ({ status: "preview" }) };
+        if (isLocalFile) {
+            activatePreviewMode(`${url} → ${err.message}`);
+            console.log("Preview payload for", url, payload);
+            return { ok: true, json: async () => ({ status: "preview" }) };
+        }
+        console.error("POST failed:", url, err.message);
+        throw err;
     }
 }
 
@@ -1520,6 +1637,17 @@ const LIKERT_ANCHORS = {
     "willingness-use": ["1 = Very unlikely", "3 = Unsure", "5 = Very likely"],
     "trust-ranking": ["1 = Not at all", "3 = Moderately", "5 = A great deal"],
     "overall-intermodal-use": ["1 = Definitely not", "3 = Maybe", "5 = Definitely yes"],
+    "pre-need-pro-env": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
+    "pre-need-physical": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
+    "pre-need-privacy": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
+    "pre-need-autonomy": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
+    "pre-need-cost": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
+    "pre-need-speed": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
+    "pre-need-safety-accident": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
+    "pre-need-safety-crime": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
+    "pre-need-comfort": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
+    "pre-need-reliable": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
+    "pre-need-health-infection": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
     "need-pro-env": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
     "need-physical": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
     "need-privacy": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
@@ -1607,19 +1735,39 @@ function installLikertAnchors() {
 
 // Build all Likerts on load
 const LIKERT_IDS = [
+    // Pre-study needs elicitation (7-point)
+    "pre-need-pro-env", "pre-need-physical", "pre-need-privacy", "pre-need-autonomy",
+    "pre-need-cost", "pre-need-speed", "pre-need-safety-accident", "pre-need-safety-crime",
+    "pre-need-comfort", "pre-need-reliable", "pre-need-health-infection",
+    // Post-study profile ratings (7-point)
+    "post-profile-rating-biospheric", "post-profile-rating-altruistic",
+    "post-profile-rating-egoistic", "post-profile-rating-hedonic",
+    "post-profile-confidence",
+    // Mobility demographics
     "mobility-frequency", "cycling-comfort",
+    // Profile selection (7-point)
     "profile-rating-biospheric", "profile-rating-altruistic", "profile-rating-egoistic", "profile-rating-hedonic",
     "profile-selection-confidence",
+    // Scenario responses
     "ranking-acceptance-a", "ranking-acceptance-b",
     "understood-intermodal", "intermodal-acceptance",
     "scenario-system-use", "scenario-trust-top-recommendation",
+    // Post-study needs re-rating (5-point)
     "need-pro-env", "need-physical", "need-privacy", "need-autonomy",
     "need-cost", "need-speed", "need-safety-accident", "need-safety-crime",
     "need-comfort", "need-reliable", "need-health-infection",
+    // Final feedback
     "value-profile-accuracy", "profile-confidence", "personalisation-quality",
     "willingness-use", "trust-ranking", "overall-intermodal-use",
 ];
 const LIKERT_MAX = {
+    "pre-need-pro-env": 7, "pre-need-physical": 7, "pre-need-privacy": 7,
+    "pre-need-autonomy": 7, "pre-need-cost": 7, "pre-need-speed": 7,
+    "pre-need-safety-accident": 7, "pre-need-safety-crime": 7,
+    "pre-need-comfort": 7, "pre-need-reliable": 7, "pre-need-health-infection": 7,
+    "post-profile-rating-biospheric": 7, "post-profile-rating-altruistic": 7,
+    "post-profile-rating-egoistic": 7, "post-profile-rating-hedonic": 7,
+    "post-profile-confidence": 7,
     "profile-rating-biospheric": 7,
     "profile-rating-altruistic": 7,
     "profile-rating-egoistic": 7,
@@ -1637,7 +1785,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 function markRequiredFields() {
     [
-        "age-input", "gender", "education", "occupation", "commute-different-city", "commute-district", "exclusion-disability-yesno",
+        "age-input", "gender", "education", "occupation", "commute-origin-type", "commute-destination-type", "exclusion-disability-yesno",
         "driving-license", "owns-car", "owns-bike",
         "preferred-route-a", "follow-top-route-a", "preferred-route-b", "noticed-intermodal",
         "scenario-comment", "noticed-personalisation", "comparison-google", "best-feature", "improvement"
@@ -1648,21 +1796,33 @@ function markRequiredFields() {
 }
 
 function initPage1Logic() {
-    const commuteDifferentCity = document.getElementById("commute-different-city");
-    const commuteCityGroup = document.getElementById("commute-city-group");
-    const commuteCity = document.getElementById("commute-city");
+    // Commute origin conditional logic
+    const commuteOriginType = document.getElementById("commute-origin-type");
+    const commuteOriginDistrictGroup = document.getElementById("commute-origin-district-group");
+    const commuteOriginCityGroup = document.getElementById("commute-origin-city-group");
+    function updateOriginLogic() {
+        const v = commuteOriginType ? commuteOriginType.value : "";
+        if (commuteOriginDistrictGroup) commuteOriginDistrictGroup.classList.toggle("hidden", v !== "magdeburg_district");
+        if (commuteOriginCityGroup)     commuteOriginCityGroup.classList.toggle("hidden", v !== "other_city");
+    }
+    if (commuteOriginType) commuteOriginType.addEventListener("change", updateOriginLogic);
+    updateOriginLogic();
+
+    // Commute destination conditional logic
+    const commuteDestType = document.getElementById("commute-destination-type");
+    const commuteDestDistrictGroup = document.getElementById("commute-dest-district-group");
+    const commuteDestCityGroup = document.getElementById("commute-dest-city-group");
+    function updateDestLogic() {
+        const v = commuteDestType ? commuteDestType.value : "";
+        if (commuteDestDistrictGroup) commuteDestDistrictGroup.classList.toggle("hidden", v !== "magdeburg_district");
+        if (commuteDestCityGroup)     commuteDestCityGroup.classList.toggle("hidden", v !== "other_city");
+    }
+    if (commuteDestType) commuteDestType.addEventListener("change", updateDestLogic);
+    updateDestLogic();
+
+    // Disability conditional logic
     const disabilityYesNo = document.getElementById("exclusion-disability-yesno");
     const disabilityModeGroup = document.getElementById("disability-mode-group");
-
-    function updateCommuteCityLogic() {
-        const showCity = commuteDifferentCity && commuteDifferentCity.value === "yes";
-        if (commuteCityGroup) commuteCityGroup.classList.toggle("hidden", !showCity);
-        if (commuteCity) {
-            commuteCity.required = showCity;
-            if (!showCity) commuteCity.value = "";
-        }
-    }
-
     function updateDisabilityLogic() {
         const showModes = disabilityYesNo && disabilityYesNo.value === "1";
         if (disabilityModeGroup) disabilityModeGroup.classList.toggle("hidden", !showModes);
@@ -1670,10 +1830,7 @@ function initPage1Logic() {
             document.querySelectorAll("input[name='disability-mode']").forEach(cb => cb.checked = false);
         }
     }
-
-    if (commuteDifferentCity) commuteDifferentCity.addEventListener("change", updateCommuteCityLogic);
     if (disabilityYesNo) disabilityYesNo.addEventListener("change", updateDisabilityLogic);
-    updateCommuteCityLogic();
     updateDisabilityLogic();
 }
 
@@ -1695,7 +1852,8 @@ function requireDisabilityModesIfNeeded() {
 function installBackButtons() {
     addBackButton("save-demographics-btn", () => show("consent-section"));
     addBackButton("save-mobility-btn", () => show("demographics-section"));
-    addBackButton("save-profile-btn", () => show("mobility-section"));
+    addBackButton("save-needs-pre-btn", () => show("mobility-section"));
+    addBackButton("save-profile-btn", () => show("needs-pre-section"));
     addBackButton("next-scenario-btn", async () => {
         snapshotCurrentScenarioDraft();
         if (currentIdx > 0) {
@@ -1819,12 +1977,10 @@ document.getElementById("save-demographics-btn").onclick = () => {
         ["gender", "Please select your gender."],
         ["education", "Please select your highest completed education."],
         ["occupation", "Please select your occupation."],
-        ["commute-different-city", "Please indicate whether you usually commute to a different city than Magdeburg."],
-        ["commute-district", "Please select the Magdeburg district where you usually commute for work or studies."],
+        ["commute-origin-type", "Please indicate where you usually commute from."],
+        ["commute-destination-type", "Please indicate where you usually commute to."],
         ["exclusion-disability-yesno", "Please answer the mobility impairment/disability question."]
     ])) return;
-    if (document.getElementById("commute-different-city").value === "yes" &&
-        !requireFields([["commute-city", "Please select the city you usually commute to."]])) return;
     if (!requireDisabilityModesIfNeeded()) return;
     show("mobility-section");
 };
@@ -1857,12 +2013,18 @@ document.getElementById("save-mobility-btn").onclick = async () => {
         gender:                document.getElementById("gender").value || null,
         occupation:            document.getElementById("occupation").value || null,
         education:             document.getElementById("education").value || null,
-        // Page 1 commuting context
-        commute_different_city: document.getElementById("commute-different-city").value || null,
-        commute_city:           document.getElementById("commute-different-city").value === "yes"
-                                ? document.getElementById("commute-city").value : null,
-        commute_district:       document.getElementById("commute-district").value || null,
-        city_of_residence:      document.getElementById("commute-district").value || null, // backward-compatible field name
+        // Commute geography — from/to split
+        commute_origin_type:     document.getElementById("commute-origin-type")?.value || null,
+        commute_origin_district: document.getElementById("commute-origin-district")?.value || null,
+        commute_origin_city:     document.getElementById("commute-origin-city")?.value || null,
+        commute_dest_type:       document.getElementById("commute-destination-type")?.value || null,
+        commute_dest_district:   document.getElementById("commute-dest-district")?.value || null,
+        commute_dest_city:       document.getElementById("commute-dest-city")?.value || null,
+        // backward-compatible aliases for study_app.py
+        commute_different_city:  document.getElementById("commute-origin-type")?.value === "other_city" ? "yes" : "no",
+        commute_city:            document.getElementById("commute-origin-city")?.value || null,
+        commute_district:        document.getElementById("commute-dest-district")?.value || null,
+        city_of_residence:       document.getElementById("commute-dest-district")?.value || null,
         // Page 1 accessibility / mobility constraints
         exclusion_disability:   document.getElementById("exclusion-disability-yesno").value || null,
         disability_affected_modes: getCheckedValues("disability-mode"),
@@ -1879,7 +2041,7 @@ document.getElementById("save-mobility-btn").onclick = async () => {
         cycling_comfort:       getLikert("cycling-comfort"),
     };
     await apiPostJson("/api/demographics", payload);
-    show("profile-section");
+    show("needs-pre-section");
 };
 
 // ── PROFILE SELECTION ─────────────────────────────────────────
@@ -1987,21 +2149,12 @@ document.getElementById("save-profile-btn").onclick = async () => {
         soft_profile_vector: softProfileVector,
     });
     show("scenario-section");
-    updateScenarioProfileBadge(profile);
     if (!scenarios.length) {
         await loadScenarios();
     } else {
         await loadScenario();
     }
 };
-
-function updateScenarioProfileBadge(profile) {
-    const meta = PROFILE_META[profile];
-    if (!meta) return;
-    document.getElementById("scenario-profile-emoji").textContent = meta.emoji;
-    document.getElementById("scenario-profile-name").textContent  = meta.label;
-    document.getElementById("scenario-profile-badge").classList.remove("hidden");
-}
 
 // ── SCENARIO LOADING ──────────────────────────────────────────
 async function loadScenarios() {
@@ -2060,6 +2213,10 @@ async function loadScenario() {
     currentPersonalised = data.personalised || [];
     currentBaseline     = data.baseline     || [];
 
+    // Keep globals in sync with server-assigned condition
+    if (data.study_condition) studyCondition = parseInt(data.study_condition);
+    if (data.set_order)       setOrder       = data.set_order;
+
     console.log(`Personalised routes: ${currentPersonalised.length}, Baseline routes: ${currentBaseline.length}`);
 
     // Swap column order for BA group (time-ranked shown first)
@@ -2070,14 +2227,16 @@ async function loadScenario() {
         document.getElementById("route-set-a").style.order = "1";
         document.getElementById("route-set-b").style.order = "2";
     }
+
     renderRouteSet("routes-list-a", "preferred-route-a", currentPersonalised, false);
     renderRouteSet("routes-list-b", "preferred-route-b", currentBaseline, false);
 
     document.getElementById("route-sets-container").classList.remove("hidden");
     document.getElementById("scenario-system-section").classList.remove("hidden");
 
-    // Show intermodal block only when at least one displayed route is intermodal
-    const hasIntermodal = [...currentPersonalised, ...currentBaseline].some(r => r.is_intermodal);
+    // Show intermodal block only for condition 2 with actual intermodal routes
+    const hasIntermodal = studyCondition === 2
+        && [...currentPersonalised, ...currentBaseline].some(r => r.is_intermodal);
     document.getElementById("intermodal-section").classList.toggle("hidden", !hasIntermodal);
 
     restoreScenarioDraft(s.id);
@@ -2257,7 +2416,8 @@ document.getElementById("next-scenario-btn").onclick = async () => {
         return;
     }
 
-    const hasIntermodal = [...currentPersonalised, ...currentBaseline].some(r => r.is_intermodal);
+    const hasIntermodal = studyCondition === 2
+        && [...currentPersonalised, ...currentBaseline].some(r => r.is_intermodal);
     if (!validateScenarioResponse(hasIntermodal)) return;
 
     // Set A is the engine ranking. It is fixed and evaluated as displayed.
@@ -2412,36 +2572,143 @@ function initScenarioMap(oLat, oLon, dLat, dLon) {
 }
 
 // ── NEEDS IMPORTANCE → FINAL ──────────────────────────────────
+// ── PRE-STUDY NEEDS ELICITATION → SCENARIOS ──────────────────
+document.getElementById("save-needs-pre-btn").onclick = async () => {
+    const PRE_NEED_IDS = [
+        ["pre-need-pro-env",          "Please rate environmental friendliness."],
+        ["pre-need-physical",         "Please rate physical activity."],
+        ["pre-need-privacy",          "Please rate privacy."],
+        ["pre-need-autonomy",         "Please rate autonomy."],
+        ["pre-need-cost",             "Please rate affordability."],
+        ["pre-need-speed",            "Please rate speed."],
+        ["pre-need-safety-accident",  "Please rate accident safety."],
+        ["pre-need-safety-crime",     "Please rate personal security."],
+        ["pre-need-comfort",          "Please rate comfort."],
+        ["pre-need-reliable",         "Please rate reliability."],
+        ["pre-need-health-infection", "Please rate infection risk."],
+    ];
+    if (!requireLikerts(PRE_NEED_IDS)) return;
+
+    const preNeedsPayload = {
+        pro_env:           getLikert("pre-need-pro-env"),
+        physical:          getLikert("pre-need-physical"),
+        privacy:           getLikert("pre-need-privacy"),
+        autonomy:          getLikert("pre-need-autonomy"),
+        cost:              getLikert("pre-need-cost"),
+        speed:             getLikert("pre-need-speed"),
+        safety_accident:   getLikert("pre-need-safety-accident"),
+        safety_crime:      getLikert("pre-need-safety-crime"),
+        comfort:           getLikert("pre-need-comfort"),
+        reliable:          getLikert("pre-need-reliable"),
+        health_infection:  getLikert("pre-need-health-infection"),
+    };
+
+    // Save to server — builds the agent immediately
+    const resp = await apiPostJson("/api/needs-pre", preNeedsPayload);
+
+    // Fetch updated study assignment
+    try {
+        const pData = await apiGetJson("/api/participant");
+        if (pData.study_condition) studyCondition = parseInt(pData.study_condition);
+        if (pData.set_order)       setOrder       = pData.set_order;
+    } catch(e) {}
+
+    // Update scenario profile badge with needs summary instead of profile name
+    updateNeedsBadge(preNeedsPayload);
+
+    show("scenario-section");
+    updateStudyInstructions();
+    if (!scenarios.length) {
+        await loadScenarios();
+    } else {
+        await loadScenario();
+    }
+};
+
+function updateStudyInstructions() {
+    const note = document.getElementById("study-condition-note");
+    if (!note) return;
+    if (studyCondition === 2) {
+        note.textContent = "These routes include combined options such as Bike & Public Transport.";
+        note.classList.remove("hidden");
+    } else {
+        note.classList.add("hidden");
+    }
+}
+
+// Show "Routes personalised for your priorities" badge
+function updateNeedsBadge(needs) {
+    // Find top 3 needs by rating value
+    const sorted = Object.entries(needs)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(([k]) => ({
+            pro_env: "🌱 environment", physical: "🚴 activity",
+            privacy: "🔒 privacy",    autonomy: "🗺️ flexibility",
+            cost: "💶 affordability", speed: "⚡ speed",
+            safety_accident: "🚦 safety", safety_crime: "🔦 security",
+            comfort: "🛋️ comfort",   reliable: "🕐 reliability",
+            health_infection: "😷 low crowding"
+        }[k] || k));
+
+    const badge = document.getElementById("scenario-profile-badge");
+    const nameEl = document.getElementById("scenario-profile-name");
+    const emojiEl = document.getElementById("scenario-profile-emoji");
+    if (badge && nameEl && emojiEl) {
+        emojiEl.textContent = "✨";
+        nameEl.textContent  = "Your priorities: " + sorted.join(", ");
+        badge.classList.remove("hidden");
+    }
+}
+
+// ── POST-STUDY PROFILE SELECTION ──────────────────────────────
+let selectedPostProfile = null;
+
+document.querySelectorAll("[data-select-post-profile]").forEach(btn => {
+    btn.addEventListener("click", () => {
+        selectedPostProfile = btn.dataset.selectPostProfile;
+        // Highlight selected card
+        document.querySelectorAll(".profile-pill").forEach(p => p.classList.remove("selected-pill"));
+        btn.closest(".profile-pill").classList.add("selected-pill");
+        // Show confirmation
+        const display = document.getElementById("post-profile-selected-display");
+        const label   = document.getElementById("post-profile-selected-label");
+        const meta    = PROFILE_META[selectedPostProfile];
+        if (display && label && meta) {
+            label.textContent = `${meta.emoji} ${meta.label}`;
+            display.classList.remove("hidden");
+        }
+        // Enable continue button
+        document.getElementById("save-needs-btn").disabled = false;
+    });
+});
+
 document.getElementById("save-needs-btn").onclick = async () => {
+    if (!selectedPostProfile) {
+        alert("Please select the profile that best describes your travel style.");
+        return;
+    }
     if (!requireLikerts([
-        ["need-pro-env", "Please rate environmental friendliness."],
-        ["need-physical", "Please rate physical activity opportunity."],
-        ["need-privacy", "Please rate privacy/personal space."],
-        ["need-autonomy", "Please rate autonomy/flexibility."],
-        ["need-cost", "Please rate affordability."],
-        ["need-speed", "Please rate speed."],
-        ["need-safety-accident", "Please rate traffic/accident safety."],
-        ["need-safety-crime", "Please rate personal security."],
-        ["need-comfort", "Please rate comfort."],
-        ["need-reliable", "Please rate reliability/punctuality."],
-        ["need-health-infection", "Please rate infection/crowding risk."]
+        ["post-profile-rating-biospheric", "Please rate how well The Green Traveller describes you."],
+        ["post-profile-rating-altruistic",  "Please rate how well The Safe & Reliable Traveller describes you."],
+        ["post-profile-rating-egoistic",    "Please rate how well The Independent Traveller describes you."],
+        ["post-profile-rating-hedonic",     "Please rate how well The Relaxed Traveller describes you."],
+        ["post-profile-confidence",         "Please rate your confidence in the profile selection."],
     ])) return;
 
-    const needsPayload = {
-        need_pro_env:           getLikert("need-pro-env"),
-        need_physical:          getLikert("need-physical"),
-        need_privacy:           getLikert("need-privacy"),
-        need_autonomy:          getLikert("need-autonomy"),
-        need_cost:              getLikert("need-cost"),
-        need_speed:             getLikert("need-speed"),
-        need_safety_accident:   getLikert("need-safety-accident"),
-        need_safety_crime:      getLikert("need-safety-crime"),
-        need_comfort:           getLikert("need-comfort"),
-        need_reliable:          getLikert("need-reliable"),
-        need_health_infection:  getLikert("need-health-infection"),
+    const payload = {
+        selected_profile:            selectedPostProfile,
+        profile_fit_ratings: {
+            biospheric: getLikert("post-profile-rating-biospheric"),
+            altruistic: getLikert("post-profile-rating-altruistic"),
+            egoistic:   getLikert("post-profile-rating-egoistic"),
+            hedonic:    getLikert("post-profile-rating-hedonic"),
+        },
+        profile_selection_confidence: getLikert("post-profile-confidence"),
+        collection_point: "post_study",
     };
-    // Store on participant record
-    await apiPostJson("/api/needs-importance", needsPayload);
+
+    await apiPostJson("/api/profile", payload);
     show("final-section");
     showProfileReminder();
 };

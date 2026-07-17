@@ -1,16 +1,3 @@
-# study_db.py  (MySQL edition)
-# Simple Engine Phase 1 — database helpers and scenario seed data.
-#
-# Requires:
-#   pip install mysql-connector-python
-#
-# Configuration via environment variables (or .env file):
-#   MYSQL_HOST     default: localhost
-#   MYSQL_PORT     default: 3306
-#   MYSQL_USER     default: root
-#   MYSQL_PASSWORD (required)
-#   MYSQL_DATABASE default: simple_engine_study
-
 import os
 import mysql.connector
 from mysql.connector import pooling
@@ -138,8 +125,7 @@ SCENARIOS = [
         "context":             (
             "It is a weekday morning. You are travelling from Westerhüsen "
             "to the OVGU campus for work or study. You have about 40 minutes "
-            "before your first appointment. Parking near OVGU can be limited. "
-            "Bike lanes connect the southern districts to campus."
+            "before your first appointment. Parking near OVGU can be limited."
         ),
         "purpose":   "work_study",
         "day_type":  "weekday_morning",
@@ -156,8 +142,7 @@ SCENARIOS = [
         "context":             (
             "It is a sunny weekday afternoon and you have free time. "
             "You want to get from your home in Stadtfeld to Elbauenpark "
-            "for a relaxed outing. There is no time pressure. "
-            "The Elbe cycle path passes nearby."
+            "for a relaxed outing. There is no time pressure."
         ),
         "purpose":   "leisure",
         "day_type":  "weekday_afternoon",
@@ -191,8 +176,8 @@ SCENARIOS = [
         "context":             (
             "It is Sunday afternoon. You are travelling from Magdeburg city centre "
             "to Schönebeck to visit family. The trip crosses district boundaries. "
-            "A regional train connects the two cities. "
-            "Driving is faster but requires navigating Sunday traffic."
+            "Public transport connections are available between the two cities. "
+            "Driving is also an option but requires navigating Sunday traffic."
         ),
         "purpose":   "family_visit",
         "day_type":  "sunday_afternoon",
@@ -259,6 +244,18 @@ def init_database() -> None:
                     raise
 
     conn.commit()
+
+    # Verify at least one key table was created
+    cur.execute("SHOW TABLES LIKE 'participants'")
+    if not cur.fetchone():
+        cur.close()
+        conn.close()
+        raise RuntimeError(
+            "Schema application failed — 'participants' table not found. "
+            "Apply schema manually: Get-Content study_schema_mysql.sql | "
+            "docker exec -i simple-engine-mysql mysql -uroot -p<pwd> simple_engine_study"
+        )
+
     cur.close()
     conn.close()
     print("Schema applied.")

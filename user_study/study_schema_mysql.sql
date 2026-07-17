@@ -1,3 +1,20 @@
+-- study_schema_mysql.sql
+-- Simple Engine Phase 1 — MySQL 8.0+ schema (version 2)
+-- Updated to match Modou_Survey_final.html data collection.
+--
+-- Changes from v1:
+--   participants  : +education, +commute_*, +exclusion_*, +profile_rating_*,
+--                   +profile_selection_confidence, mobility_frequency now TINYINT (Likert)
+--   scenario_responses : +ranking_acceptance_score_b, +participant_selected_route_b,
+--                        +follow_top_route_a
+--   final_feedback     : +overall_intermodal_use
+--
+-- Usage:
+--   mysql -u root -p -e "DROP DATABASE IF EXISTS simple_engine_study; \
+--                         CREATE DATABASE simple_engine_study CHARACTER SET utf8mb4 \
+--                         COLLATE utf8mb4_unicode_ci;"
+--   mysql -u root -p simple_engine_study < study_schema_mysql.sql
+
 SET FOREIGN_KEY_CHECKS = 0;
 SET NAMES utf8mb4;
 
@@ -58,8 +75,18 @@ CREATE TABLE IF NOT EXISTS participants (
 
     consent_given         TINYINT(1)    NOT NULL DEFAULT 0,
 
-    -- Post-scenario needs importance ratings (JSON, collected once after all scenarios)
+    -- Pre-study needs ratings (drive personalised routing)
+    needs_importance_pre  JSON          NULL,
+    -- Post-scenario needs ratings (validation / test-retest reliability)
     needs_importance      JSON          NULL,
+
+    -- ── Post-study profile self-identification ──────
+    post_study_profile               VARCHAR(32) NULL,
+    post_profile_rating_biospheric   TINYINT     NULL,
+    post_profile_rating_altruistic   TINYINT     NULL,
+    post_profile_rating_egoistic     TINYINT     NULL,
+    post_profile_rating_hedonic      TINYINT     NULL,
+    post_profile_selection_confidence TINYINT    NULL,
 
     -- ── Study assignment (between-subjects) ──────
     -- study_condition: 1 = no intermodal, 2 = with intermodal

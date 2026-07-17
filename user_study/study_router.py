@@ -109,6 +109,46 @@ class StudyRouter:
         if not raw_routes:
             return {"personalised": [], "baseline": []}
 
+        # ── Step 2b: ensure all 4 core modes are present ─────────────────
+        # IntermodalRouter may drop walk for long trips due to feasibility.
+        # For the study we always want walk visible so participants can compare.
+        present_strategies = {
+            getattr(r, "strategy", "") for r in raw_routes
+        }
+        if "foot_direct" not in present_strategies:
+            foot_routes = self._gh.route_foot(from_lat, from_lon, to_lat, to_lon)
+            if foot_routes:
+                fr = foot_routes[0]
+                # Build a single walk leg
+                walk_leg = type("WalkLeg", (), {
+                    "mode":       "walk",
+                    "distance_m": getattr(fr, "distance_m", 0),
+                    "duration_s": getattr(fr, "duration_s", 0),
+                    "from_name":  None,
+                    "to_name":    None,
+                    "from_stop":  None,
+                    "to_stop":    None,
+                    "num_stops":  None,
+                    "route_id":   None,
+                    "trip_headsign": None,
+                    "description":   "Walk",
+                    "geometry":   None,
+                })()
+                # Build a simple namespace object compatible with _score_route
+                walk_route = type("WalkRoute", (), {
+                    "strategy":        "foot_direct",
+                    "total_duration_s": getattr(fr, "duration_s", 0),
+                    "total_distance_m": getattr(fr, "distance_m", 0),
+                    "transfer_count":   0,
+                    "transfers":        0,
+                    "is_intermodal":    False,
+                    "feasible":         True,
+                    "infeasible_reason": None,
+                    "geometry":         getattr(fr, "geometry", None),
+                    "legs":             [walk_leg],
+                })()
+                raw_routes.append(walk_route)  # type: ignore
+
         # ── Step 3: crow-flies distance for feasibility multiplier ────────
         crow_km = _haversine(from_lat, from_lon, to_lat, to_lon)
 
@@ -180,9 +220,10 @@ def _get_mode_key(route) -> str:
     """Extract mode key from an IntermodalRoute, mapping strategy to mode key."""
     strategy = getattr(route, "strategy", None)
     if strategy:
-        return _STRATEGY_TO_MODE.get(strategy, strategy.lower().replace(" ", "_"))
+        return _STRATEGY_TO_MODE.get(strategy, strategy.lower().replace(" ", "_")) or "unknown"
     if hasattr(route, "mode_key"):
-        return route.mode_key
+        mode_key = route.mode_key
+        return mode_key if mode_key else "unknown"
     legs = getattr(route, "legs", [])
     if legs:
         modes = list(dict.fromkeys(
