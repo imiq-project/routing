@@ -434,6 +434,21 @@ class IntermodalRouter:
         legs_distance = sum(leg.distance_m for leg in legs)
         total_distance = legs_distance if legs_distance > best.distance_m * 1.5 else best.distance_m
 
+        # Add waiting leg if there is measurable wait at the first stop
+        leg_sum_s = sum(getattr(l, "duration_s", 0) for l in legs)
+        wait_s = max(0.0, best.duration_s - leg_sum_s)
+        if wait_s > 30 and legs:
+            # Insert wait after first walk leg (access walk) before PT leg
+            first_walk = [l for l in legs if l.mode == "walk"]
+            insert_after = legs.index(first_walk[0]) + 1 if first_walk else 0
+            wait_leg = IntermodalLeg(
+                mode="wait",
+                description="⏳ Waiting at stop",
+                distance_m=0,
+                duration_s=wait_s,
+            )
+            legs = legs[:insert_after] + [wait_leg] + legs[insert_after:]
+
         return IntermodalRoute(
             label="🚌 Public Transport",
             strategy="pt_direct",
@@ -558,9 +573,30 @@ class IntermodalRouter:
         )
 
         pt_legs = self._convert_pt_legs(pt)
-        legs = [first_leg] + pt_legs
 
-        total_duration = first.duration_s + pt.duration_s + self.policy.first_mile_penalty_min * 60
+        # Calculate actual waiting time at the stop.
+        # pt.duration_s includes the wait; leg_sum does not.
+        pt_leg_sum = sum(getattr(l, "duration_s", 0) for l in pt_legs)
+        wait_s = max(0.0, pt.duration_s - pt_leg_sum)
+
+        # Insert a waiting leg so the breakdown adds up visually
+        if wait_s > 30:   # only show waits > 30 seconds
+            wait_leg = IntermodalLeg(
+                mode="wait",
+                description="⏳ Waiting at stop",
+                distance_m=0,
+                duration_s=wait_s,
+                from_name=stop_name,
+                to_name=stop_name,
+            )
+            legs = [first_leg, wait_leg] + pt_legs
+        else:
+            legs = [first_leg] + pt_legs
+
+        # pt.duration_s already reflects the shifted departure time (first mile +
+        # boarding buffer were added to pt_departure), so the penalty is already
+        # baked in — do NOT add it again explicitly.
+        total_duration = first.duration_s + pt.duration_s
         total_distance = first.distance_m + sum(leg.distance_m for leg in pt_legs)
 
         return IntermodalRoute(

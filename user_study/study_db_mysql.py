@@ -150,19 +150,18 @@ SCENARIOS = [
     },
     {
         "scenario_code":       "S3",
-        "title":               "Klinikum Reform to City Center",
-        "origin":              "Klinikum Reform",
+        "title":               "Werder to City Center",
+        "origin":              "Home in Werder",
         "destination":         "Magdeburg City Center",
-        "origin_coords":       [52.1012, 11.6053],
+        "origin_coords":       [52.1220, 11.6120],
         "destination_coords":  [52.1317, 11.6392],
-        "distance_band":       "medium",
+        "distance_band":       "short",
         "context":             (
-            "It is Saturday morning. You are heading from Klinikum Reform "
-            "to the city centre for shopping. You may be carrying bags on the return trip. "
-            "Parking in the city centre is expensive and limited on weekends."
+            "It is a weekday morning. You want to get from your home in Werder "
+            "to the city centre for a quick errand. You have about 30 minutes."
         ),
-        "purpose":   "shopping",
-        "day_type":  "saturday_morning",
+        "purpose":   "errand",
+        "day_type":  "weekday_morning",
         "weather":   "normal",
     },
     {

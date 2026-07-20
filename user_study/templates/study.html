@@ -28,9 +28,16 @@
         .route-sets-split { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
         .route-set-panel { border: 1px solid #dde3ea; border-radius: 12px; padding: 16px; background: #fbfcfe; }
         .routes-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-        .route-card { display: grid; grid-template-columns: 42px 1fr; gap: 12px; border: 1px solid #d6deea; border-radius: 12px; padding: 12px; background: #fff; transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease; }
+        .route-card { display: grid; grid-template-columns: 24px 34px 1fr; gap: 10px; align-items: start; border: 1px solid #d6deea; border-radius: 12px; padding: 12px; background: #fff; margin-bottom: 10px; transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease; }
+        .route-card:not(.draggable-card) { grid-template-columns: 34px 1fr; }
         .route-card:hover { transform: translateY(-2px); border-color:#9fc4ff; background:#fcfdff; box-shadow:0 10px 24px rgba(31,111,235,.12); }
         .route-card:hover .route-rank { background:#1f6feb; color:#fff; }
+        .drag-handle { cursor: grab; font-size: 16px; color: #aab4c4; user-select: none; display: flex; align-items: flex-start; justify-content: center; padding-top: 8px; }
+        .drag-handle:active { cursor: grabbing; }
+        .drag-ghost { opacity: 0.4; background: #e8f0fe !important; border: 2px dashed #4a90d9 !important; }
+        .sortable-list .route-card { cursor: default; }
+        .sortable-list { list-style: none; padding: 0; margin: 0; }
+        .drag-hint { display:flex; align-items:center; gap:6px; font-size:12px; color:#666; margin-bottom:8px; padding:6px 10px; background:#f8f9fb; border-radius:8px; border:1px dashed #ccc; }
         .route-content h4 { margin:0 0 4px; font-size:1.05rem; color:#17466f; }
         .route-content p { margin:4px 0 8px; color:#526070; }
         .mode-emoji { display:inline-flex; width:1.5em; justify-content:center; margin-right:4px; }
@@ -1036,7 +1043,7 @@
 
             <!-- SET A — fixed engine ranking, no drag-and-drop -->
             <div id="route-set-a" class="route-set-panel set-a-panel">
-                <h3 class="set-label set-a-label">Route Set A </h3>
+                <h3 class="set-label set-a-label">Route Set A</h3>
                 <p class="set-desc">
                     These routes are ranked from the engine's top recommendation to the lowest-ranked option
                     for this journey.
@@ -1068,13 +1075,16 @@
                 </div>
             </div>
 
-            <!-- SET B — fixed standard benchmark ranking, same evaluation structure -->
+            <!-- SET B — draggable personal ranking -->
             <div id="route-set-b" class="route-set-panel set-b-panel">
                 <h3 class="set-label set-b-label">Route Set B</h3>
                 <p class="set-desc">
-                    These routes are ranked by the standard routing benchmark, mainly travel time and distance.
+                    These routes start in standard time order. Drag them into the order you would personally prefer — most preferred at the top.
                 </p>
-                <ul id="routes-list-b" class="routes-list"></ul>
+                <div class="drag-hint">
+                    ↕️ Drag to reorder — your preferred order is saved automatically
+                </div>
+                <ul id="routes-list-b" class="routes-list sortable-list"></ul>
 
                 <div class="question-group">
                     <label>Which route from Set B would you choose in this situation?</label>
@@ -2219,17 +2229,12 @@ async function loadScenario() {
 
     console.log(`Personalised routes: ${currentPersonalised.length}, Baseline routes: ${currentBaseline.length}`);
 
-    // Swap column order for BA group (time-ranked shown first)
-    if (setOrder === "BA") {
-        document.getElementById("route-set-a").style.order = "2";
-        document.getElementById("route-set-b").style.order = "1";
-    } else {
-        document.getElementById("route-set-a").style.order = "1";
-        document.getElementById("route-set-b").style.order = "2";
-    }
+    // Set A always left, Set B always right
+    document.getElementById("route-set-a").style.order = "1";
+    document.getElementById("route-set-b").style.order = "2";
 
     renderRouteSet("routes-list-a", "preferred-route-a", currentPersonalised, false);
-    renderRouteSet("routes-list-b", "preferred-route-b", currentBaseline, false);
+    renderRouteSet("routes-list-b", "preferred-route-b", currentBaseline, true);
 
     document.getElementById("route-sets-container").classList.remove("hidden");
     document.getElementById("scenario-system-section").classList.remove("hidden");
@@ -2333,7 +2338,7 @@ function renderRouteSet(listId, selectId, routes, draggable=false) {
 
         // List item
         const li = document.createElement("li");
-        li.className    = "route-card";
+        li.className    = draggable ? "route-card draggable-card" : "route-card";
         li.dataset.routeId = route.route_id;
         li.innerHTML = `
             <div class="route-rank">#${i + 1}</div>
@@ -2370,10 +2375,78 @@ function renderRouteSet(listId, selectId, routes, draggable=false) {
     none.text = "I would not choose any of these routes";
     select.appendChild(none);
 
-    // Drag-and-drop is intentionally disabled for validation symmetry.
     if (draggable) {
-        new Sortable(list, { animation: 150 });
+        // Add drag handle to each card
+        list.querySelectorAll(".route-card").forEach(card => {
+            const handle = document.createElement("div");
+            handle.className = "drag-handle";
+            handle.innerHTML = "⠿";
+            handle.title = "Drag to reorder";
+            card.insertBefore(handle, card.firstChild);
+        });
+
+        new Sortable(list, {
+            animation:  150,
+            handle:     ".drag-handle",
+            ghostClass: "drag-ghost",
+            onEnd() {
+                // Update rank numbers live as cards are reordered
+                list.querySelectorAll(".route-card").forEach((card, idx) => {
+                    const rankEl = card.querySelector(".route-rank");
+                    if (rankEl) rankEl.textContent = "#" + (idx + 1);
+                });
+                // Update the select dropdown to match new order
+                const sel = document.getElementById(selectId);
+                if (sel) {
+                    const currentVal = sel.value;
+                    const cards = [...list.querySelectorAll(".route-card")];
+                    // Rebuild options in new order (preserve __none__ at end)
+                    const opts = [...sel.options].filter(o => o.value && o.value !== "__none__");
+                    const orderedOpts = cards.map((card, idx) => {
+                        const opt = opts.find(o => o.value === card.dataset.routeId);
+                        if (opt) opt.text = `${idx + 1}. ${opt.text.replace(/^\d+\.\s*/, "")}`;
+                        return opt;
+                    }).filter(Boolean);
+                    // Rebuild select
+                    while (sel.options.length > 0) sel.remove(0);
+                    const ph = document.createElement("option");
+                    ph.value = ""; ph.text = "— select —";
+                    sel.appendChild(ph);
+                    orderedOpts.forEach(o => sel.appendChild(o));
+                    const none = document.createElement("option");
+                    none.value = "__none__"; none.text = "I would not choose any of these routes";
+                    sel.appendChild(none);
+                    sel.value = currentVal;
+                }
+            }
+        });
     }
+}
+
+function getRevealedRankingB() {
+    // Returns array of route_ids in participant's preferred order (top = best)
+    return [...document.querySelectorAll("#routes-list-b .route-card")]
+        .map(card => card.dataset.routeId)
+        .filter(Boolean);
+}
+
+function kendallTau(listA, listB) {
+    // Kendall tau-b between two orderings of the same items
+    const n = listA.length;
+    if (n < 2) return null;
+    const posB = {};
+    listB.forEach((id, i) => posB[id] = i);
+    let concordant = 0, discordant = 0;
+    for (let i = 0; i < n; i++) {
+        for (let j = i + 1; j < n; j++) {
+            const bi = posB[listA[i]], bj = posB[listA[j]];
+            if (bi === undefined || bj === undefined) continue;
+            if (bi < bj) concordant++;
+            else if (bi > bj) discordant++;
+        }
+    }
+    const denom = (n * (n - 1)) / 2;
+    return denom === 0 ? 0 : (concordant - discordant) / denom;
 }
 
 function validateScenarioResponse(hasIntermodal) {
@@ -2470,12 +2543,23 @@ document.getElementById("next-scenario-btn").onclick = async () => {
         ranking_acceptance_score: getLikert("ranking-acceptance-a"),
         set_a_ranking_acceptance_score: getLikert("ranking-acceptance-a"),
 
-        // Benchmark comparison: standard time/distance ranking
+        // Benchmark comparison: standard time/distance ranking (original order)
         baseline_ranking: standardRankingB,
         standard_ranking: standardRankingB,
         baseline_selected_route_id: chosenRouteIdB,
         set_b_selected_route_id: chosenRouteIdB,
         set_b_ranking_acceptance_score: getLikert("ranking-acceptance-b"),
+
+        // Revealed preference: participant's drag-reordered ranking of Set B
+        participant_ranking_b:               getRevealedRankingB(),
+        kendall_tau_engine_vs_participant:    kendallTau(
+            currentPersonalised.map(r => r.route_id),
+            getRevealedRankingB()
+        ),
+        kendall_tau_time_vs_participant:      kendallTau(
+            currentBaseline.map(r => r.route_id),
+            getRevealedRankingB()
+        ),
 
         // Primary outcome 2: intermodal noticing, understanding, and acceptance
         has_intermodal_routes: hasIntermodal,

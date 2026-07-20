@@ -779,12 +779,18 @@ def save_scenario_response():
 
     # Set B fields
     acceptance_a        = data.get("ranking_acceptance_score")
-    acceptance_b        = data.get("ranking_acceptance_score_b")
+    acceptance_b        = data.get("set_b_ranking_acceptance_score",
+                          data.get("ranking_acceptance_score_b"))
     acceptance_delta    = (
         (acceptance_a - acceptance_b)
         if acceptance_a is not None and acceptance_b is not None
         else None
     )
+
+    # Revealed preference ranking from Set B drag reorder
+    participant_ranking_b  = data.get("participant_ranking_b", [])
+    tau_engine_participant = data.get("kendall_tau_engine_vs_participant")
+    tau_time_participant   = data.get("kendall_tau_time_vs_participant")
 
     with get_connection() as conn:
         cur = conn.execute(
@@ -796,18 +802,22 @@ def save_scenario_response():
                 participant_selected_route_b, ranking_acceptance_score_b,
                 ranking_acceptance_delta,
                 participant_ranking_json, engine_ranking_json,
-                kendall_tau, explanation,
+                participant_ranking_b_json,
+                kendall_tau, kendall_tau_engine_participant, kendall_tau_time_participant,
+                explanation,
                 study_condition, set_order
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 pid, scenario_id,
                 engine_top, participant_top,
                 accepted, data.get("follow_top_route_a"),
                 acceptance_a,
-                data.get("participant_selected_route_b"), acceptance_b,
-                acceptance_delta,
+                data.get("set_b_selected_route_id", data.get("participant_selected_route_b")),
+                acceptance_b, acceptance_delta,
                 json.dumps(participant_ranking), json.dumps(engine_ranking),
-                tau, data.get("explanation"),
+                json.dumps(participant_ranking_b),
+                tau, tau_engine_participant, tau_time_participant,
+                data.get("explanation"),
                 session.get("study_condition"), session.get("set_order"),
             ),
         )

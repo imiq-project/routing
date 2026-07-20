@@ -204,6 +204,9 @@ CREATE TABLE IF NOT EXISTS scenario_responses (
     -- Kendall tau between engine ranking and participant chosen route preference
     -- Computed server-side and stored for fast analysis
     kendall_tau                     DOUBLE       NULL,
+    kendall_tau_engine_participant   DOUBLE       NULL,
+    kendall_tau_time_participant     DOUBLE       NULL,
+    participant_ranking_b_json       JSON         NULL,
 
     explanation                     TEXT         NULL,
     created_at                      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,

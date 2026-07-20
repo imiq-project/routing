@@ -119,6 +119,18 @@ class StudyRouter:
             foot_routes = self._gh.route_foot(from_lat, from_lon, to_lat, to_lon)
             if foot_routes:
                 fr = foot_routes[0]
+                # Build a simple namespace object compatible with _score_route
+                walk_route = type("WalkRoute", (), {
+                    "strategy":        "foot_direct",
+                    "total_duration_s": getattr(fr, "duration_s", 0),
+                    "total_distance_m": getattr(fr, "distance_m", 0),
+                    "transfer_count":   0,
+                    "transfers":        0,
+                    "is_intermodal":    False,
+                    "feasible":         True,
+                    "infeasible_reason": None,
+                    "geometry":         getattr(fr, "geometry", None),
+                })()
                 # Build a single walk leg
                 walk_leg = type("WalkLeg", (), {
                     "mode":       "walk",
@@ -134,20 +146,8 @@ class StudyRouter:
                     "description":   "Walk",
                     "geometry":   None,
                 })()
-                # Build a simple namespace object compatible with _score_route
-                walk_route = type("WalkRoute", (), {
-                    "strategy":        "foot_direct",
-                    "total_duration_s": getattr(fr, "duration_s", 0),
-                    "total_distance_m": getattr(fr, "distance_m", 0),
-                    "transfer_count":   0,
-                    "transfers":        0,
-                    "is_intermodal":    False,
-                    "feasible":         True,
-                    "infeasible_reason": None,
-                    "geometry":         getattr(fr, "geometry", None),
-                    "legs":             [walk_leg],
-                })()
-                raw_routes.append(walk_route)  # type: ignore
+                walk_route.legs = [walk_leg] # pyright: ignore[reportAttributeAccessIssue]
+                raw_routes.append(walk_route)  # pyright: ignore[reportArgumentType]
 
         # ── Step 3: crow-flies distance for feasibility multiplier ────────
         crow_km = _haversine(from_lat, from_lon, to_lat, to_lon)
@@ -166,13 +166,17 @@ class StudyRouter:
             scored.append((mode_key, route, sr))
 
         # ── Step 5: normalise 0-100 across ALL routes ─────────────────────
+        # Clamp min to 0: negative raw scores are bad routes but we do not want
+        # them to artificially lift near-zero routes (e.g. walk at 6.7km) above
+        # genuinely good routes (e.g. PT) during normalisation.
         raw_scores = [sr.raw_score for _, _, sr in scored]
-        min_raw = min(raw_scores)
+        min_raw = min(0.0, min(raw_scores))   # never above 0
         max_raw = max(raw_scores)
         span = max_raw - min_raw if max_raw != min_raw else 1.0
 
         for _, _, sr in scored:
-            sr.utility_score = round(((sr.raw_score - min_raw) / span) * 100, 1)
+            clamped = max(min_raw, sr.raw_score)
+            sr.utility_score = round(((clamped - min_raw) / span) * 100, 1)
 
         # ── Step 6: build Set A (value-ranked) ────────────────────────────
         set_a = sorted(scored, key=lambda x: x[2].utility_score, reverse=True)
@@ -220,10 +224,9 @@ def _get_mode_key(route) -> str:
     """Extract mode key from an IntermodalRoute, mapping strategy to mode key."""
     strategy = getattr(route, "strategy", None)
     if strategy:
-        return _STRATEGY_TO_MODE.get(strategy, strategy.lower().replace(" ", "_")) or "unknown"
+        return _STRATEGY_TO_MODE.get(strategy, strategy.lower().replace(" ", "_")) # type: ignore[reportGeneralTypeIssues]
     if hasattr(route, "mode_key"):
-        mode_key = route.mode_key
-        return mode_key if mode_key else "unknown"
+        return route.mode_key
     legs = getattr(route, "legs", [])
     if legs:
         modes = list(dict.fromkeys(
@@ -234,7 +237,10 @@ def _get_mode_key(route) -> str:
 
 
 def _get_duration(route) -> float:
-    """Get total duration in seconds from an IntermodalRoute."""
+    """
+    Get total duration in seconds from an IntermodalRoute.
+    Uses total_duration_s which correctly includes waiting time at PT stops.
+    """
     return getattr(route, "total_duration_s", 0) or 0
 
 
@@ -288,7 +294,8 @@ def _to_study_dict(
             sum(getattr(l, "duration_s", 0) or 0
                 for l in legs
                 if getattr(l, "mode", "") == mode_name
-                or getattr(l, "mode", "") == mode_name.replace("walk", "foot")) / 60, 1
+                or getattr(l, "mode", "") == mode_name.replace("walk", "foot")
+                and getattr(l, "mode", "") != "wait") / 60, 1
         )
 
     emoji = _MODE_EMOJI.get(mode_key, "🔵")
