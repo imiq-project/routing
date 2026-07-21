@@ -115,22 +115,14 @@ class StudyRouter:
         present_strategies = {
             getattr(r, "strategy", "") for r in raw_routes
         }
+        # Inject walk if IntermodalRouter dropped it — always show walk
+        # even for long distances so participants can see all options.
+        # The feasibility-based normalisation ensures it ranks last.
         if "foot_direct" not in present_strategies:
             foot_routes = self._gh.route_foot(from_lat, from_lon, to_lat, to_lon)
             if foot_routes:
                 fr = foot_routes[0]
                 # Build a simple namespace object compatible with _score_route
-                walk_route = type("WalkRoute", (), {
-                    "strategy":        "foot_direct",
-                    "total_duration_s": getattr(fr, "duration_s", 0),
-                    "total_distance_m": getattr(fr, "distance_m", 0),
-                    "transfer_count":   0,
-                    "transfers":        0,
-                    "is_intermodal":    False,
-                    "feasible":         True,
-                    "infeasible_reason": None,
-                    "geometry":         getattr(fr, "geometry", None),
-                })()
                 # Build a single walk leg
                 walk_leg = type("WalkLeg", (), {
                     "mode":       "walk",
@@ -146,8 +138,19 @@ class StudyRouter:
                     "description":   "Walk",
                     "geometry":   None,
                 })()
-                walk_route.legs = [walk_leg] # pyright: ignore[reportAttributeAccessIssue]
-                raw_routes.append(walk_route)  # pyright: ignore[reportArgumentType]
+                walk_route = type("WalkRoute", (), {
+                    "strategy":        "foot_direct",
+                    "total_duration_s": getattr(fr, "duration_s", 0),
+                    "total_distance_m": getattr(fr, "distance_m", 0),
+                    "transfer_count":   0,
+                    "transfers":        0,
+                    "is_intermodal":    False,
+                    "feasible":         True,
+                    "infeasible_reason": None,
+                    "geometry":         getattr(fr, "geometry", None),
+                    "legs":             [walk_leg],
+                })()
+                raw_routes.append(walk_route) # type: ignore
 
         # ── Step 3: crow-flies distance for feasibility multiplier ────────
         crow_km = _haversine(from_lat, from_lon, to_lat, to_lon)
@@ -161,22 +164,37 @@ class StudyRouter:
         scored = []
         for route in raw_routes:
             mode_key = _get_mode_key(route)
-            sr = self._scorer._score_route(agent, route, mode_key, crow_km)
-            sr.rank = 0  # placeholder
-            scored.append((mode_key, route, sr))
+            try:
+                sr = self._scorer._score_route(agent, route, mode_key, crow_km)
+                sr.rank = 0
+                scored.append((mode_key, route, sr))
+            except Exception as e:
+                print(f"[StudyRouter] _score_route failed for {mode_key}: {e}")
 
-        # ── Step 5: normalise 0-100 across ALL routes ─────────────────────
-        # Clamp min to 0: negative raw scores are bad routes but we do not want
-        # them to artificially lift near-zero routes (e.g. walk at 6.7km) above
-        # genuinely good routes (e.g. PT) during normalisation.
-        raw_scores = [sr.raw_score for _, _, sr in scored]
-        min_raw = min(0.0, min(raw_scores))   # never above 0
-        max_raw = max(raw_scores)
-        span = max_raw - min_raw if max_raw != min_raw else 1.0
+        # ── Step 5: separate feasible vs implausible routes ─────────────────
+        # Routes with feasibility < 0.01 (e.g. walk at 6.7km+) are kept visible
+        # but always ranked below feasible routes, scored 0–10 within their group.
+        FEASIBILITY_THRESHOLD = 0.01
+        feasible_scored   = [(mk, r, sr) for mk, r, sr in scored if sr.feasibility_score >= FEASIBILITY_THRESHOLD]
+        implausible_scored = [(mk, r, sr) for mk, r, sr in scored if sr.feasibility_score < FEASIBILITY_THRESHOLD]
 
-        for _, _, sr in scored:
-            clamped = max(min_raw, sr.raw_score)
-            sr.utility_score = round(((clamped - min_raw) / span) * 100, 1)
+        def normalise_group(group, score_min, score_max):
+            if not group:
+                return
+            raws = [sr.raw_score for _, _, sr in group]
+            lo   = min(min(0.0, min(raws)), 0.0)
+            hi   = max(raws)
+            span = hi - lo if hi != lo else 1.0
+            for _, _, sr in group:
+                clamped = max(lo, sr.raw_score)
+                sr.utility_score = round(score_min + ((clamped - lo) / span) * (score_max - score_min), 1)
+
+        # Feasible routes: score 15–100 (leave 0–14 for implausible)
+        normalise_group(feasible_scored, 15.0, 100.0)
+        # Implausible routes: score 0–10 (always shown last)
+        normalise_group(implausible_scored, 0.0, 10.0)
+
+        scored = feasible_scored + implausible_scored
 
         # ── Step 6: build Set A (value-ranked) ────────────────────────────
         set_a = sorted(scored, key=lambda x: x[2].utility_score, reverse=True)
@@ -224,7 +242,7 @@ def _get_mode_key(route) -> str:
     """Extract mode key from an IntermodalRoute, mapping strategy to mode key."""
     strategy = getattr(route, "strategy", None)
     if strategy:
-        return _STRATEGY_TO_MODE.get(strategy, strategy.lower().replace(" ", "_")) # type: ignore[reportGeneralTypeIssues]
+        return _STRATEGY_TO_MODE.get(strategy, strategy.lower().replace(" ", "_")) or "unknown"
     if hasattr(route, "mode_key"):
         return route.mode_key
     legs = getattr(route, "legs", [])

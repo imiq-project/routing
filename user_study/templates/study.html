@@ -1025,6 +1025,10 @@
             We want to know whether Set A's ranking makes sense to you, whether intermodal routes
             are noticeable and understandable, and whether you would use this kind of system in daily life.
             <br><br>
+            <strong>Please assume</strong> that for this journey you have access to <strong>all transport modes</strong>
+            — car, bike, public transport, and walking. The rankings are based purely on the travel preferences
+            and values you stated at the start, not on what you personally own or normally use.
+            <br><br>
             <span id="study-condition-note" class="hidden" style="display:block;margin-bottom:6px;font-style:italic;color:#1B4F72;"></span>
             <strong>⏱ Note on driving times:</strong> Travel times shown for car routes
             include an estimated <strong>8 minutes</strong> for parking search and the walk
@@ -1044,10 +1048,7 @@
             <!-- SET A — fixed engine ranking, no drag-and-drop -->
             <div id="route-set-a" class="route-set-panel set-a-panel">
                 <h3 class="set-label set-a-label">Route Set A</h3>
-                <p class="set-desc">
-                    These routes are ranked from the engine's top recommendation to the lowest-ranked option
-                    for this journey.
-                </p>
+            
                 <ul id="routes-list-a" class="routes-list"></ul>
 
                 <div class="question-group">
@@ -1075,15 +1076,14 @@
                 </div>
             </div>
 
-            <!-- SET B — draggable personal ranking -->
+            <!-- SET B — rate first, then drag to reorder -->
             <div id="route-set-b" class="route-set-panel set-b-panel">
                 <h3 class="set-label set-b-label">Route Set B</h3>
                 <p class="set-desc">
-                    These routes start in standard time order. Drag them into the order you would personally prefer — most preferred at the top.
+                    <strong>Step 1:</strong> Read through them and answer the questions below.
+                    <strong>Step 2:</strong> If this order does not match your personal preference,
+                    drag the cards into the order you would prefer.
                 </p>
-                <div class="drag-hint">
-                    ↕️ Drag to reorder — your preferred order is saved automatically
-                </div>
                 <ul id="routes-list-b" class="routes-list sortable-list"></ul>
 
                 <div class="question-group">
@@ -1092,12 +1092,16 @@
                 </div>
 
                 <div class="question-group">
-                    <label>How well does Route Set B's ranking match what you would personally prefer in this situation?</label>
+                    <label>How well does this time-sorted ranking (before any reordering) match what you would personally prefer?</label>
                     <div class="likert-row" data-target="ranking-acceptance-b">
                         <span class="likert-label-l">Not at all</span>
                         <div class="likert-options" id="ranking-acceptance-b"></div>
                         <span class="likert-label-r">Very well</span>
                     </div>
+                </div>
+
+                <div class="drag-hint" style="margin-top:12px;">
+                    ↕️ Optional: drag cards above to reorder by your personal preference — your order is saved automatically
                 </div>
             </div>
 
