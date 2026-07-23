@@ -153,12 +153,12 @@ SCENARIOS = [
         "title":               "Werder to City Center",
         "origin":              "Home in Werder",
         "destination":         "Magdeburg City Center",
-        "origin_coords":       [52.1220, 11.6120],
+        "origin_coords":       [52.1335753, 11.6541874],
         "destination_coords":  [52.1317, 11.6392],
         "distance_band":       "short",
         "context":             (
             "It is a weekday morning. You want to get from your home in Werder "
-            "to the city centre for a quick errand. You have about 30 minutes."
+            "to the city centre for a quick errand."
         ),
         "purpose":   "errand",
         "day_type":  "weekday_morning",
@@ -175,8 +175,6 @@ SCENARIOS = [
         "context":             (
             "It is Sunday afternoon. You are travelling from Magdeburg city centre "
             "to Schönebeck to visit family. The trip crosses district boundaries. "
-            "Public transport connections are available between the two cities. "
-            "Driving is also an option but requires navigating Sunday traffic."
         ),
         "purpose":   "family_visit",
         "day_type":  "sunday_afternoon",

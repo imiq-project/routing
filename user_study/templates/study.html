@@ -32,16 +32,16 @@
         .route-card:not(.draggable-card) { grid-template-columns: 34px 1fr; }
         .route-card:hover { transform: translateY(-2px); border-color:#9fc4ff; background:#fcfdff; box-shadow:0 10px 24px rgba(31,111,235,.12); }
         .route-card:hover .route-rank { background:#1f6feb; color:#fff; }
-        .drag-handle { cursor: grab; font-size: 16px; color: #aab4c4; user-select: none; display: flex; align-items: flex-start; justify-content: center; padding-top: 8px; }
+        .drag-handle { cursor: grab; font-size: 16px; color: #aab4c4; user-select: none; display: flex; align-items: flex-start; justify-content: centre; padding-top: 8px; }
         .drag-handle:active { cursor: grabbing; }
         .drag-ghost { opacity: 0.4; background: #e8f0fe !important; border: 2px dashed #4a90d9 !important; }
         .sortable-list .route-card { cursor: default; }
         .sortable-list { list-style: none; padding: 0; margin: 0; }
-        .drag-hint { display:flex; align-items:center; gap:6px; font-size:12px; color:#666; margin-bottom:8px; padding:6px 10px; background:#f8f9fb; border-radius:8px; border:1px dashed #ccc; }
+        .drag-hint { display:flex; align-items:centre; gap:6px; font-size:12px; color:#666; margin-bottom:8px; padding:6px 10px; background:#f8f9fb; border-radius:8px; border:1px dashed #ccc; }
         .route-content h4 { margin:0 0 4px; font-size:1.05rem; color:#17466f; }
         .route-content p { margin:4px 0 8px; color:#526070; }
-        .mode-emoji { display:inline-flex; width:1.5em; justify-content:center; margin-right:4px; }
-        .route-rank { width: 34px; height: 34px; border-radius: 50%; background: #eef4ff; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #1f6feb; }
+        .mode-emoji { display:inline-flex; width:1.5em; justify-content:centre; margin-right:4px; }
+        .route-rank { width: 34px; height: 34px; border-radius: 50%; background: #eef4ff; display: flex; align-items: centre; justify-content: centre; font-weight: 800; color: #1f6feb; }
         .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-top: 8px; }
         .metric-card { background: #f6f8fb; border-radius: 8px; padding: 8px; transition: background .16s ease, transform .16s ease; }
         .route-card:hover .metric-card { background:#eef5ff; }
@@ -84,8 +84,8 @@
             display:grid;
             grid-template-columns: repeat(var(--likert-count, 5), minmax(54px, 1fr));
             gap: 14px;
-            justify-content:center;
-            align-items:center;
+            justify-content:centre;
+            align-items:centre;
             position:relative;
         }
         .likert-options::before {
@@ -106,7 +106,7 @@
             color:#17202a;
             width:58px;
             height:58px;
-            justify-self:center;
+            justify-self:centre;
             border:1.5px solid #c9d3df;
             border-radius:999px;
             box-shadow:0 2px 6px rgba(16,24,40,.08);
@@ -135,13 +135,13 @@
             color:#526070;
             font-size:12.5px;
             line-height:1.25;
-            text-align:center;
+            text-align:centre;
         }
         .likert-point-labels span {
             min-height:32px;
             display:flex;
             align-items:flex-start;
-            justify-content:center;
+            justify-content:centre;
         }
         .likert-point-labels span:first-child,
         .likert-point-labels span:last-child,
@@ -150,7 +150,7 @@
             color:#405064;
         }
         .likert-scale-caption {
-            text-align:center;
+            text-align:centre;
             font-size:13px;
             color:#6b7686;
             margin-top:2px;
@@ -158,7 +158,7 @@
         }
         .rating-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
         .needs-rating-list { grid-template-columns: 1fr; max-width: 900px; margin: 0 auto; }
-        .needs-rating-list .rating-item { display:grid; grid-template-columns:minmax(180px, 260px) minmax(0, 1fr); gap:18px; align-items:center; }
+        .needs-rating-list .rating-item { display:grid; grid-template-columns:minmax(180px, 260px) minmax(0, 1fr); gap:18px; align-items:centre; }
         .needs-rating-list .rating-item label { margin:0; font-size:1rem; }
         .needs-rating-list .likert-row { margin:0; padding:14px 16px 16px; }
         .needs-rating-list .likert-endpoint-row,
@@ -196,14 +196,14 @@
         .soft-profile-preview strong { color:#102a43; }
         .soft-profile-bar { height:8px; background:#e9f0f8; border-radius:999px; overflow:hidden; margin-top:4px; }
         .soft-profile-fill { height:100%; background:#1f6feb; border-radius:999px; }
-        .profile-selected-display { margin-top:16px; padding:12px 14px; border:1px solid #b8dccd; border-radius:12px; background:#ecfff7; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+        .profile-selected-display { margin-top:16px; padding:12px 14px; border:1px solid #b8dccd; border-radius:12px; background:#ecfff7; display:flex; align-items:centre; justify-content:space-between; gap:12px; }
         .profile-change-btn { background:#fff; color:#1b6b54; border:1px solid #9ed2c0; }
         .scenario-map { min-height: 260px; border:1px solid #d6deea; border-radius: 12px; background:#eef2f7; }
         .map-legend { margin-top: 6px; font-size: 14px; color:#5b6778; }
-        .map-legend-a, .map-legend-b { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; color:#fff; font-weight:800; }
+        .map-legend-a, .map-legend-b { display:inline-flex; align-items:centre; justify-content:centre; width:22px; height:22px; border-radius:50%; color:#fff; font-weight:800; }
         .map-legend-a { background:#1D9E75; } .map-legend-b { background:#E74C3C; }
         .preview-banner { background:#fff7e6; border:1px solid #ffd991; border-radius:10px; padding:10px 12px; margin: 0 0 16px; font-size: 14px; }
-        .button-row { display:flex; gap:12px; align-items:center; justify-content:flex-start; flex-wrap:wrap; margin-top:18px; }
+        .button-row { display:flex; gap:12px; align-items:centre; justify-content:flex-start; flex-wrap:wrap; margin-top:18px; }
         .back-btn { background:#687386; color:#fff; }
         .back-btn:hover { background:#505b6d; }
         #start-btn { display:block; margin:16px 0 0 0; padding:14px 24px; font-size:1.08rem; min-width:180px; }
@@ -226,7 +226,7 @@
         .quick-response-row {
             display:flex;
             gap:10px;
-            align-items:center;
+            align-items:centre;
             flex-wrap:wrap;
             margin-top:8px;
         }
@@ -287,7 +287,7 @@
         .container { max-width: 1120px; }
         .ovgu-header {
             display:flex;
-            align-items:center;
+            align-items:centre;
             gap:22px;
             margin: 18px 0 22px;
             padding: 18px 20px;
@@ -2178,6 +2178,9 @@ async function loadScenarios() {
 }
 
 async function loadScenario() {
+    // Always scroll to top when loading a new scenario
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
     const s = scenarios[currentIdx];
 
     document.getElementById("scenario-title").textContent   = s.title;
@@ -2605,7 +2608,7 @@ function initScenarioMap(oLat, oLon, dLat, dLon) {
 
     // Static preview fallback when Leaflet is not available/offline.
     if (typeof L === "undefined") {
-        container.innerHTML = `<div style="height:260px;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;color:#536173;">
+        container.innerHTML = `<div style="height:260px;display:flex;align-items:centre;justify-content:centre;text-align:centre;padding:20px;color:#536173;">
             Map preview unavailable offline.<br>Origin and destination labels are still shown below.
         </div>`;
         return;
@@ -2637,7 +2640,7 @@ function initScenarioMap(oLat, oLon, dLat, dLon) {
                 width:28px;height:28px;border-radius:50%;
                 background:${color};color:#fff;
                 font-size:14px;font-weight:700;
-                display:flex;align-items:center;justify-content:center;
+                display:flex;align-items:centre;justify-content:centre;
                 border:2px solid #fff;
                 box-shadow:0 2px 6px rgba(0,0,0,0.35);">${label}</div>`,
             iconSize: [28, 28],

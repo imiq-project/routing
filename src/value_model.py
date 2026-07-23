@@ -193,10 +193,11 @@ class DistanceFeasibilityParams:
     walk_k: float = 2.57
 
     # Cycling Gaussian peak
-    # mu=3.5, sigma=3.0: keeps bike viable up to 8-9km (typical urban commute).
-    # Original sigma=1.5 was too narrow — bike at 6km scored only 0.135 feasibility.
+    # mu=3.5, sigma=6.0: keeps bike visible up to 14-15km (covers all study scenarios).
+    # sigma=3.0 was too narrow — bike at 14km scored 0.0017 (effectively hidden).
+    # sigma=6.0 gives 0.20 at 14km — low but visible, correctly ranked below PT/car.
     bike_mu_km: float = 3.5
-    bike_sigma_km: float = 3.0
+    bike_sigma_km: float = 6.0
 
     # Car logistic rise
     car_d0_km: float = 4.5
