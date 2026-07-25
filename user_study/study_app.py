@@ -167,14 +167,18 @@ def ensure_database():
 
 def create_participant() -> int:
     import random
-    code = str(uuid.uuid4())[:8].upper()
+    code         = str(uuid.uuid4())[:8].upper()
     condition, set_order = assign_study_condition()
+    panel_id     = session.get("panel_participant_id")
+    panel_source = session.get("panel_source", "direct")
+
     with get_connection() as conn:
         cursor = conn.execute(
             """INSERT INTO participants
-               (participant_code, consent_given, study_phase, study_condition, set_order)
-               VALUES (?, 1, 1, ?, ?)""",
-            (code, condition, set_order),
+               (participant_code, consent_given, study_phase, study_condition, set_order,
+                panel_participant_id, panel_source)
+               VALUES (?, 1, 1, ?, ?, ?, ?)""",
+            (code, condition, set_order, panel_id, panel_source),
         )
         conn.commit()
         pid = cursor.lastrowid
@@ -571,6 +575,27 @@ def new_participant():
     session.clear()
     create_participant()
     return redirect("/")
+
+
+@app.route("/api/register", methods=["POST"])
+def register_panel():
+    """
+    Called on page load when a participant arrives via a panel URL (?p=...).
+    Stores the external panel ID in the session for linkage when participant
+    record is created at consent.
+
+    Body: { "panel_id": "ABC123XYZ", "source": "sosci" }
+    source defaults to "direct" if omitted.
+    """
+    data     = request.json or {}
+    panel_id = str(data.get("panel_id", "") or "").strip()
+    source   = str(data.get("source", "direct") or "direct").strip() or "direct"
+
+    if panel_id:
+        session["panel_participant_id"] = panel_id
+        session["panel_source"]         = source
+
+    return jsonify({"status": "ok", "panel_id": panel_id, "source": source})
 
 
 @app.route("/api/participant", methods=["GET"])

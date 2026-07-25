@@ -80,13 +80,9 @@ CREATE TABLE IF NOT EXISTS participants (
     -- Post-scenario needs ratings (validation / test-retest reliability)
     needs_importance      JSON          NULL,
 
-    -- ── Post-study profile self-identification ──────
-    post_study_profile               VARCHAR(32) NULL,
-    post_profile_rating_biospheric   TINYINT     NULL,
-    post_profile_rating_altruistic   TINYINT     NULL,
-    post_profile_rating_egoistic     TINYINT     NULL,
-    post_profile_rating_hedonic      TINYINT     NULL,
-    post_profile_selection_confidence TINYINT    NULL,
+    -- ── External panel linkage ───────────────────
+    panel_participant_id  VARCHAR(128) NULL,   -- ID from external panel (SoSci, Prolific, etc.)
+    panel_source          VARCHAR(64)  NULL,   -- e.g. 'sosci', 'prolific', 'direct'
 
     -- ── Study assignment (between-subjects) ──────
     -- study_condition: 1 = no intermodal, 2 = with intermodal
@@ -204,9 +200,6 @@ CREATE TABLE IF NOT EXISTS scenario_responses (
     -- Kendall tau between engine ranking and participant chosen route preference
     -- Computed server-side and stored for fast analysis
     kendall_tau                     DOUBLE       NULL,
-    kendall_tau_engine_participant   DOUBLE       NULL,
-    kendall_tau_time_participant     DOUBLE       NULL,
-    participant_ranking_b_json       JSON         NULL,
 
     explanation                     TEXT         NULL,
     created_at                      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,

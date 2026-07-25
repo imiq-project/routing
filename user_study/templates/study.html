@@ -2217,6 +2217,39 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("lang-toggle-de")?.addEventListener("click", () => setLanguage("de"));
     applyTranslations();
     updateLangToggle();
+
+    // ── Panel participant ID capture ──────────────────────────────────
+    // Reads ?p= (or ?pid=, ?PROLIFIC_PID=, ?d=) from the URL and
+    // registers it with the backend so it gets stored alongside the
+    // internal participant ID when the participant consents.
+    (async () => {
+        const params   = new URLSearchParams(window.location.search);
+        const panelId  = params.get("p")
+                      || params.get("pid")
+                      || params.get("PROLIFIC_PID")
+                      || params.get("d")
+                      || "";
+
+        // Guess source from which parameter was present
+        let source = "direct";
+        if (params.get("PROLIFIC_PID")) source = "prolific";
+        else if (params.get("d"))           source = "sosci";
+        else if (params.get("p") || params.get("pid")) source = "panel";
+
+        if (panelId) {
+            try {
+                await fetch("/api/register", {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ panel_id: panelId, source }),
+                });
+                console.log("Panel ID registered:", panelId, "source:", source);
+            } catch(e) {
+                console.warn("Could not register panel ID:", e);
+            }
+        }
+    })();
 });
 
 
