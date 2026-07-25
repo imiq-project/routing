@@ -84,7 +84,7 @@ class IntermodalPolicy:
 
     # Practical mode limits in km
     walk_max_km: float = 5.0
-    bike_max_km: float = 15.0
+    bike_max_km: float = 20.0  # routed walk distance can exceed crow-flies by 30%+
     car_pt_min_km: float = 5.0
 
     # Transfer realism

@@ -115,6 +115,36 @@ class StudyRouter:
         present_strategies = {
             getattr(r, "strategy", "") for r in raw_routes
         }
+        # Inject bike if IntermodalRouter dropped it due to distance cap.
+        # StudyRouter always shows all modes for study comparison.
+        if "bike_direct" not in present_strategies:
+            bike_routes = self._gh.route_bike(from_lat, from_lon, to_lat, to_lon)
+            if bike_routes:
+                br = bike_routes[0]
+                bike_route = type("BikeRoute", (), {
+                    "strategy":        "bike_direct",
+                    "total_duration_s": getattr(br, "duration_s", 0),
+                    "total_distance_m": getattr(br, "distance_m", 0),
+                    "transfer_count":   0,
+                    "transfers":        0,
+                    "is_intermodal":    False,
+                    "feasible":         True,
+                    "infeasible_reason": None,
+                    "geometry":         getattr(br, "geometry", None),
+                })()
+                bike_leg = type("BikeLeg", (), {
+                    "mode":       "bike",
+                    "distance_m": getattr(br, "distance_m", 0),
+                    "duration_s": getattr(br, "duration_s", 0),
+                    "from_name":  None, "to_name": None,
+                    "from_stop":  None, "to_stop": None,
+                    "num_stops":  None, "route_id": None,
+                    "trip_headsign": None, "description": "Bike",
+                    "geometry":   None,
+                })()
+                bike_route.legs = [bike_leg] # type: ignore
+                raw_routes.append(bike_route) # type: ignore
+
         # Inject walk if IntermodalRouter dropped it — always show walk
         # even for long distances so participants can see all options.
         # The feasibility-based normalisation ensures it ranks last.

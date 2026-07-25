@@ -22,7 +22,22 @@
         .question-group, .rating-item { margin: 18px 0; }
         label { display:block; font-weight: 650; margin-bottom: 8px; }
         input, select, textarea { width: 100%; box-sizing: border-box; border: 1px solid #cfd7e3; border-radius: 8px; padding: 10px 12px; font: inherit; background: #fff; }
+        .bilingual-consent { display: grid; grid-template-columns: 1fr 1px 1fr; gap: 0; }
+        .consent-lang-block { padding: 0 20px; }
+        .consent-lang-block:first-child { padding-left: 0; }
+        .consent-lang-block:last-child { padding-right: 0; }
+        .consent-divider { background: #e0e7f0; width: 1px; margin: 0 4px; }
+        .lang-tag { font-size: 18px; font-weight: 400; }
+        @media (max-width: 700px) {
+            .bilingual-consent { grid-template-columns: 1fr; }
+            .consent-divider { width: 100%; height: 1px; margin: 16px 0; }
+            .consent-lang-block { padding: 0; }
+        }
         button { border: 0; border-radius: 9px; background: #1f6feb; color: white; padding: 10px 16px; font-weight: 700; cursor: pointer; }
+        .lang-toggle { position: fixed; top: 12px; right: 16px; z-index: 999; display: flex; gap: 4px; }
+        .lang-btn { padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; background: #f0f4fa; color: #536173; cursor: pointer; border: 1px solid #d6deea; transition: all 0.15s; }
+        .lang-btn.lang-active { background: #1f6feb; color: #fff; border-color: #1f6feb; }
+        .lang-btn:hover:not(.lang-active) { background: #e0ebff; border-color: #9fc4ff; }
         button:disabled { background: #aab4c3; cursor: not-allowed; }
         .info-box, .loading-box, .validation-block { background: #f1f7ff; border: 1px solid #cfe2ff; border-radius: 12px; padding: 14px 16px; margin: 16px 0; }
         .route-sets-split { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
@@ -32,16 +47,16 @@
         .route-card:not(.draggable-card) { grid-template-columns: 34px 1fr; }
         .route-card:hover { transform: translateY(-2px); border-color:#9fc4ff; background:#fcfdff; box-shadow:0 10px 24px rgba(31,111,235,.12); }
         .route-card:hover .route-rank { background:#1f6feb; color:#fff; }
-        .drag-handle { cursor: grab; font-size: 16px; color: #aab4c4; user-select: none; display: flex; align-items: flex-start; justify-content: centre; padding-top: 8px; }
+        .drag-handle { cursor: grab; font-size: 16px; color: #aab4c4; user-select: none; display: flex; align-items: flex-start; justify-content: center; padding-top: 8px; }
         .drag-handle:active { cursor: grabbing; }
         .drag-ghost { opacity: 0.4; background: #e8f0fe !important; border: 2px dashed #4a90d9 !important; }
         .sortable-list .route-card { cursor: default; }
         .sortable-list { list-style: none; padding: 0; margin: 0; }
-        .drag-hint { display:flex; align-items:centre; gap:6px; font-size:12px; color:#666; margin-bottom:8px; padding:6px 10px; background:#f8f9fb; border-radius:8px; border:1px dashed #ccc; }
+        .drag-hint { display:flex; align-items:center; gap:6px; font-size:12px; color:#666; margin-bottom:8px; padding:6px 10px; background:#f8f9fb; border-radius:8px; border:1px dashed #ccc; }
         .route-content h4 { margin:0 0 4px; font-size:1.05rem; color:#17466f; }
         .route-content p { margin:4px 0 8px; color:#526070; }
-        .mode-emoji { display:inline-flex; width:1.5em; justify-content:centre; margin-right:4px; }
-        .route-rank { width: 34px; height: 34px; border-radius: 50%; background: #eef4ff; display: flex; align-items: centre; justify-content: centre; font-weight: 800; color: #1f6feb; }
+        .mode-emoji { display:inline-flex; width:1.5em; justify-content:center; margin-right:4px; }
+        .route-rank { width: 34px; height: 34px; border-radius: 50%; background: #eef4ff; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #1f6feb; }
         .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-top: 8px; }
         .metric-card { background: #f6f8fb; border-radius: 8px; padding: 8px; transition: background .16s ease, transform .16s ease; }
         .route-card:hover .metric-card { background:#eef5ff; }
@@ -84,8 +99,8 @@
             display:grid;
             grid-template-columns: repeat(var(--likert-count, 5), minmax(54px, 1fr));
             gap: 14px;
-            justify-content:centre;
-            align-items:centre;
+            justify-content:center;
+            align-items:center;
             position:relative;
         }
         .likert-options::before {
@@ -106,7 +121,7 @@
             color:#17202a;
             width:58px;
             height:58px;
-            justify-self:centre;
+            justify-self:center;
             border:1.5px solid #c9d3df;
             border-radius:999px;
             box-shadow:0 2px 6px rgba(16,24,40,.08);
@@ -135,13 +150,13 @@
             color:#526070;
             font-size:12.5px;
             line-height:1.25;
-            text-align:centre;
+            text-align:center;
         }
         .likert-point-labels span {
             min-height:32px;
             display:flex;
             align-items:flex-start;
-            justify-content:centre;
+            justify-content:center;
         }
         .likert-point-labels span:first-child,
         .likert-point-labels span:last-child,
@@ -150,7 +165,7 @@
             color:#405064;
         }
         .likert-scale-caption {
-            text-align:centre;
+            text-align:center;
             font-size:13px;
             color:#6b7686;
             margin-top:2px;
@@ -158,7 +173,7 @@
         }
         .rating-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
         .needs-rating-list { grid-template-columns: 1fr; max-width: 900px; margin: 0 auto; }
-        .needs-rating-list .rating-item { display:grid; grid-template-columns:minmax(180px, 260px) minmax(0, 1fr); gap:18px; align-items:centre; }
+        .needs-rating-list .rating-item { display:grid; grid-template-columns:minmax(180px, 260px) minmax(0, 1fr); gap:18px; align-items:center; }
         .needs-rating-list .rating-item label { margin:0; font-size:1rem; }
         .needs-rating-list .likert-row { margin:0; padding:14px 16px 16px; }
         .needs-rating-list .likert-endpoint-row,
@@ -196,14 +211,14 @@
         .soft-profile-preview strong { color:#102a43; }
         .soft-profile-bar { height:8px; background:#e9f0f8; border-radius:999px; overflow:hidden; margin-top:4px; }
         .soft-profile-fill { height:100%; background:#1f6feb; border-radius:999px; }
-        .profile-selected-display { margin-top:16px; padding:12px 14px; border:1px solid #b8dccd; border-radius:12px; background:#ecfff7; display:flex; align-items:centre; justify-content:space-between; gap:12px; }
+        .profile-selected-display { margin-top:16px; padding:12px 14px; border:1px solid #b8dccd; border-radius:12px; background:#ecfff7; display:flex; align-items:center; justify-content:space-between; gap:12px; }
         .profile-change-btn { background:#fff; color:#1b6b54; border:1px solid #9ed2c0; }
         .scenario-map { min-height: 260px; border:1px solid #d6deea; border-radius: 12px; background:#eef2f7; }
         .map-legend { margin-top: 6px; font-size: 14px; color:#5b6778; }
-        .map-legend-a, .map-legend-b { display:inline-flex; align-items:centre; justify-content:centre; width:22px; height:22px; border-radius:50%; color:#fff; font-weight:800; }
+        .map-legend-a, .map-legend-b { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; color:#fff; font-weight:800; }
         .map-legend-a { background:#1D9E75; } .map-legend-b { background:#E74C3C; }
         .preview-banner { background:#fff7e6; border:1px solid #ffd991; border-radius:10px; padding:10px 12px; margin: 0 0 16px; font-size: 14px; }
-        .button-row { display:flex; gap:12px; align-items:centre; justify-content:flex-start; flex-wrap:wrap; margin-top:18px; }
+        .button-row { display:flex; gap:12px; align-items:center; justify-content:flex-start; flex-wrap:wrap; margin-top:18px; }
         .back-btn { background:#687386; color:#fff; }
         .back-btn:hover { background:#505b6d; }
         #start-btn { display:block; margin:16px 0 0 0; padding:14px 24px; font-size:1.08rem; min-width:180px; }
@@ -226,7 +241,7 @@
         .quick-response-row {
             display:flex;
             gap:10px;
-            align-items:centre;
+            align-items:center;
             flex-wrap:wrap;
             margin-top:8px;
         }
@@ -287,7 +302,7 @@
         .container { max-width: 1120px; }
         .ovgu-header {
             display:flex;
-            align-items:centre;
+            align-items:center;
             gap:22px;
             margin: 18px 0 22px;
             padding: 18px 20px;
@@ -468,14 +483,18 @@
     <!-- ══════════════════════════════════════════ -->
     <!-- HEADER                                      -->
     <!-- ══════════════════════════════════════════ -->
+    <div class="lang-toggle">
+        <button class="lang-btn lang-active" id="lang-toggle-en">🇬🇧 EN</button>
+        <button class="lang-btn" id="lang-toggle-de">🇩🇪 DE</button>
+    </div>
     <header class="header ovgu-header">
         <div class="ovgu-brand-card">
             <img class="ovgu-logo" src="data:image/jpeg;base64,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" alt="Otto von Guericke University Magdeburg logo" />
         </div>
         <div class="ovgu-title-block">
-            <div class="ovgu-kicker">Otto von Guericke University Magdeburg</div>
-            <h1>Mobility Routing Study</h1>
-            <p>Evaluating personalised multimodal route recommendations — Phase 1</p>
+            <div class="ovgu-kicker" data-i18n="header.kicker">Otto von Guericke University Magdeburg</div>
+            <h1 data-i18n="header.title">Mobility Routing Study</h1>
+            <p data-i18n="header.subtitle">Evaluating personalised multimodal route recommendations — Phase 1</p>
         </div>
     </header>
 
@@ -484,89 +503,57 @@
     <!-- ══════════════════════════════════════════ -->
     <section class="card" id="consent-section">
 
-        <h2>Welcome!</h2>
+        <div class="bilingual-consent">
 
-        <p>
-            Thank you very much for participating in our survey. It is being conducted as part of the
-            ERDF-funded project <strong>"IMIQ – Smart Mobility in the Quarter"</strong>.
-        </p>
+            <!-- ── ENGLISH ─────────────────────────────────── -->
+            <div class="consent-lang-block">
+                <h2>Welcome! <span class="lang-tag">🇬🇧</span></h2>
+                <p>Thank you for participating in our survey. It is conducted as part of the ERDF-funded project <strong>"IMIQ – Intelligent Mobility Space in the Quarter"</strong>, a project of the <a href="https://www.imr.ovgu.de/niimo/Intelligenter+Mobilit%C3%A4tsraum-nonactive-1-preview-1-showdeleted-1.html" target="_blank" rel="noopener">IMR (Intelligent Mobility Space)</a>.</p>
+                <p>We are interested in your opinions on <strong>personalised multimodal route recommendations</strong>. There are no wrong answers — only your personal assessment matters. This study is anonymous and takes about <strong>20–25 minutes</strong>. Thank you for your support!</p>
+                <div class="info-box">
+                    <strong>Contact person</strong><br>
+                    Modou Lamin Manjang &nbsp;·&nbsp; Universitätsplatz 2, Building 29, 39106 Magdeburg<br>
+                    Phone: 03916751291 &nbsp;·&nbsp; E-Mail: <a href="mailto:modou.manjang@ovgu.de">modou.manjang@ovgu.de</a>
+                </div>
+                <div class="consent-box">
+                    <h3>Data Protection Information</h3>
+                    <p>Your consent is voluntary and may be revoked at any time without reason by contacting the person above. Revoking consent will not result in any disadvantages.</p>
+                    <p><strong>Information pursuant to Art. 13 GDPR.</strong> Your data will be stored in pseudonymised form for research purposes only and deleted after project completion (max. 12 months). Legal basis: Art. 6(1)(a) GDPR. No disclosure to third parties. OVGU privacy policy: <a href="https://www.ovgu.de/unimagdeburg/en/privacy+policy-p-64704.html" target="_blank" rel="noopener">ovgu.de/privacy-policy</a></p>
+                    <p>Results may be published in pseudonymised form. Raw data may be made available as open data, following DFG and DGPs recommendations.</p>
+                </div>
+            </div>
 
-        <p>
-            <em>"IMIQ – Intelligent Mobility Space in the Quarter"</em> is a project of the
-            <a href="https://www.imr.ovgu.de/niimo/Intelligenter+Mobilit%C3%A4tsraum-nonactive-1-preview-1-showdeleted-1.html"
-               target="_blank" rel="noopener">IMR (Intelligent Mobility Space)</a>,
-            which is based at the Wissenschaftshafen in Magdeburg. During its planned runtime from 2024
-            to 2028, the Wissenschaftshafen will become a district of the future where new needs-based
-            solutions are conceived, technically tested, and implemented with a socio-economic
-            perspective in mind.
-        </p>
+            <div class="consent-divider"></div>
 
-        <p>
-            In this study, we are interested in your opinions on <strong>personalised multimodal route
-            recommendations</strong>. We would like to emphasise that there are no wrong answers — we
-            are only interested in your personal assessment. This study is anonymous. Please answer
-            all questions. It will take about <strong>20–25 minutes</strong> to complete.
-            Thank you again for your support!
-        </p>
+            <!-- ── DEUTSCH ──────────────────────────────────── -->
+            <div class="consent-lang-block">
+                <h2>Willkommen! <span class="lang-tag">🇩🇪</span></h2>
+                <p>Vielen Dank für Ihre Teilnahme. Die Umfrage wird im Rahmen des EFRE-geförderten Projekts <strong>„IMIQ – Intelligenter Mobilitätsraum im Quartier"</strong> durchgeführt, ein Projekt des <a href="https://www.imr.ovgu.de/niimo/Intelligenter+Mobilit%C3%A4tsraum-nonactive-1-preview-1-showdeleted-1.html" target="_blank" rel="noopener">IMR (Intelligenter Mobilitätsraum)</a>.</p>
+                <p>Wir interessieren uns für Ihre Meinungen zu <strong>personalisierten multimodalen Routenempfehlungen</strong>. Es gibt keine falschen Antworten — uns interessiert ausschließlich Ihre persönliche Einschätzung. Die Studie ist anonym und dauert etwa <strong>20–25 Minuten</strong>. Vielen Dank!</p>
+                <div class="info-box">
+                    <strong>Ansprechperson</strong><br>
+                    Modou Lamin Manjang &nbsp;·&nbsp; Universitätsplatz 2, Gebäude 29, 39106 Magdeburg<br>
+                    Telefon: 03916751291 &nbsp;·&nbsp; E-Mail: <a href="mailto:modou.manjang@ovgu.de">modou.manjang@ovgu.de</a>
+                </div>
+                <div class="consent-box">
+                    <h3>Datenschutzinformationen</h3>
+                    <p>Ihre Einwilligung ist freiwillig und kann jederzeit ohne Angabe von Gründen mit Wirkung für die Zukunft per Post oder E-Mail an die oben genannte Person widerrufen werden. Der Widerruf hat keine Nachteile für Sie.</p>
+                    <p><strong>Informationen gemäß Art. 13 DSGVO.</strong> Ihre Daten werden pseudonymisiert für Forschungszwecke gespeichert und nach Projektabschluss (max. 12 Monate) gelöscht. Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO. Keine Weitergabe an Dritte. Datenschutzerklärung der OVGU: <a href="https://www.ovgu.de/unimagdeburg/en/privacy+policy-p-64704.html" target="_blank" rel="noopener">ovgu.de/datenschutz</a></p>
+                    <p>Ergebnisse können pseudonymisiert veröffentlicht werden. Pseudonymisierte Rohdaten können als Open Data bereitgestellt werden, gemäß DFG- und DGPs-Empfehlungen.</p>
+                </div>
+            </div>
 
-        <div class="info-box">
-            <strong>Contact person for the organisational unit executing the project</strong><br>
-            Modou Lamin Manjang<br>
-            Universitätsplatz 2, Building 29, 39106 Magdeburg<br>
-            Phone: 03916751291<br>
-            E-Mail: <a href="mailto:mmanjang@ovgu.de">mmanjang@ovgu.de</a>
         </div>
 
-        <div class="consent-box">
-            <h3>Data Protection Information</h3>
-
-            <p>
-                Your consent to the processing of your data is voluntary. It may be modified or
-                revoked in whole or in part at any time, effective for the future, without providing
-                a reason. You may revoke your consent by mail or email using the contact information
-                provided for the aforementioned contact person. Revoking consent will not result in
-                any disadvantages for you.
-            </p>
-
-            <p>
-                <strong>Information on the collection of data in accordance with Art. 13 of the GDPR.</strong><br>
-                Your personal data will be processed for the following purpose: the survey data will be
-                stored only in pseudonymised form and used for research purposes. Your data will be
-                stored until the project is completed, or for a maximum period of 12 months. After
-                that, all data will be deleted.
-            </p>
-
-            <p>
-                The legal basis for the collection of data is Article 6(1)(a) of the GDPR (consent).
-                Data will not be disclosed to third parties (outside the university) or to a third
-                country. Information regarding the responsible authority, the contact details of the
-                data protection officers, and your rights regarding the processing of your personal
-                data can be found in the OVGU's privacy policy at:
-                <a href="https://www.ovgu.de/unimagdeburg/en/privacy+policy-p-64704.html"
-                   target="_blank" rel="noopener">
-                    https://www.ovgu.de/unimagdeburg/en/privacy+policy-p-64704.html
-                </a>
-            </p>
-
-            <p>
-                The data collected as part of this study will be used exclusively for scientific
-                purposes. The results may be released in a scientific publication. This will be done
-                in pseudonymised form, meaning that the data cannot be traced back to any specific
-                individuals. To enhance the quality of research, the fully pseudonymised raw data
-                from this study may be made available as open data on the internet in a data archive
-                or provided to other researchers. In doing so, this study follows the recommendations
-                of the German Research Foundation (DFG) and the German Psychological Society (DGPs)
-                on quality control in research.
-            </p>
-        </div>
-
-        <label class="checkbox-row">
+        <label class="checkbox-row" style="margin-top:24px;">
             <input type="checkbox" id="consent-checkbox" />
-            I have read and understood the above information. I voluntarily consent to participate
-            in this study and to the processing of my data as described.
+            <span style="font-size:13px;line-height:1.5;">
+                <strong>EN:</strong> I have read and understood the above information. I voluntarily consent to participate in this study and to the processing of my data as described.<br>
+                <strong>DE:</strong> Ich habe die oben stehenden Informationen gelesen und verstanden. Ich willige freiwillig in die Teilnahme an dieser Studie und die Verarbeitung meiner Daten wie beschrieben ein.
+            </span>
         </label>
 
-        <button id="start-btn">Begin Survey</button>
+        <button id="start-btn" disabled>I consent / Ich stimme zu — Begin Survey / Studie beginnen</button>
     </section>
 
     <!-- ══════════════════════════════════════════ -->
@@ -574,64 +561,63 @@
     <!-- STEP 2a — DEMOGRAPHICS: BIOGRAPHY           -->
     <!-- ══════════════════════════════════════════ -->
     <section class="card hidden" id="demographics-section">
-        <h2>About You</h2>
-        <p class="step-label">Step 1a of 4 — Personal background</p>
-        <p>Please answer the following questions about yourself.
-           All responses are anonymous and used solely for research purposes.</p>
+        <h2 data-i18n="demo.h2">About You</h2>
+        <p class="step-label" data-i18n="demo.step">Step 1a of 4 — Personal background</p>
+        <p data-i18n="demo.intro">Please answer the following questions about yourself. All responses are anonymous and used solely for research purposes.</p>
 
         <div class="question-group">
-            <label>Age <span class="field-hint">(please enter your age in years)</span></label>
+            <label data-i18n="demo.age.label">Age <span class="field-hint" data-i18n="demo.age.hint">(please enter your age in years)</span></label>
             <input type="number" id="age-input" required min="16" max="100"
                    placeholder="e.g. 34" style="width:120px;" />
         </div>
 
         <div class="question-group">
-            <label>Gender</label>
+            <label data-i18n="demo.gender.label2">Gender</label>
             <select id="gender" required>
                 <option value="">— select —</option>
-                <option>Female</option>
-                <option>Male</option>
-                <option>Non-binary / third gender</option>
-                <option>Prefer not to say</option>
+                <option data-i18n="demo.gender.female">Female</option>
+                <option data-i18n="demo.gender.male">Male</option>
+                <option data-i18n="demo.gender.nonbinary">Non-binary / third gender</option>
+                <option data-i18n="demo.gender.prefer_not">Prefer not to say</option>
             </select>
         </div>
 
         <div class="question-group">
-            <label>Highest level of education completed</label>
+            <label data-i18n="demo.edu.label2">Highest level of education completed</label>
             <select id="education" required>
                 <option value="">— select —</option>
-                <option value="no_formal">No formal qualification</option>
+                <option value="no_formal" data-i18n="demo.edu.no_formal2">No formal qualification</option>
                 <option value="secondary">Secondary school (Hauptschule / Realschule)</option>
-                <option value="abitur">Abitur / A-levels</option>
-                <option value="vocational">Vocational / apprenticeship (Ausbildung)</option>
-                <option value="bachelor">Bachelor's degree</option>
-                <option value="master">Master's degree</option>
-                <option value="phd">PhD / Doctorate</option>
-                <option value="prefer_not">Prefer not to say</option>
+                <option value="abitur" data-i18n="demo.edu.abitur">Abitur / A-levels</option>
+                <option value="vocational" data-i18n="demo.edu.vocational2">Vocational / apprenticeship (Ausbildung)</option>
+                <option value="bachelor" data-i18n="demo.edu.bachelor">Bachelor's degree</option>
+                <option value="master" data-i18n="demo.edu.master">Master's degree</option>
+                <option value="phd" data-i18n="demo.edu.phd2">PhD / Doctorate</option>
+                <option value="prefer_not" data-i18n="demo.gender.prefer_not">Prefer not to say</option>
             </select>
         </div>
 
         <div class="question-group">
-            <label>Occupation</label>
+            <label data-i18n="demo.occ.label2">Occupation</label>
             <select id="occupation" required>
                 <option value="">— select —</option>
-                <option>Student</option>
-                <option>Employed full-time</option>
-                <option>Employed part-time</option>
-                <option>Self-employed</option>
-                <option>Retired</option>
-                <option>Unemployed / seeking work</option>
-                <option>Prefer not to say</option>
+                <option data-i18n="demo.occ.student">Student</option>
+                <option data-i18n="demo.occ.employed2">Employed full-time</option>
+                <option data-i18n="demo.occ.part_time2">Employed part-time</option>
+                <option data-i18n="demo.occ.self_employed">Self-employed</option>
+                <option data-i18n="demo.occ.retired">Retired</option>
+                <option data-i18n="demo.occ.unemployed2">Unemployed / seeking work</option>
+                <option data-i18n="demo.gender.prefer_not">Prefer not to say</option>
             </select>
         </div>
 
         <div class="question-group">
-            <label>Where do you usually travel <strong>from</strong> for your regular commute (work, studies, or similar)?</label>
+            <label data-i18n="demo.commute_from.label">Where do you usually travel <strong>from</strong> for your regular commute (work, studies, or similar)?</label>
             <select id="commute-origin-type" required>
                 <option value="">— select —</option>
-                <option value="magdeburg_district">From a district within Magdeburg</option>
-                <option value="other_city">From another city or town</option>
-                <option value="no_regular_commute">I do not have a regular commute</option>
+                <option value="magdeburg_district" data-i18n="demo.commute_from.mgd2">From a district within Magdeburg</option>
+                <option value="other_city" data-i18n="demo.commute_from.city2">From another city or town</option>
+                <option value="no_regular_commute" data-i18n="demo.commute_from.none">I do not have a regular commute</option>
             </select>
 
             <div id="commute-origin-district-group" class="conditional-block hidden">
@@ -677,12 +663,12 @@
         </div>
 
         <div class="question-group">
-            <label>Where do you usually travel <strong>to</strong> for your regular commute?</label>
+            <label data-i18n="demo.commute_to.label">Where do you usually travel <strong>to</strong> for your regular commute?</label>
             <select id="commute-destination-type" required>
                 <option value="">— select —</option>
-                <option value="magdeburg_district">To a district within Magdeburg</option>
-                <option value="other_city">To another city or town</option>
-                <option value="no_regular_commute">I do not have a regular commute</option>
+                <option value="magdeburg_district" data-i18n="demo.commute_to.mgd2">To a district within Magdeburg</option>
+                <option value="other_city" data-i18n="demo.commute_to.city2">To another city or town</option>
+                <option value="no_regular_commute" data-i18n="demo.commute_from.none">I do not have a regular commute</option>
             </select>
 
             <div id="commute-dest-district-group" class="conditional-block hidden">
@@ -729,15 +715,12 @@
 
         <!-- Accessibility / mobility constraints -->
         <div class="question-group exclusion-group">
-            <label>
-                Do you have any physical impairment, disability, or health condition that significantly
-                affects your ability to walk, cycle, or use public transport?
-            </label>
+            <label data-i18n="demo.disability.label2">Do you have any physical impairment, disability, or health condition that significantly affects your ability to walk, cycle, or use public transport?</label>
             <select id="exclusion-disability-yesno" required>
                 <option value="">— select —</option>
-                <option value="0">No</option>
-                <option value="1">Yes</option>
-                <option value="9">Prefer not to say</option>
+                <option value="0" data-i18n="common.no">No</option>
+                <option value="1" data-i18n="common.yes">Yes</option>
+                <option value="9" data-i18n="demo.gender.prefer_not">Prefer not to say</option>
             </select>
 
             <div id="disability-mode-group" class="conditional-block hidden">
@@ -759,136 +742,131 @@
             </p>
         </div>
 
-        <button id="save-demographics-btn">Continue — Mobility Habits</button>
+        <button id="save-demographics-btn" data-i18n="demo.btn">Continue — Mobility Habits</button>
     </section>
 
     <!-- ══════════════════════════════════════════ -->
     <!-- STEP 2b — DEMOGRAPHICS: MOBILITY HABITS    -->
     <!-- ══════════════════════════════════════════ -->
     <section class="card hidden" id="mobility-section">
-        <h2>Your Mobility Habits</h2>
-        <p class="step-label">Step 1b of 4 — How you typically travel</p>
-        <p>These questions help us understand your everyday travel context.
-           There are no right or wrong answers.</p>
+        <h2 data-i18n="mob.h2">Your Mobility Habits</h2>
+        <p class="step-label" data-i18n="mob.step">Step 1b of 4 — How you typically travel</p>
+        <p data-i18n="mob.intro">These questions help us understand your everyday travel context. There are no right or wrong answers.</p>
 
         <div class="question-group">
-            <label>How often do you use public transport?</label>
-            <p class="field-hint">Please answer as a frequency scale for your usual mobility behaviour.</p>
+            <label data-i18n="mob.pt.q">How often do you use public transport?</label>
+            <p class="field-hint" data-i18n="mob.pt.hint">Please answer as a frequency scale for your usual mobility behaviour.</p>
             <div class="likert-row frequency-likert" data-target="mobility-frequency">
                 <div class="likert-options" id="mobility-frequency"></div>
             </div>
         </div>
 
         <div class="question-group">
-            <label>Do you have a driving licence?</label>
+            <label data-i18n="mob.license.label">Do you have a driving licence?</label>
             <select id="driving-license" required>
                 <option value="">— select —</option>
-                <option value="1">Yes</option>
-                <option value="0">No</option>
+                <option value="1" data-i18n="common.yes">Yes</option>
+                <option value="0" data-i18n="common.no">No</option>
             </select>
         </div>
 
         <div class="question-group">
-            <label>Do you own or have regular access to a car?</label>
+            <label data-i18n="mob.car.label">Do you own or have regular access to a car?</label>
             <select id="owns-car" required>
                 <option value="">— select —</option>
-                <option value="1">Yes</option>
-                <option value="0">No</option>
+                <option value="1" data-i18n="common.yes">Yes</option>
+                <option value="0" data-i18n="common.no">No</option>
             </select>
         </div>
 
         <div class="question-group">
-            <label>Do you own or have regular access to a bicycle?</label>
+            <label data-i18n="mob.bike.label">Do you own or have regular access to a bicycle?</label>
             <select id="owns-bike" required>
                 <option value="">— select —</option>
-                <option value="1">Yes</option>
-                <option value="0">No</option>
+                <option value="1" data-i18n="common.yes">Yes</option>
+                <option value="0" data-i18n="common.no">No</option>
             </select>
         </div>
 
         <div class="question-group">
-            <label>How comfortable are you cycling in city traffic?</label>
+            <label data-i18n="mob.cycling_comfort.label">How comfortable are you cycling in city traffic?</label>
             <div class="likert-row" data-target="cycling-comfort">
-                <span class="likert-label-l">Not at all</span>
+                <span class="likert-label-l" data-i18n="ll.not_comf">Not at all</span>
                 <div class="likert-options" id="cycling-comfort"></div>
-                <span class="likert-label-r">Very comfortable</span>
+                <span class="likert-label-r" data-i18n="ll.very_comf">Very comfortable</span>
             </div>
         </div>
 
-        <button id="save-mobility-btn">Continue to Profile Selection</button>
+        <button id="save-mobility-btn" data-i18n="mob.btn">Continue — Travel Priorities</button>
     </section>
 
     <!-- ══════════════════════════════════════════ -->
     <!-- STEP 2c — PRE-STUDY NEEDS ELICITATION       -->
     <!-- ══════════════════════════════════════════ -->
     <section class="card hidden" id="needs-pre-section">
-        <h2>Your Travel Priorities</h2>
-        <p class="step-label">Step 1c of 4 — What matters to you when travelling</p>
+        <h2 data-i18n="needs.h2">Your Travel Priorities</h2>
+        <p class="step-label" data-i18n="needs.step">Step 1c of 4 — What matters to you when travelling</p>
         <p>
-            Before we show you any routes, we would like to understand what matters
-            most to you when choosing how to travel. Please rate the importance of
-            each factor below on a scale from 1 (not important at all) to 7 (extremely important).
+            <span data-i18n="needs.intro">Before we show you any routes, we would like to understand what matters most to you when choosing how to travel. Please rate the importance of each factor below on a scale from 1 (not important at all) to 7 (extremely important).</span>
         </p>
-        <p style="font-size:13px;color:#888;margin-top:-8px;">
-            There are no right or wrong answers — we are interested in your honest personal priorities.
-        </p>
+        <p style="font-size:13px;color:#888;margin-top:-8px;" data-i18n="needs.hint">There are no right or wrong answers — we are interested in your honest personal priorities.</p>
 
         <div class="rating-grid needs-rating-list" style="margin-top:20px;">
             <div class="rating-item">
-                <label>🌱 Environmental friendliness<br><span style="font-size:12px;color:#888;font-weight:400;">Low emissions, sustainable transport</span></label>
+                <label><span data-i18n="needs.pro_env">🌱 Environmental friendliness</span><br><span style="font-size:12px;color:#888;font-weight:400;" data-i18n="needs.pro_env.sub">Low emissions, sustainable transport</span></label>
                 <div class="likert-row" data-target="pre-need-pro-env"><div class="likert-options" id="pre-need-pro-env"></div></div>
             </div>
             <div class="rating-item">
-                <label>🚴 Physical activity<br><span style="font-size:12px;color:#888;font-weight:400;">Getting exercise during the journey</span></label>
+                <label><span data-i18n="needs.physical">🚴 Physical activity</span><br><span style="font-size:12px;color:#888;font-weight:400;" data-i18n="needs.physical.sub">Getting exercise during the journey</span></label>
                 <div class="likert-row" data-target="pre-need-physical"><div class="likert-options" id="pre-need-physical"></div></div>
             </div>
             <div class="rating-item">
-                <label>🔒 Privacy &amp; personal space<br><span style="font-size:12px;color:#888;font-weight:400;">Avoiding crowded shared environments</span></label>
+                <label><span data-i18n="needs.privacy">🔒 Privacy &amp; personal space</span><br><span style="font-size:12px;color:#888;font-weight:400;" data-i18n="needs.privacy.sub">Avoiding crowded shared environments</span></label>
                 <div class="likert-row" data-target="pre-need-privacy"><div class="likert-options" id="pre-need-privacy"></div></div>
             </div>
             <div class="rating-item">
-                <label>🗺️ Autonomy &amp; flexibility<br><span style="font-size:12px;color:#888;font-weight:400;">Travelling on your own schedule</span></label>
+                <label><span data-i18n="needs.autonomy">🗺️ Autonomy &amp; flexibility</span><br><span style="font-size:12px;color:#888;font-weight:400;" data-i18n="needs.autonomy.sub">Travelling on your own schedule</span></label>
                 <div class="likert-row" data-target="pre-need-autonomy"><div class="likert-options" id="pre-need-autonomy"></div></div>
             </div>
             <div class="rating-item">
-                <label>💶 Affordability<br><span style="font-size:12px;color:#888;font-weight:400;">Keeping travel costs low</span></label>
+                <label><span data-i18n="needs.cost">💶 Affordability</span><br><span style="font-size:12px;color:#888;font-weight:400;" data-i18n="needs.cost.sub">Keeping travel costs low</span></label>
                 <div class="likert-row" data-target="pre-need-cost"><div class="likert-options" id="pre-need-cost"></div></div>
             </div>
             <div class="rating-item">
-                <label>⚡ Speed<br><span style="font-size:12px;color:#888;font-weight:400;">Getting there as fast as possible</span></label>
+                <label><span data-i18n="needs.speed">⚡ Speed</span><br><span style="font-size:12px;color:#888;font-weight:400;" data-i18n="needs.speed.sub">Getting there as fast as possible</span></label>
                 <div class="likert-row" data-target="pre-need-speed"><div class="likert-options" id="pre-need-speed"></div></div>
             </div>
             <div class="rating-item">
-                <label>🚦 Accident safety<br><span style="font-size:12px;color:#888;font-weight:400;">Low risk of traffic accidents</span></label>
+                <label><span data-i18n="needs.safety_accident">🚦 Accident safety</span><br><span style="font-size:12px;color:#888;font-weight:400;" data-i18n="needs.safety_accident.sub">Low risk of traffic accidents</span></label>
                 <div class="likert-row" data-target="pre-need-safety-accident"><div class="likert-options" id="pre-need-safety-accident"></div></div>
             </div>
             <div class="rating-item">
-                <label>🔦 Personal security<br><span style="font-size:12px;color:#888;font-weight:400;">Feeling safe from crime en route</span></label>
+                <label><span data-i18n="needs.safety_crime">🔦 Personal security</span><br><span style="font-size:12px;color:#888;font-weight:400;" data-i18n="needs.safety_crime.sub">Feeling safe from crime en route</span></label>
                 <div class="likert-row" data-target="pre-need-safety-crime"><div class="likert-options" id="pre-need-safety-crime"></div></div>
             </div>
             <div class="rating-item">
-                <label>🛋️ Comfort<br><span style="font-size:12px;color:#888;font-weight:400;">Comfortable, low-effort travel</span></label>
+                <label><span data-i18n="needs.comfort">🛋️ Comfort</span><br><span style="font-size:12px;color:#888;font-weight:400;" data-i18n="needs.comfort.sub">Comfortable, low-effort travel</span></label>
                 <div class="likert-row" data-target="pre-need-comfort"><div class="likert-options" id="pre-need-comfort"></div></div>
             </div>
             <div class="rating-item">
-                <label>🕐 Reliability<br><span style="font-size:12px;color:#888;font-weight:400;">Arriving on time, predictable journey</span></label>
+                <label><span data-i18n="needs.reliable">🕐 Reliability</span><br><span style="font-size:12px;color:#888;font-weight:400;" data-i18n="needs.reliable.sub">Arriving on time, predictable journey</span></label>
                 <div class="likert-row" data-target="pre-need-reliable"><div class="likert-options" id="pre-need-reliable"></div></div>
             </div>
             <div class="rating-item">
-                <label>😷 Infection &amp; crowding risk<br><span style="font-size:12px;color:#888;font-weight:400;">Avoiding crowded enclosed spaces</span></label>
+                <label><span data-i18n="needs.health_infection">😷 Infection &amp; crowding risk</span><br><span style="font-size:12px;color:#888;font-weight:400;" data-i18n="needs.health_infection.sub">Avoiding crowded enclosed spaces</span></label>
                 <div class="likert-row" data-target="pre-need-health-infection"><div class="likert-options" id="pre-need-health-infection"></div></div>
             </div>
         </div>
 
-        <button id="save-needs-pre-btn">Continue to Route Scenarios</button>
+        <button id="save-needs-pre-btn" data-i18n="needs.btn">Continue to Route Scenarios</button>
     </section>
 
     <!-- ══════════════════════════════════════════ -->
     <!-- STEP 3 — PROFILE SELECTION (hidden, not used in routing) -->
     <!-- ══════════════════════════════════════════ -->
     <section class="card hidden" id="profile-section">
-        <h2>Your Travel Style</h2>
-        <p class="step-label">Step 2 of 4 — Profile</p>
+        <h2 data-i18n="profile.h2">Your Travel Style</h2>
+        <p class="step-label" data-i18n="profile.step">Step 2 of 4 — Profile</p>
         <p>
             First, rate how well each travel style describes your everyday travel preferences.
             Then select the one profile that is the closest overall match. This allows us to capture
@@ -903,11 +881,11 @@
             <div class="profile-pill profile-pill-bio" data-profile="biospheric">
                 <div class="pill-body">
                     <h3>🌱 The Green Traveller</h3>
-                    <p class="profile-quote">"I prefer routes that reduce environmental impact when this is reasonably possible."</p>
+                    <p class="profile-quote" data-i18n="profile.bio.quote">"I prefer routes that reduce environmental impact when this is reasonably possible."</p>
                     <ul>
-                        <li>Lower environmental impact matters to me.</li>
-                        <li>Active travel is welcome when feasible.</li>
-                        <li>I can accept some extra time for a more sustainable route.</li>
+                        <li data-i18n="profile.bio.b1">Lower environmental impact matters to me.</li>
+                        <li data-i18n="profile.bio.b2">Active travel is welcome when feasible.</li>
+                        <li data-i18n="profile.bio.b3">I can accept some extra time for a more sustainable route.</li>
                     </ul>
                 </div>
                 <div class="profile-rating-block">
@@ -915,18 +893,18 @@
                     <div class="likert-row" data-target="profile-rating-biospheric">
                         <div class="likert-options" id="profile-rating-biospheric"></div>
                     </div>
-                    <button type="button" class="select-profile-btn" data-select-profile="biospheric">Select as closest profile</button>
+                    <button type="button" class="select-profile-btn" data-select-profile="biospheric" data-i18n="profile.select.btn">Select as closest profile</button>
                 </div>
             </div>
 
             <div class="profile-pill profile-pill-alt" data-profile="altruistic">
                 <div class="pill-body">
                     <h3>🛡️ The Safe &amp; Reliable Traveller</h3>
-                    <p class="profile-quote">"I prefer routes that feel safe, predictable, and dependable."</p>
+                    <p class="profile-quote" data-i18n="profile.alt.quote">"I prefer routes that feel safe, predictable, and dependable."</p>
                     <ul>
-                        <li>Avoiding accident and personal safety risks is important to me.</li>
-                        <li>I value punctuality and predictable arrival times.</li>
-                        <li>I prefer routes with clear, reliable connections.</li>
+                        <li data-i18n="profile.alt.b1">Avoiding accident and personal safety risks is important to me.</li>
+                        <li data-i18n="profile.alt.b2">I value punctuality and predictable arrival times.</li>
+                        <li data-i18n="profile.alt.b3">I prefer routes with clear, reliable connections.</li>
                     </ul>
                 </div>
                 <div class="profile-rating-block">
@@ -934,18 +912,18 @@
                     <div class="likert-row" data-target="profile-rating-altruistic">
                         <div class="likert-options" id="profile-rating-altruistic"></div>
                     </div>
-                    <button type="button" class="select-profile-btn" data-select-profile="altruistic">Select as closest profile</button>
+                    <button type="button" class="select-profile-btn" data-select-profile="altruistic" data-i18n="profile.select.btn">Select as closest profile</button>
                 </div>
             </div>
 
             <div class="profile-pill profile-pill-ego" data-profile="egoistic">
                 <div class="pill-body">
-                    <h3>⚡ The Independent Traveller</h3>
-                    <p class="profile-quote">"I prefer routes that let me stay in control of my time and movement."</p>
+                    <h3 data-i18n="profile.ego.name">⚡ The Independent Traveller</h3>
+                    <p class="profile-quote" data-i18n="profile.ego.quote">"I prefer routes that let me stay in control of my time and movement."</p>
                     <ul>
-                        <li>Flexibility and directness matter to me.</li>
-                        <li>I prefer not to depend too much on fixed schedules.</li>
-                        <li>Personal space and autonomy are important during travel.</li>
+                        <li data-i18n="profile.ego.b1">Flexibility and directness matter to me.</li>
+                        <li data-i18n="profile.ego.b2">I prefer not to depend too much on fixed schedules.</li>
+                        <li data-i18n="profile.ego.b3">Personal space and autonomy are important during travel.</li>
                     </ul>
                 </div>
                 <div class="profile-rating-block">
@@ -953,18 +931,18 @@
                     <div class="likert-row" data-target="profile-rating-egoistic">
                         <div class="likert-options" id="profile-rating-egoistic"></div>
                     </div>
-                    <button type="button" class="select-profile-btn" data-select-profile="egoistic">Select as closest profile</button>
+                    <button type="button" class="select-profile-btn" data-select-profile="egoistic" data-i18n="profile.select.btn">Select as closest profile</button>
                 </div>
             </div>
 
             <div class="profile-pill profile-pill-hed" data-profile="hedonic">
                 <div class="pill-body">
                     <h3>😌 The Relaxed Traveller</h3>
-                    <p class="profile-quote">"I prefer routes that feel easy, comfortable, and low-stress."</p>
+                    <p class="profile-quote" data-i18n="profile.hed.quote">"I prefer routes that feel easy, comfortable, and low-stress."</p>
                     <ul>
-                        <li>Comfort matters more than strict optimisation.</li>
-                        <li>I prefer to avoid crowded or stressful environments.</li>
-                        <li>I do not like routes that require too much physical effort.</li>
+                        <li data-i18n="profile.hed.b1">Comfort matters more than strict optimisation.</li>
+                        <li data-i18n="profile.hed.b2">I prefer to avoid crowded or stressful environments.</li>
+                        <li data-i18n="profile.hed.b3">I do not like routes that require too much physical effort.</li>
                     </ul>
                 </div>
                 <div class="profile-rating-block">
@@ -972,7 +950,7 @@
                     <div class="likert-row" data-target="profile-rating-hedonic">
                         <div class="likert-options" id="profile-rating-hedonic"></div>
                     </div>
-                    <button type="button" class="select-profile-btn" data-select-profile="hedonic">Select as closest profile</button>
+                    <button type="button" class="select-profile-btn" data-select-profile="hedonic" data-i18n="profile.select.btn">Select as closest profile</button>
                 </div>
             </div>
 
@@ -984,7 +962,7 @@
         </div>
 
         <div class="profile-confidence-block">
-            <label>How confident are you in this profile selection?</label>
+            <label data-i18n="profile.confidence.q">How confident are you in this profile selection?</label>
             <div class="likert-row" data-target="profile-selection-confidence">
                 <div class="likert-options" id="profile-selection-confidence"></div>
             </div>
@@ -1018,22 +996,20 @@
         </div>
 
         <div class="info-box" id="scenario-instruction">
-            <strong>Your task:</strong>
+            <p data-i18n="scenario.task"><strong>Your task:</strong>
             Please review both route sets for the same journey.
             <strong>Route Set A</strong> is the ranked output of our preference-based routing engine.
             <strong>Route Set B</strong> is a standard time/distance-based routing benchmark.
             We want to know whether Set A's ranking makes sense to you, whether intermodal routes
-            are noticeable and understandable, and whether you would use this kind of system in daily life.
-            <br><br>
-            <strong>Please assume</strong> that for this journey you have access to <strong>all transport modes</strong>
+            are noticeable and understandable, and whether you would use this kind of system in daily life.</p>
+            <p data-i18n="scenario.assumption"><strong>📌 Please assume</strong> that for this journey you have access to <strong>all transport modes</strong>
             — car, bike, public transport, and walking. The rankings are based purely on the travel preferences
-            and values you stated at the start, not on what you personally own or normally use.
-            <br><br>
+            and values you stated at the start, not on what you personally own or normally use.</p>
             <span id="study-condition-note" class="hidden" style="display:block;margin-bottom:6px;font-style:italic;color:#1B4F72;"></span>
-            <strong>⏱ Note on driving times:</strong> Travel times shown for car routes
+            <p data-i18n="scenario.note"><strong>⏱ Note on driving times:</strong> Travel times shown for car routes
             include an estimated <strong>8 minutes</strong> for parking search and the walk
             to your destination. This overhead is not shown by standard navigation apps
-            but reflects realistic urban door-to-door journey time.
+            but reflects realistic urban door-to-door journey time.</p>
         </div>
 
         <!-- Loading indicator -->
@@ -1047,38 +1023,38 @@
 
             <!-- SET A — fixed engine ranking, no drag-and-drop -->
             <div id="route-set-a" class="route-set-panel set-a-panel">
-                <h3 class="set-label set-a-label">Route Set A</h3>
+                <h3 class="set-label set-a-label" data-i18n="scenario.setA.title">Route Set A</h3>
             
                 <ul id="routes-list-a" class="routes-list"></ul>
 
                 <div class="question-group">
-                    <label>Which route from Set A would you choose in this situation?</label>
+                    <label data-i18n="scenario.setA.q1">Which route from Set A would you choose in this situation?</label>
                     <select id="preferred-route-a"></select>
                 </div>
 
                 <div class="question-group">
-                    <label>Would you follow the top-ranked route suggested in Route Set A?</label>
+                    <label data-i18n="scenario.setA.q2">Would you follow the top-ranked route suggested in Route Set A?</label>
                     <select id="follow-top-route-a" required>
                         <option value="">— select —</option>
-                        <option value="yes">Yes</option>
-                        <option value="maybe">Maybe</option>
-                        <option value="no">No</option>
+                        <option value="yes" data-i18n="common.yes">Yes</option>
+                        <option value="maybe" data-i18n="scenario.setA.q2.maybe">Maybe</option>
+                        <option value="no" data-i18n="common.no">No</option>
                     </select>
                 </div>
 
                 <div class="question-group">
-                    <label>How well does Route Set A's ranking match what you would personally prefer in this situation?</label>
+                    <label data-i18n="scenario.setA.q3">How well does Route Set A's ranking match what you would personally prefer in this situation?</label>
                     <div class="likert-row" data-target="ranking-acceptance-a">
-                        <span class="likert-label-l">Not at all</span>
+                        <span class="likert-label-l" data-i18n="ll.not_at_all">Not at all</span>
                         <div class="likert-options" id="ranking-acceptance-a"></div>
-                        <span class="likert-label-r">Very well</span>
+                        <span class="likert-label-r" data-i18n="ll.very_well">Very well</span>
                     </div>
                 </div>
             </div>
 
             <!-- SET B — rate first, then drag to reorder -->
             <div id="route-set-b" class="route-set-panel set-b-panel">
-                <h3 class="set-label set-b-label">Route Set B</h3>
+                <h3 class="set-label set-b-label" data-i18n="scenario.setB.title">Route Set B</h3>
                 <p class="set-desc">
                     <strong>Step 1:</strong> Read through them and answer the questions below.
                     <strong>Step 2:</strong> If this order does not match your personal preference,
@@ -1087,21 +1063,21 @@
                 <ul id="routes-list-b" class="routes-list sortable-list"></ul>
 
                 <div class="question-group">
-                    <label>Which route from Set B would you choose in this situation?</label>
+                    <label data-i18n="scenario.setB.q1">Which route from Set B would you choose in this situation?</label>
                     <select id="preferred-route-b"></select>
                 </div>
 
                 <div class="question-group">
-                    <label>How well does this time-sorted ranking (before any reordering) match what you would personally prefer?</label>
+                    <label data-i18n="scenario.setB.q2">How well does this time-sorted ranking (before any reordering) match what you would personally prefer?</label>
                     <div class="likert-row" data-target="ranking-acceptance-b">
-                        <span class="likert-label-l">Not at all</span>
+                        <span class="likert-label-l" data-i18n="ll.not_at_all">Not at all</span>
                         <div class="likert-options" id="ranking-acceptance-b"></div>
-                        <span class="likert-label-r">Very well</span>
+                        <span class="likert-label-r" data-i18n="ll.very_well">Very well</span>
                     </div>
                 </div>
 
                 <div class="drag-hint" style="margin-top:12px;">
-                    ↕️ Optional: drag cards above to reorder by your personal preference — your order is saved automatically
+                    <span data-i18n="setb.drag_hint">↕️ Optional: drag cards above to reorder by your personal preference — your order is saved automatically</span>
                 </div>
             </div>
 
@@ -1109,37 +1085,34 @@
 
         <!-- ── Intermodal awareness, understanding, and acceptance ── -->
         <div id="intermodal-section" class="hidden validation-block">
-            <h3>Intermodal Routes</h3>
-            <p class="set-desc">
-                Some route options may combine more than one transport mode, for example walking + tram
-                or bike + public transport.
-            </p>
+            <h3 data-i18n="scenario.intermodal.title">Intermodal Routes</h3>
+            <p class="set-desc" data-i18n="scenario.intermodal.desc">Some route options may combine more than one transport mode, for example walking + bus or bike + public transport.</p>
 
             <div class="question-group">
-                <label>Did you notice any intermodal route in this scenario?</label>
+                <label data-i18n="scenario.intermodal.q1">Did you notice any intermodal route in this scenario?</label>
                 <select id="noticed-intermodal" required>
                     <option value="">— select —</option>
-                    <option value="1">Yes</option>
-                    <option value="0">No</option>
+                    <option value="1" data-i18n="common.yes">Yes</option>
+                    <option value="0" data-i18n="common.no">No</option>
                     <option value="2">Not sure</option>
                 </select>
             </div>
 
             <div class="question-group">
-                <label>How easy was it to understand how the intermodal route(s) worked?</label>
+                <label data-i18n="scenario.intermodal.q2">How easy was it to understand how the intermodal route(s) worked?</label>
                 <div class="likert-row" data-target="understood-intermodal">
-                    <span class="likert-label-l">Very difficult</span>
+                    <span class="likert-label-l" data-i18n="ll.very_diff">Very difficult</span>
                     <div class="likert-options" id="understood-intermodal"></div>
-                    <span class="likert-label-r">Very easy</span>
+                    <span class="likert-label-r" data-i18n="ll.very_easy">Very easy</span>
                 </div>
             </div>
 
             <div class="question-group">
-                <label>Would you consider using an intermodal route if it better matched your travel preferences?</label>
+                <label data-i18n="scenario.intermodal.q3">Would you consider using an intermodal route if it better matched your travel preferences?</label>
                 <div class="likert-row" data-target="intermodal-acceptance">
-                    <span class="likert-label-l">Definitely not</span>
+                    <span class="likert-label-l" data-i18n="ll.def_not">Definitely not</span>
                     <div class="likert-options" id="intermodal-acceptance"></div>
-                    <span class="likert-label-r">Definitely yes</span>
+                    <span class="likert-label-r" data-i18n="ll.def_yes">Definitely yes</span>
                 </div>
             </div>
         </div>
@@ -1148,30 +1121,30 @@
         <div id="scenario-system-section" class="validation-block hidden">
             <h3>Use of this Routing System</h3>
             <div class="question-group">
-                <label>Based on this scenario, would you use a system that ranks routes according to your travel preferences?</label>
+                <label data-i18n="scenario.system.q1">Based on this scenario, would you use a system that ranks routes according to your travel preferences?</label>
                 <div class="likert-row" data-target="scenario-system-use">
-                    <span class="likert-label-l">Definitely not</span>
+                    <span class="likert-label-l" data-i18n="ll.def_not">Definitely not</span>
                     <div class="likert-options" id="scenario-system-use"></div>
-                    <span class="likert-label-r">Definitely yes</span>
+                    <span class="likert-label-r" data-i18n="ll.def_yes">Definitely yes</span>
                 </div>
             </div>
 
             <div class="question-group">
-                <label>How much would you trust the top recommendation from Route Set A in this scenario?</label>
+                <label data-i18n="scenario.system.q2">How much would you trust the top recommendation from Route Set A in this scenario?</label>
                 <div class="likert-row" data-target="scenario-trust-top-recommendation">
-                    <span class="likert-label-l">Not at all</span>
+                    <span class="likert-label-l" data-i18n="ll.not_at_all">Not at all</span>
                     <div class="likert-options" id="scenario-trust-top-recommendation"></div>
-                    <span class="likert-label-r">Very much</span>
+                    <span class="likert-label-r" data-i18n="ll.very_much">Very much</span>
                 </div>
             </div>
         </div>
 
         <!-- ── Open comment ── -->
         <div class="question-group">
-            <label>Any comments about the routes shown in this scenario?</label>
+            <label data-i18n="scenario.comment.label">Any comments about the routes shown in this scenario?</label>
             <p class="field-hint">Please add a short comment, or use the quick option below if you have nothing to add.</p>
             <textarea id="scenario-comment" rows="3"
-                      required placeholder="What matched or did not match your expectations?"></textarea>
+                      required placeholder="What matched or did not match your expectations?" data-i18n-placeholder="scenario.comment.placeholder"></textarea>
             <div class="quick-response-row">
                 <button type="button" class="quick-response-btn" data-fill-textarea="scenario-comment" data-fill-value="No comments">No comments</button>
                 <span class="quick-response-hint">Fills the required text field automatically.</span>
@@ -1190,8 +1163,8 @@
     <!-- profile best describes the participant       -->
     <!-- ══════════════════════════════════════════ -->
     <section class="card hidden" id="needs-rating-section">
-        <h2>Your Travel Style</h2>
-        <p class="step-label">Step 3b of 4 — How would you describe yourself as a traveller?</p>
+        <h2 data-i18n="profile.h2">Your Travel Style</h2>
+        <p class="step-label" data-i18n="profile.step">Step 3b of 4 — How would you describe yourself as a traveller?</p>
         <p>
             Now that you have seen how different routes are ranked, we would like to know
             which of the following travel styles best describes you.
@@ -1210,9 +1183,9 @@
                     <h3>🌱 The Green Traveller</h3>
                     <p class="profile-quote">"I prefer routes that reduce environmental impact when this is reasonably possible."</p>
                     <ul>
-                        <li>Lower environmental impact matters to me.</li>
-                        <li>Active travel is welcome when feasible.</li>
-                        <li>I can accept some extra time for a more sustainable route.</li>
+                        <li data-i18n="profile.bio.b1">Lower environmental impact matters to me.</li>
+                        <li data-i18n="profile.bio.b2">Active travel is welcome when feasible.</li>
+                        <li data-i18n="profile.bio.b3">I can accept some extra time for a more sustainable route.</li>
                     </ul>
                 </div>
                 <div class="profile-rating-block">
@@ -1220,7 +1193,7 @@
                     <div class="likert-row" data-target="post-profile-rating-biospheric">
                         <div class="likert-options" id="post-profile-rating-biospheric"></div>
                     </div>
-                    <button type="button" class="select-profile-btn" data-select-post-profile="biospheric">Select as closest profile</button>
+                    <button type="button" class="select-profile-btn" data-select-post-profile="biospheric" data-i18n="profile.select.btn">Select as closest profile</button>
                 </div>
             </div>
 
@@ -1229,9 +1202,9 @@
                     <h3>🛡️ The Safe &amp; Reliable Traveller</h3>
                     <p class="profile-quote">"I prefer routes that feel safe, predictable, and dependable."</p>
                     <ul>
-                        <li>Avoiding accident and personal safety risks is important to me.</li>
-                        <li>I value punctuality and predictable arrival times.</li>
-                        <li>I prefer routes with clear, reliable connections.</li>
+                        <li data-i18n="profile.alt.b1">Avoiding accident and personal safety risks is important to me.</li>
+                        <li data-i18n="profile.alt.b2">I value punctuality and predictable arrival times.</li>
+                        <li data-i18n="profile.alt.b3">I prefer routes with clear, reliable connections.</li>
                     </ul>
                 </div>
                 <div class="profile-rating-block">
@@ -1239,7 +1212,7 @@
                     <div class="likert-row" data-target="post-profile-rating-altruistic">
                         <div class="likert-options" id="post-profile-rating-altruistic"></div>
                     </div>
-                    <button type="button" class="select-profile-btn" data-select-post-profile="altruistic">Select as closest profile</button>
+                    <button type="button" class="select-profile-btn" data-select-post-profile="altruistic" data-i18n="profile.select.btn">Select as closest profile</button>
                 </div>
             </div>
 
@@ -1248,9 +1221,9 @@
                     <h3>⚡ The Independent Traveller</h3>
                     <p class="profile-quote">"I prefer routes that let me stay in control of my time and movement."</p>
                     <ul>
-                        <li>Flexibility and directness matter to me.</li>
-                        <li>I prefer not to depend too much on fixed schedules.</li>
-                        <li>Personal space and autonomy are important during travel.</li>
+                        <li data-i18n="profile.ego.b1">Flexibility and directness matter to me.</li>
+                        <li data-i18n="profile.ego.b2">I prefer not to depend too much on fixed schedules.</li>
+                        <li data-i18n="profile.ego.b3">Personal space and autonomy are important during travel.</li>
                     </ul>
                 </div>
                 <div class="profile-rating-block">
@@ -1258,7 +1231,7 @@
                     <div class="likert-row" data-target="post-profile-rating-egoistic">
                         <div class="likert-options" id="post-profile-rating-egoistic"></div>
                     </div>
-                    <button type="button" class="select-profile-btn" data-select-post-profile="egoistic">Select as closest profile</button>
+                    <button type="button" class="select-profile-btn" data-select-post-profile="egoistic" data-i18n="profile.select.btn">Select as closest profile</button>
                 </div>
             </div>
 
@@ -1267,9 +1240,9 @@
                     <h3>🛋️ The Relaxed Traveller</h3>
                     <p class="profile-quote">"I prefer routes that feel easy, comfortable, and low-stress."</p>
                     <ul>
-                        <li>Comfort matters more than strict optimisation.</li>
-                        <li>I prefer to avoid crowded or stressful environments.</li>
-                        <li>I do not like routes that require too much physical effort.</li>
+                        <li data-i18n="profile.hed.b1">Comfort matters more than strict optimisation.</li>
+                        <li data-i18n="profile.hed.b2">I prefer to avoid crowded or stressful environments.</li>
+                        <li data-i18n="profile.hed.b3">I do not like routes that require too much physical effort.</li>
                     </ul>
                 </div>
                 <div class="profile-rating-block">
@@ -1277,7 +1250,7 @@
                     <div class="likert-row" data-target="post-profile-rating-hedonic">
                         <div class="likert-options" id="post-profile-rating-hedonic"></div>
                     </div>
-                    <button type="button" class="select-profile-btn" data-select-post-profile="hedonic">Select as closest profile</button>
+                    <button type="button" class="select-profile-btn" data-select-post-profile="hedonic" data-i18n="profile.select.btn">Select as closest profile</button>
                 </div>
             </div>
 
@@ -1289,21 +1262,21 @@
         </div>
 
         <div class="question-group" style="margin-top:20px;">
-            <label>How confident are you in this profile selection?</label>
+            <label data-i18n="profile.confidence.q">How confident are you in this profile selection?</label>
             <div class="likert-row" data-target="post-profile-confidence">
                 <div class="likert-options" id="post-profile-confidence"></div>
             </div>
         </div>
 
-        <button id="save-needs-btn" disabled>Continue to Final Feedback</button>
+        <button id="save-needs-btn" disabled data-i18n="profile.btn2">Continue to Final Feedback</button>
     </section>
 
     <!-- ══════════════════════════════════════════ -->
     <!-- STEP 5 — FINAL FEEDBACK                     -->
     <!-- ══════════════════════════════════════════ -->
     <section class="card hidden" id="final-section">
-        <h2>Final Feedback</h2>
-        <p class="step-label">Step 4 of 4 — Overall impressions</p>
+        <h2 data-i18n="final.h2">Final Feedback</h2>
+        <p class="step-label" data-i18n="final.step">Step 4 of 4 — Overall impressions</p>
 
         <!-- Profile reminder — populated by JS when this section is shown -->
         <div id="profile-reminder" class="profile-reminder hidden">
@@ -1312,82 +1285,82 @@
         </div>
 
         <div class="question-group">
-            <label>How accurately did the profile you selected represent your real values? (1 = not at all, 5 = very accurately)</label>
+            <label data-i18n="final.personalisation.q">How accurately did the profile you selected represent your real values? (1 = not at all, 5 = very accurately)</label>
             <div class="likert-row" data-target="value-profile-accuracy">
-                <span class="likert-label-l">Not at all</span>
+                <span class="likert-label-l" data-i18n="ll.not_at_all">Not at all</span>
                 <div class="likert-options" id="value-profile-accuracy"></div>
-                <span class="likert-label-r">Very accurately</span>
+                <span class="likert-label-r" data-i18n="ll.very_acc">Very accurately</span>
             </div>
         </div>
 
         <div class="question-group">
-            <label>How confident were you when choosing your profile? (1 = not at all, 5 = very confident)</label>
+            <label data-i18n="final.confidence.q">How confident were you when choosing your profile? (1 = not at all, 5 = very confident)</label>
             <div class="likert-row" data-target="profile-confidence">
                 <div class="likert-options" id="profile-confidence"></div>
             </div>
         </div>
 
         <div class="question-group">
-            <label>Did you notice that Set A routes were adapted to the profile you selected?</label>
+            <label data-i18n="final.noticed.q">Did you notice that Set A routes were adapted to the profile you selected?</label>
             <select id="noticed-personalisation" required>
                 <option value="">— select —</option>
-                <option value="1">Yes, clearly</option>
+                <option value="1" data-i18n="final.noticed.yes">Yes, clearly</option>
                 <option value="0">No, I did not notice a difference</option>
             </select>
         </div>
 
         <div class="question-group">
-            <label>How well did the personalised routes (Set A) match your values? (1 = poorly, 5 = very well)</label>
+            <label data-i18n="final.system.q1_alt">How well did the personalised routes (Set A) match your values? (1 = poorly, 5 = very well)</label>
             <div class="likert-row" data-target="personalisation-quality">
                 <div class="likert-options" id="personalisation-quality"></div>
             </div>
         </div>
 
         <div class="question-group">
-            <label>How useful is this routing system compared to a standard navigation app like Google Maps?</label>
+            <label data-i18n="final.google.q">How useful is this routing system compared to a standard navigation app like Google Maps?</label>
             <select id="comparison-google" required>
                 <option value="">— select —</option>
-                <option value="1">Much worse</option>
-                <option value="2">Slightly worse</option>
-                <option value="3">About the same</option>
-                <option value="4">Slightly better</option>
-                <option value="5">Much better</option>
+                <option value="1" data-i18n="final.google.worse">Much worse</option>
+                <option value="2" data-i18n="final.google.slworse">Slightly worse</option>
+                <option value="3" data-i18n="final.google.same">About the same</option>
+                <option value="4" data-i18n="final.google.better">Slightly better</option>
+                <option value="5" data-i18n="final.google.much_better">Much better</option>
             </select>
         </div>
 
         <div class="question-group">
-            <label>How likely are you to use a personalised value-based routing app in daily life? (1 = very unlikely, 5 = very likely)</label>
+            <label data-i18n="final.willingness.q">How likely are you to use a personalised value-based routing app in daily life? (1 = very unlikely, 5 = very likely)</label>
             <div class="likert-row" data-target="willingness-use">
                 <div class="likert-options" id="willingness-use"></div>
             </div>
         </div>
 
         <div class="question-group">
-            <label>How much do you trust the route rankings produced by this system? (1 = not at all, 5 = a great deal)</label>
+            <label data-i18n="final.trust.q">How much do you trust the route rankings produced by this system? (1 = not at all, 5 = a great deal)</label>
             <div class="likert-row" data-target="trust-ranking">
                 <div class="likert-options" id="trust-ranking"></div>
             </div>
         </div>
 
         <div class="question-group">
-            <label>Overall, would you consider using intermodal route suggestions if they better matched your travel preferences?</label>
+            <label data-i18n="final.intermodal.q">Overall, would you consider using intermodal route suggestions if they better matched your travel preferences?</label>
             <div class="likert-row" data-target="overall-intermodal-use">
                 <div class="likert-options" id="overall-intermodal-use"></div>
             </div>
         </div>
 
         <div class="question-group">
-            <label>What was the best feature of the system?</label>
-            <p class="field-hint">Please write a short answer, or choose the quick option if nothing stood out.</p>
-            <textarea id="best-feature" rows="2" required placeholder="e.g. route ranking, intermodal options, clarity, personalisation..."></textarea>
+            <label data-i18n="final.bestfeature.label">What was the best feature of the system?</label>
+            <p class="field-hint" data-i18n="final.bestfeature.hint2">Please write a short answer, or choose the quick option if nothing stood out.</p>
+            <textarea id="best-feature" rows="2" required data-i18n-placeholder="final.bestfeature.placeholder" placeholder="e.g. route ranking, intermodal options, clarity, personalisation..."></textarea>
             <div class="quick-response-row">
                 <button type="button" class="quick-response-btn" data-fill-textarea="best-feature" data-fill-value="No comments">No comments</button>
             </div>
         </div>
 
         <div class="question-group">
-            <label>What should be improved?</label>
-            <p class="field-hint">Please write a short answer, or choose the quick option if you have no specific suggestion.</p>
+            <label data-i18n="final.worstfeature.label">What should be improved?</label>
+            <p class="field-hint" data-i18n="final.worstfeature.hint2">Please write a short answer, or choose the quick option if you have no specific suggestion.</p>
             <textarea id="improvement" rows="2" required placeholder="e.g. route details, interface, explanations, travel times..."></textarea>
             <div class="quick-response-row">
                 <button type="button" class="quick-response-btn" data-fill-textarea="improvement" data-fill-value="No comments">No comments</button>
@@ -1412,14 +1385,850 @@
 <!-- SCRIPT                                                      -->
 <!-- ══════════════════════════════════════════════════════════ -->
 <script>
+//  i18n — Internationalisation
+//  Usage: setLanguage('en') or setLanguage('de')
+//  All visible strings keyed by i18n key, EN + DE versions.
+// ═══════════════════════════════════════════════════════════════
+
+const TRANSLATIONS = {
+  en: {
+    // ── Header ─────────────────────────────────────────────────
+    "header.kicker":   "Otto von Guericke University Magdeburg",
+    "header.title":    "Mobility Routing Study",
+    "header.subtitle": "Evaluating personalised multimodal route recommendations — Phase 1",
+
+    // ── Consent ────────────────────────────────────────────────
+    "consent.h2":         "Welcome!",
+    "consent.p1":         "Thank you very much for participating in our survey. It is being conducted as part of the ERDF-funded project <strong>\"IMIQ – Smart Mobility in the Quarter\"</strong>.",
+    "consent.p2":         "<em>\"IMIQ – Intelligent Mobility Space in the Quarter\"</em> is a project of the <a href=\"https://www.imr.ovgu.de/niimo/Intelligenter+Mobilit%C3%A4tsraum-nonactive-1-preview-1-showdeleted-1.html\" target=\"_blank\" rel=\"noopener\">IMR (Intelligent Mobility Space)</a>, which is based at the Wissenschaftshafen in Magdeburg. During its planned runtime from 2024 to 2028, the Wissenschaftshafen will become a district of the future where new needs-based solutions are conceived, technically tested, and implemented with a socio-economic perspective in mind.",
+    "consent.p3":         "In this study, we are interested in your opinions on <strong>personalised multimodal route recommendations</strong>. We would like to emphasise that there are no wrong answers — we are only interested in your personal assessment. This study is anonymous. Please answer all questions. It will take about <strong>20–25 minutes</strong> to complete. Thank you again for your support!",
+    "consent.contact.title": "Contact person for the organisational unit executing the project",
+    "consent.dp.title":   "Data Protection Information",
+    "consent.dp.p1":      "Your consent to the processing of your data is voluntary. It may be modified or revoked in whole or in part at any time, effective for the future, without providing a reason. You may revoke your consent by mail or email using the contact information provided for the aforementioned contact person. Revoking consent will not result in any disadvantages for you.",
+    "consent.dp.p2.title":"Information on the collection of data in accordance with Art. 13 of the GDPR.",
+    "consent.dp.p2.body": "Your personal data will be processed for the following purpose: the survey data will be stored only in pseudonymised form and used for research purposes. Your data will be stored until the project is completed, or for a maximum period of 12 months. After that, all data will be deleted.",
+    "consent.dp.p3":      "The legal basis for the collection of data is Article 6(1)(a) of the GDPR (consent). Data will not be disclosed to third parties (outside the university) or to a third country. Information regarding the responsible authority, the contact details of the data protection officers, and your rights regarding the processing of your personal data can be found in the OVGU's privacy policy at:",
+    "consent.dp.p4":      "The data collected as part of this study will be used exclusively for scientific purposes. The results may be released in a scientific publication. This will be done in pseudonymised form, meaning that the data cannot be traced back to any specific individuals. To enhance the quality of research, the fully pseudonymised raw data from this study may be made available as open data on the internet in a data archive or provided to other researchers. In doing so, this study follows the recommendations of the German Research Foundation (DFG) and the German Psychological Society (DGPs) on quality control in research.",
+    "consent.checkbox":   "I have read and understood the above information. I voluntarily consent to participating in this study. I am aware that I may withdraw my consent at any time.",
+    "consent.btn":        "I consent — Begin the study",
+
+    // ── Demographics ───────────────────────────────────────────
+    "demo.h2":            "About You",
+    "demo.step":          "Step 1a of 4 — Personal background",
+    "demo.age.label":     "How old are you?",
+    "demo.age.hint":      "(please enter your age in years)",
+    "demo.gender.label2": "Gender",
+    "demo.edu.label2":    "Highest level of education completed",
+    "demo.occ.label2":    "Occupation",
+    "demo.edu.no_formal2": "No formal qualification",
+    "demo.edu.vocational2": "Vocational / apprenticeship (Ausbildung)",
+    "demo.edu.phd2":      "PhD / Doctorate",
+    "demo.occ.employed2": "Employed full-time",
+    "demo.occ.part_time2": "Employed part-time",
+    "demo.occ.unemployed2": "Unemployed / seeking work",
+    "demo.disability.label2": "Do you have any physical impairment, disability, or health condition that significantly affects your ability to walk, cycle, or use public transport?",
+    "demo.commute_from.mgd2": "From a district within Magdeburg",
+    "demo.commute_from.city2": "From another city or town",
+    "demo.commute_to.mgd2":   "To a district within Magdeburg",
+    "demo.commute_to.city2":  "To another city or town",
+    "demo.intro":         "Please answer the following questions about yourself. All responses are anonymous and used solely for research purposes.",
+    "demo.gender.label":  "What is your gender?",
+    "demo.gender.male":   "Male",
+    "demo.gender.female": "Female",
+    "demo.gender.nonbinary": "Non-binary / third gender",
+    "demo.gender.prefer_not": "Prefer not to say",
+    "demo.education.label": "What is your highest level of education?",
+    "demo.edu.no_formal":  "No formal education",
+    "demo.edu.secondary":  "Secondary school (Hauptschule/Realschule)",
+    "demo.edu.abitur":     "Abitur / A-levels",
+    "demo.edu.vocational": "Vocational training (Ausbildung)",
+    "demo.edu.bachelor":   "Bachelor's degree",
+    "demo.edu.master":     "Master's degree",
+    "demo.edu.phd":        "Doctorate / PhD",
+    "demo.occupation.label": "What is your current occupation?",
+    "demo.occ.student":    "Student",
+    "demo.occ.employed":   "Employed (full-time)",
+    "demo.occ.part_time":  "Employed (part-time)",
+    "demo.occ.self_employed": "Self-employed",
+    "demo.occ.unemployed": "Unemployed / job-seeking",
+    "demo.occ.retired":    "Retired",
+    "demo.occ.other":      "Other",
+    "demo.commute_from.label": "Where do you usually travel <strong>from</strong> for your regular commute (work, studies, or similar)?",
+    "demo.commute_from.mgd":   "From a district within Magdeburg",
+    "demo.commute_from.city":  "From another city or town",
+    "demo.commute_from.none":  "I do not have a regular commute",
+    "demo.commute_to.label":   "Where do you usually travel <strong>to</strong> for your regular commute?",
+    "demo.commute_to.mgd":     "To a district within Magdeburg",
+    "demo.commute_to.city":    "To another city or town",
+    "demo.commute_to.none":    "I do not have a regular commute",
+    "demo.disability.label":   "Do you have a physical impairment or disability that affects your choice of transport mode?",
+    "demo.disability.no":      "No",
+    "demo.disability.yes":     "Yes",
+    "demo.disability.prefer":  "Prefer not to say",
+    "demo.btn":                "Continue — Mobility Habits",
+
+    // ── Mobility habits ────────────────────────────────────────
+    "mob.h2":              "Your Mobility Habits",
+    "mob.step":            "Step 1b of 4 — How you typically travel",
+    "mob.frequency.label": "How often do you travel outside your home for any purpose (work, leisure, errands)?",
+    "mob.license.label":   "Do you hold a valid driving licence?",
+    "mob.car.label":       "Do you own or have regular access to a car?",
+    "mob.bike.label":      "Do you own or have regular access to a bicycle?",
+    "mob.pt.label":        "Do you regularly use public transport (bus, tram, train)?",
+    "mob.cycling_comfort.label": "How comfortable are you cycling in urban traffic?",
+    "mob.btn":             "Continue — Travel Priorities",
+    "mob.intro":           "These questions help us understand your everyday travel context. There are no right or wrong answers.",
+    "mob.pt.q":            "How often do you use public transport?",
+    "mob.pt.hint":         "Please answer as a frequency scale for your usual mobility behaviour.",
+    "mob.license.yes":     "Yes, I have a driving licence",
+    "mob.license.no":      "No, I do not have a driving licence",
+    "mob.car.yes":         "Yes, I have regular access to a car",
+    "mob.car.no":          "No, I do not have regular access to a car",
+    "mob.bike.yes":        "Yes, I own or have regular access to a bike",
+    "mob.bike.no":         "No",
+    "mob.pt.yes":          "Yes, I regularly use public transport",
+    "mob.pt.no":           "No, I do not regularly use public transport",
+
+    // ── Needs pre ──────────────────────────────────────────────
+    "needs.h2":            "Your Travel Priorities",
+    "needs.step":          "Step 1c of 4 — What matters to you when travelling",
+    "needs.intro":         "Before we show you any routes, we would like to understand what matters most to you when choosing how to travel. Please rate the importance of each factor below on a scale from 1 (not important at all) to 7 (extremely important).",
+    "needs.hint":          "There are no right or wrong answers — we are interested in your honest personal priorities.",
+    "needs.pro_env":       "🌱 Environmental friendliness",
+    "needs.pro_env.sub":   "Low emissions, sustainable transport",
+    "needs.physical":      "🚴 Physical activity",
+    "needs.physical.sub":  "Getting exercise during the journey",
+    "needs.privacy":       "🔒 Privacy & personal space",
+    "needs.privacy.sub":   "Avoiding crowded shared environments",
+    "needs.autonomy":      "🗺️ Autonomy & flexibility",
+    "needs.autonomy.sub":  "Travelling on your own schedule",
+    "needs.cost":          "💶 Affordability",
+    "needs.cost.sub":      "Keeping travel costs low",
+    "needs.speed":         "⚡ Speed",
+    "needs.speed.sub":     "Getting there as fast as possible",
+    "needs.safety_accident":     "🚦 Accident safety",
+    "needs.safety_accident.sub": "Low risk of traffic accidents",
+    "needs.safety_crime":        "🔦 Personal security",
+    "needs.safety_crime.sub":    "Feeling safe from crime en route",
+    "needs.comfort":       "🛋️ Comfort",
+    "needs.comfort.sub":   "Comfortable, low-effort travel",
+    "needs.reliable":      "🕐 Reliability",
+    "needs.reliable.sub":  "Arriving on time, predictable journey",
+    "needs.health_infection":     "😷 Infection & crowding risk",
+    "needs.health_infection.sub": "Avoiding crowded enclosed spaces",
+    "needs.btn":           "Continue to Route Scenarios",
+
+    // ── Profile selection (post-study) ─────────────────────────
+    "profile.h2":          "Your Travel Style",
+    "profile.step":        "Step 3b of 4 — How would you describe yourself as a traveller?",
+    "profile.intro":       "First, rate how well each travel style describes your everyday travel preferences. Then select the one profile that is the closest overall match. This allows us to capture both your main profile and possible mixed preferences.",
+    "profile.hint":        "Think about your everyday trips — commuting, shopping, visiting friends — not an exceptional journey.",
+    "profile.bio.name":    "🌿 The Green Traveller",
+    "profile.bio.quote":   "\"I prefer routes that reduce environmental impact when this is reasonably possible.\"",
+    "profile.bio.b1":      "Lower environmental impact matters to me.",
+    "profile.bio.b2":      "Active travel is welcome when feasible.",
+    "profile.bio.b3":      "I can accept some extra time for a more sustainable route.",
+    "profile.alt.name":    "🔵 The Safe & Reliable Traveller",
+    "profile.alt.quote":   "\"I prefer routes that feel safe, predictable, and dependable.\"",
+    "profile.alt.b1":      "Avoiding accident and personal safety risks is important to me.",
+    "profile.alt.b2":      "I value punctuality and predictable arrival times.",
+    "profile.alt.b3":      "I prefer routes with clear, reliable connections.",
+    "profile.ego.name":    "⚡ The Independent Traveller",
+    "profile.ego.quote":   "\"I prefer routes that let me stay in control of my time and movement.\"",
+    "profile.ego.b1":      "Flexibility and directness matter to me.",
+    "profile.ego.b2":      "I prefer not to depend too much on fixed schedules.",
+    "profile.ego.b3":      "Personal space and autonomy are important during travel.",
+    "profile.hed.name":    "😊 The Relaxed Traveller",
+    "profile.hed.quote":   "\"I prefer routes that feel easy, comfortable, and low-stress.\"",
+    "profile.hed.b1":      "Comfort matters more than strict optimisation.",
+    "profile.hed.b2":      "I prefer to avoid crowded or stressful environments.",
+    "profile.hed.b3":      "I do not like routes that require too much physical effort.",
+    "profile.rating.q":    "How much does this profile describe your everyday travel preferences?",
+    "profile.select.btn":  "Select as closest profile",
+    "profile.confidence.q": "How confident are you in this profile selection?",
+    "profile.btn":         "Continue to Route Scenarios",
+    "profile.intro2":      "Now that you have seen how different routes are ranked, we would like to know which of the following travel styles best describes you. First rate how well each profile describes your everyday travel preferences, then select the one that is the closest overall match.",
+    "profile.hint2":       "Think about your everyday trips — commuting, shopping, visiting friends — not just the scenarios you saw today.",
+    "profile.btn2":        "Continue to Final Feedback",
+    "profile.bio.name.en": "The Green Traveller",
+    "profile.alt.name.en": "The Safe & Reliable Traveller",
+    "profile.ego.name.en": "The Independent Traveller",
+    "profile.hed.name.en": "The Relaxed Traveller",
+
+    // ── Scenario section ───────────────────────────────────────
+    "scenario.task":       "<strong>Your task:</strong> Please review both route sets for the same journey. <strong>Route Set A</strong> is the ranked output of our preference-based routing engine. <strong>Route Set B</strong> is a standard time/distance-based routing benchmark. We want to know whether Set A\'s ranking makes sense to you, whether intermodal routes are noticeable and understandable, and whether you would use this kind of system in daily life.",
+    "scenario.assumption": "<strong>📌 Please assume</strong> that for this journey you have access to <strong>all transport modes</strong> — car, bike, public transport, and walking. The rankings are based purely on the travel preferences and values you stated at the start, not on what you personally own or normally use.",
+    "scenario.note":       "<strong>⏱ Note on driving times:</strong> Travel times shown for car routes include an estimated <strong>8 minutes</strong> for parking search and the walk to your destination. This overhead is not shown by standard navigation apps but reflects realistic urban door-to-door journey time.",
+    "scenario.setA.title": "Route Set A",
+    "scenario.setA.desc":  "These routes are ranked from the engine\'s top recommendation to the lowest-ranked option for this journey.",
+    "scenario.setB.title": "Route Set B",
+    "scenario.setB.desc":  "These routes are sorted by travel time — fastest first. <strong>Step 1:</strong> Read through them and answer the questions below. <strong>Step 2:</strong> If this order does not match your personal preference, drag the cards into the order you would prefer.",
+    "scenario.drag.hint":  "↕️ Optional: drag cards above to reorder by your personal preference — your order is saved automatically",
+    "scenario.setA.q1":    "Which route from Set A would you choose in this situation?",
+    "scenario.setA.q2":    "Would you follow the top-ranked route suggested in Route Set A?",
+    "scenario.setA.q2.yes": "Yes",
+    "scenario.setA.q2.maybe": "Maybe",
+    "scenario.setA.q2.no":  "No",
+    "scenario.setA.q3":    "How well does Route Set A\'s ranking match what you would personally prefer in this situation?",
+    "scenario.setB.q1":    "Which route from Set B would you choose in this situation?",
+    "scenario.setB.q2":    "How well does this time-sorted ranking (before any reordering) match what you would personally prefer?",
+    "scenario.intermodal.title": "Intermodal Routes",
+    "scenario.intermodal.desc":  "Some route options may combine more than one transport mode, for example walking + bus or bike + public transport.",
+    "scenario.intermodal.q1":   "Did you notice any intermodal route in this scenario?",
+    "scenario.intermodal.q2":   "How easy was it to understand how the intermodal route(s) worked?",
+    "scenario.intermodal.q3":   "Would you consider using an intermodal route if it better matched your travel preferences?",
+    "scenario.system.title":    "Use of this Routing System",
+    "scenario.system.q1":       "Based on this scenario, would you use a system that ranks routes according to your travel preferences?",
+    "scenario.system.q2":       "How much would you trust the top recommendation from Route Set A in this scenario?",
+    "scenario.comment.label":   "Any comments about the routes shown in this scenario?",
+    "scenario.comment.hint":    "Please add a short comment, or use the quick option below if you have nothing to add.",
+    "scenario.comment.placeholder": "What matched or did not match your expectations?",
+    "scenario.comment.none":    "No comments",
+    "scenario.comment.none.hint": "Fills the required text field automatically.",
+    "scenario.btn.back":        "Back",
+    "scenario.btn.next":        "Next Scenario",
+    "scenario.btn.finish":      "Complete Study",
+    "scenario.step":            "STEP 3 OF 4 — SCENARIO",
+    "scenario.setA.q2.follow":  "Would you follow the top-ranked route suggested in Route Set A?",
+    "scenario.nocomments":      "No comments",
+    "scenario.nocomments.hint": "Fills the required text field automatically.",
+    "scenario.system.title2":   "Use of this Routing System",
+    "scenario.mode.sequence":   "Mode sequence:",
+
+    // ── Route card ─────────────────────────────────────────────
+    "route.duration":     "Duration",
+    "route.transfers":    "Transfers",
+    "route.walking":      "Walking",
+    "route.type":         "Type",
+    "route.single_mode":  "Single mode",
+    "route.intermodal":   "Intermodal 🔀",
+    "route.select.placeholder": "— select —",
+    "route.select.none":  "I would not choose any of these routes",
+    "route.intermodal.label": "Intermodal route:",
+    "route.mode_sequence":    "Mode sequence:",
+    "setb.step_desc":         "These routes are sorted by travel time — fastest first. <strong>Step 1:</strong> Read through them and answer the questions below. <strong>Step 2:</strong> If this order does not match your personal preference, drag the cards into the order you would prefer.",
+    "setb.drag_hint":  "↕️ Optional: drag cards above to reorder by your personal preference — your order is saved automatically",
+    "scenario.follow_q":      "Would you follow the top-ranked route suggested in Route Set A?",
+    "scenario.follow.yes":    "Yes",
+    "scenario.follow.maybe":  "Maybe",
+    "scenario.follow.no":     "No",
+
+    // ── Final feedback ─────────────────────────────────────────
+    "final.h2":           "Final Feedback",
+    "final.step":         "Step 4 of 4 — Overall impressions",
+    "final.personalisation.q": "How accurately did the routes in Set A reflect your personal travel values across all four scenarios?",
+    "final.confidence.q":      "How confident were you in evaluating the two route sets?",
+    "final.system.title":      "System Evaluation",
+    "final.willingness.q":     "Overall, how likely would you be to use a personalised value-based routing app in your daily life?",
+    "final.trust.q":           "Overall, how much did you trust the route rankings shown in Set A?",
+    "final.intermodal.q":      "Overall, would you consider using intermodal route suggestions if they better matched your travel preferences?",
+    "final.google.q":          "Compared to standard navigation apps (e.g. Google Maps), how would you rate this personalised routing system?",
+    "final.noticed.q":         "Did you notice that Route Set A was adapted to your personal travel preferences?",
+    "final.noticed.yes":       "Yes, clearly",
+    "final.noticed.no":        "No, I did not notice",
+    "final.bestfeature.label": "What did you like most about the routing system?",
+    "final.bestfeature.placeholder": "e.g. route ranking, intermodal options, clarity, personalisation...",
+    "final.worstfeature.label": "What did you like least or find confusing?",
+    "final.worstfeature.placeholder": "e.g. route times, missing options, unclear ranking...",
+    "final.improvement.label": "Do you have any suggestions for improving the system?",
+    "final.improvement.placeholder": "Your suggestions...",
+    "final.btn":               "Submit — Complete Study",
+    "final.h2.2":              "Final Feedback",
+    "final.bestfeature.hint":  "Please write a short answer, or choose the quick option if nothing stood out.",
+    "final.worstfeature.hint": "Please write a short answer, or choose the quick option if you have no specific suggestion.",
+    "final.nocomments":        "No comments",
+    "final.system.q1_alt":     "How well did the personalised routes (Set A) match your values?",
+    "final.google.worse":      "Much worse",
+    "final.google.slworse":    "Slightly worse",
+    "final.google.same":       "About the same",
+    "final.google.better":     "Slightly better",
+    "final.google.much_better":"Much better",
+    "final.bestfeature.hint2": "Please write a short answer, or choose the quick option if nothing stood out.",
+    "final.worstfeature.hint2":"Please write a short answer, or choose the quick option if you have no specific suggestion.",
+    "final.improvement.hint2": "Please write a short answer, or choose the quick option if you have no specific suggestion.",
+
+    // ── Common ─────────────────────────────────────────────────
+    "common.select":      "— select —",
+    "common.yes":         "Yes",
+    "common.no":          "No",
+    "common.back":        "Back",
+    "common.not_at_all":  "Not at all",
+    "common.very_well":   "Very well",
+    "common.very_much":   "Very much",
+    "common.not_important": "Not important",
+    "common.extremely_important": "Extremely important",
+    "common.definitely_not": "Definitely not",
+    "common.definitely_yes":  "Definitely yes",
+    "common.much_worse":   "Much worse",
+    "common.much_better":  "Much better",
+    "likert.frequency.1":  "Never",
+    "likert.frequency.3":  "Sometimes",
+    "likert.frequency.5":  "Daily",
+    "likert.comfort.1":    "Not comfortable",
+    "likert.comfort.3":    "Moderately",
+    "likert.comfort.5":    "Very comfortable",
+    // ── Likert anchors ────────────────────────────────────────────
+    "la.freq":         ["1 = Never", "3 = Sometimes", "5 = Daily"],
+    "la.comfort":      ["1 = Not comfortable", "3 = Moderately comfortable", "5 = Very comfortable"],
+    "la.match":        ["1 = Does not match", "3 = Partly matches", "5 = Matches very well"],
+    "la.difficult":    ["1 = Very difficult", "3 = Neither easy nor difficult", "5 = Very easy"],
+    "la.defnot":       ["1 = Definitely not", "3 = Maybe", "5 = Definitely yes"],
+    "la.notatall":     ["1 = Not at all", "3 = Moderately", "5 = Very much"],
+    "la.profile7":     ["1 = Not at all", "4 = Moderately", "7 = Fully describes me"],
+    "la.conf7":        ["1 = Not confident", "4 = Moderately confident", "7 = Very confident"],
+    "la.accurate":     ["1 = Not at all", "3 = Moderately", "5 = Very accurately"],
+    "la.conf5":        ["1 = Not confident", "3 = Moderately confident", "5 = Very confident"],
+    "la.quality":      ["1 = Poorly", "3 = Moderately", "5 = Very well"],
+    "la.likely":       ["1 = Very unlikely", "3 = Unsure", "5 = Very likely"],
+    "la.trust":        ["1 = Not at all", "3 = Moderately", "5 = A great deal"],
+    "la.need7":        ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
+    "la.need5":        ["1 = Not important", "3 = Moderately important", "5 = Very important"],
+    // ── Likert point labels ───────────────────────────────────────────
+    "lp.freq":         ["Never / almost never", "Rarely", "Sometimes", "Often", "Daily / almost daily"],
+    "lp.comfort":      ["Not at all", "Slightly", "Moderately", "Comfortable", "Very comfortable"],
+    "lp.match":        ["Not at all", "Slightly", "Partly", "Mostly", "Very well"],
+    "lp.difficult":    ["Very difficult", "Difficult", "Neither", "Easy", "Very easy"],
+    "lp.defnot":       ["Definitely not", "Probably not", "Maybe", "Probably yes", "Definitely yes"],
+    "lp.trust5":       ["Not at all", "A little", "Moderately", "Quite a lot", "Very much"],
+    "lp.profile7":     ["Not at all", "Very little", "A little", "Moderately", "Quite well", "Very well", "Fully describes me"],
+    "lp.conf7":        ["Not confident", "Very low", "Low", "Moderate", "Rather confident", "Confident", "Very confident"],
+    "lp.accurate":     ["Not at all", "A little", "Moderately", "Quite accurately", "Very accurately"],
+    "lp.conf5":        ["Not confident", "Slightly", "Moderately", "Confident", "Very confident"],
+    "lp.quality":      ["Very poorly", "Poorly", "Moderately", "Well", "Very well"],
+    "lp.likely":       ["Very unlikely", "Unlikely", "Unsure", "Likely", "Very likely"],
+    "lp.trust":        ["Not at all", "A little", "Moderately", "Quite a lot", "A great deal"],
+    "lp.need7":        ["Not at all", "", "", "Moderately", "", "", "Extremely"],
+    "lp.need5":        ["Not important", "Slightly", "Moderately important", "Important", "Very important"],
+    // ── Likert scale L/R labels ───────────────────────────────────────
+    "ll.not_at_all":   "Not at all",
+    "ll.very_well":    "Very well",
+    "ll.very_much":    "Very much",
+    "ll.def_not":      "Definitely not",
+    "ll.def_yes":      "Definitely yes",
+    "ll.not_conf":     "Not confident",
+    "ll.very_conf":    "Very confident",
+    "ll.very_acc":     "Very accurately",
+    "ll.very_diff":    "Very difficult",
+    "ll.very_easy":    "Very easy",
+    "ll.very_unlik":   "Very unlikely",
+    "ll.very_lik":     "Very likely",
+    "ll.not_import":   "Not at all important",
+    "ll.extr_import":  "Extremely important",
+    "ll.freq_never":   "Never / almost never",
+    "ll.freq_daily":   "Daily / almost daily",
+    "ll.not_comf":     "Not at all",
+    "ll.very_comf":    "Very comfortable",
+    "ll.poorly":       "Very poorly",
+    "ll.not_match":    "Not at all",
+  },
+
+  de: {
+    // ── Header ─────────────────────────────────────────────────
+    "header.kicker":   "Otto-von-Guericke-Universität Magdeburg",
+    "header.title":    "Mobilitäts-Routing-Studie",
+    "header.subtitle": "Bewertung personalisierter multimodaler Routenempfehlungen — Phase 1",
+
+    // ── Consent ────────────────────────────────────────────────
+    "consent.h2":         "Willkommen!",
+    "consent.p1":         "Vielen Dank für Ihre Teilnahme an unserer Umfrage. Sie wird im Rahmen des EFRE-geförderten Projekts <strong>\"IMIQ – Smarte Mobilität im Quartier\"</strong> durchgeführt.",
+    "consent.p2":         "<em>\"IMIQ – Intelligenter Mobilitätsraum im Quartier\"</em> ist ein Projekt des <a href=\"https://www.imr.ovgu.de/niimo/Intelligenter+Mobilit%C3%A4tsraum-nonactive-1-preview-1-showdeleted-1.html\" target=\"_blank\" rel=\"noopener\">IMR (Intelligenter Mobilitätsraum)</a>, das am Wissenschaftshafen in Magdeburg angesiedelt ist. Während der geplanten Laufzeit von 2024 bis 2028 soll der Wissenschaftshafen zu einem Zukunftsquartier werden, in dem neue bedarfsorientierte Lösungen konzipiert, technisch erprobt und mit sozioökonomischer Perspektive umgesetzt werden.",
+    "consent.p3":         "In dieser Studie interessieren uns Ihre Meinungen zu <strong>personalisierten multimodalen Routenempfehlungen</strong>. Wir möchten betonen, dass es keine falschen Antworten gibt — uns interessiert ausschließlich Ihre persönliche Einschätzung. Die Studie ist anonym. Bitte beantworten Sie alle Fragen. Die Bearbeitung dauert etwa <strong>20–25 Minuten</strong>. Vielen Dank für Ihre Unterstützung!",
+    "consent.contact.title": "Ansprechperson für die durchführende Organisationseinheit",
+    "consent.dp.title":   "Datenschutzinformationen",
+    "consent.dp.p1":      "Ihre Einwilligung zur Verarbeitung Ihrer Daten ist freiwillig. Sie kann jederzeit ganz oder teilweise mit Wirkung für die Zukunft ohne Angabe von Gründen geändert oder widerrufen werden. Sie können Ihre Einwilligung per Post oder E-Mail an die oben genannte Kontaktperson widerrufen. Der Widerruf hat keine Nachteile für Sie.",
+    "consent.dp.p2.title":"Informationen zur Datenerhebung gemäß Art. 13 DSGVO.",
+    "consent.dp.p2.body": "Ihre personenbezogenen Daten werden für folgenden Zweck verarbeitet: Die Umfragedaten werden ausschließlich in pseudonymisierter Form gespeichert und für Forschungszwecke genutzt. Ihre Daten werden bis zum Abschluss des Projekts, maximal jedoch 12 Monate lang gespeichert. Danach werden alle Daten gelöscht.",
+    "consent.dp.p3":      "Die Rechtsgrundlage für die Datenerhebung ist Art. 6 Abs. 1 lit. a DSGVO (Einwilligung). Daten werden nicht an Dritte (außerhalb der Universität) oder in ein Drittland weitergegeben. Informationen zur verantwortlichen Stelle, zu den Kontaktdaten der Datenschutzbeauftragten sowie zu Ihren Rechten bezüglich der Verarbeitung Ihrer personenbezogenen Daten finden Sie in der Datenschutzerklärung der OVGU unter:",
+    "consent.dp.p4":      "Die im Rahmen dieser Studie erhobenen Daten werden ausschließlich für wissenschaftliche Zwecke verwendet. Die Ergebnisse können in einer wissenschaftlichen Publikation veröffentlicht werden. Dies geschieht in pseudonymisierter Form, sodass die Daten nicht auf bestimmte Personen zurückgeführt werden können. Zur Verbesserung der Forschungsqualität können die vollständig pseudonymisierten Rohdaten dieser Studie als Open Data im Internet in einem Datenarchiv verfügbar gemacht oder anderen Forschenden zur Verfügung gestellt werden. Die Studie folgt damit den Empfehlungen der Deutschen Forschungsgemeinschaft (DFG) und der Deutschen Gesellschaft für Psychologie (DGPs) zur Qualitätssicherung in der Forschung.",
+    "consent.checkbox":   "Ich habe die oben stehenden Informationen gelesen und verstanden. Ich willige freiwillig in die Teilnahme an dieser Studie ein. Mir ist bekannt, dass ich meine Einwilligung jederzeit widerrufen kann.",
+    "consent.btn":        "Ich stimme zu — Studie beginnen",
+
+    // ── Demographics ───────────────────────────────────────────
+    "demo.h2":            "Über Sie",
+    "demo.step":          "Schritt 1a von 4 — Persönliche Angaben",
+    "demo.age.label":     "Wie alt sind Sie?",
+    "demo.age.hint":      "(bitte geben Sie Ihr Alter in Jahren ein)",
+    "demo.gender.label2": "Geschlecht",
+    "demo.edu.label2":    "Höchster Bildungsabschluss",
+    "demo.occ.label2":    "Beschäftigung",
+    "demo.edu.no_formal2": "Kein formaler Abschluss",
+    "demo.edu.vocational2": "Berufsausbildung / Ausbildung",
+    "demo.edu.phd2":      "Promotion / Doktorat",
+    "demo.occ.employed2": "Angestellt (Vollzeit)",
+    "demo.occ.part_time2": "Angestellt (Teilzeit)",
+    "demo.occ.unemployed2": "Arbeitssuchend",
+    "demo.disability.label2": "Haben Sie eine körperliche Einschränkung, Behinderung oder Erkrankung, die Ihre Fähigkeit zu gehen, Fahrrad zu fahren oder öffentliche Verkehrsmittel zu nutzen, erheblich beeinträchtigt?",
+    "demo.commute_from.mgd2": "Aus einem Stadtbezirk von Magdeburg",
+    "demo.commute_from.city2": "Aus einer anderen Stadt oder Gemeinde",
+    "demo.commute_to.mgd2":   "In einen Stadtbezirk von Magdeburg",
+    "demo.commute_to.city2":  "In eine andere Stadt oder Gemeinde",
+    "demo.intro":         "Bitte beantworten Sie die folgenden Fragen zu Ihrer Person. Alle Angaben sind anonym und werden ausschließlich für Forschungszwecke verwendet.",
+    "demo.gender.label":  "Was ist Ihr Geschlecht?",
+    "demo.gender.male":   "Männlich",
+    "demo.gender.female": "Weiblich",
+    "demo.gender.nonbinary": "Nicht-binär / drittes Geschlecht",
+    "demo.gender.prefer_not": "Keine Angabe",
+    "demo.education.label": "Was ist Ihr höchster Bildungsabschluss?",
+    "demo.edu.no_formal":  "Kein formaler Abschluss",
+    "demo.edu.secondary":  "Hauptschule / Realschule",
+    "demo.edu.abitur":     "Abitur / Hochschulreife",
+    "demo.edu.vocational": "Berufsausbildung",
+    "demo.edu.bachelor":   "Bachelor",
+    "demo.edu.master":     "Master",
+    "demo.edu.phd":        "Promotion / Doktorat",
+    "demo.occupation.label": "Was ist Ihre aktuelle Beschäftigung?",
+    "demo.occ.student":    "Student/in",
+    "demo.occ.employed":   "Angestellt (Vollzeit)",
+    "demo.occ.part_time":  "Angestellt (Teilzeit)",
+    "demo.occ.self_employed": "Selbstständig",
+    "demo.occ.unemployed": "Arbeitssuchend",
+    "demo.occ.retired":    "Rentner/in",
+    "demo.occ.other":      "Sonstiges",
+    "demo.commute_from.label": "Von wo pendeln Sie in der Regel zu Ihrer Arbeit, Ihrem Studium o.ä.?",
+    "demo.commute_from.mgd":   "Aus einem Stadtbezirk von Magdeburg",
+    "demo.commute_from.city":  "Aus einer anderen Stadt oder Gemeinde",
+    "demo.commute_from.none":  "Ich pendle nicht regelmäßig",
+    "demo.commute_to.label":   "Wohin pendeln Sie in der Regel?",
+    "demo.commute_to.mgd":     "In einen Stadtbezirk von Magdeburg",
+    "demo.commute_to.city":    "In eine andere Stadt oder Gemeinde",
+    "demo.commute_to.none":    "Ich pendle nicht regelmäßig",
+    "demo.disability.label":   "Haben Sie eine körperliche Einschränkung oder Behinderung, die Ihre Wahl des Verkehrsmittels beeinflusst?",
+    "demo.disability.no":      "Nein",
+    "demo.disability.yes":     "Ja",
+    "demo.disability.prefer":  "Keine Angabe",
+    "demo.btn":                "Weiter — Mobilitätsgewohnheiten",
+
+    // ── Mobility habits ────────────────────────────────────────
+    "mob.h2":              "Ihre Mobilitätsgewohnheiten",
+    "mob.step":            "Schritt 1b von 4 — Wie Sie üblicherweise reisen",
+    "mob.frequency.label": "Wie häufig verlassen Sie Ihr Zuhause zu einem beliebigen Zweck (Arbeit, Freizeit, Besorgungen)?",
+    "mob.license.label":   "Besitzen Sie einen gültigen Führerschein?",
+    "mob.car.label":       "Besitzen Sie ein Auto oder haben Sie regelmäßigen Zugang zu einem?",
+    "mob.bike.label":      "Besitzen Sie ein Fahrrad oder haben Sie regelmäßigen Zugang zu einem?",
+    "mob.pt.label":        "Nutzen Sie regelmäßig öffentliche Verkehrsmittel (Bus, Straßenbahn, Zug)?",
+    "mob.cycling_comfort.label": "Wie sicher fühlen Sie sich beim Radfahren im Stadtverkehr?",
+    "mob.btn":             "Weiter — Reiseprioritäten",
+    "mob.intro":           "Diese Fragen helfen uns, Ihren alltäglichen Reisekontext zu verstehen. Es gibt keine richtigen oder falschen Antworten.",
+    "mob.pt.q":            "Wie häufig nutzen Sie öffentliche Verkehrsmittel?",
+    "mob.pt.hint":         "Bitte antworten Sie auf einer Häufigkeitsskala für Ihr übliches Mobilitätsverhalten.",
+    "mob.license.yes":     "Ja, ich habe einen Führerschein",
+    "mob.license.no":      "Nein, ich habe keinen Führerschein",
+    "mob.car.yes":         "Ja, ich habe regelmäßigen Zugang zu einem Auto",
+    "mob.car.no":          "Nein, ich habe keinen regelmäßigen Zugang zu einem Auto",
+    "mob.bike.yes":        "Ja, ich besitze ein Fahrrad oder habe regelmäßigen Zugang zu einem",
+    "mob.bike.no":         "Nein",
+    "mob.pt.yes":          "Ja, ich nutze regelmäßig öffentliche Verkehrsmittel",
+    "mob.pt.no":           "Nein, ich nutze keine öffentlichen Verkehrsmittel",
+
+    // ── Needs pre ──────────────────────────────────────────────
+    "needs.h2":            "Ihre Reiseprioritäten",
+    "needs.step":          "Schritt 1c von 4 — Was Ihnen beim Reisen wichtig ist",
+    "needs.intro":         "Bevor wir Ihnen Routen zeigen, möchten wir verstehen, was Ihnen bei der Wahl Ihres Fortbewegungsmittels am wichtigsten ist. Bitte bewerten Sie die Bedeutung jedes Faktors auf einer Skala von 1 (gar nicht wichtig) bis 7 (äußerst wichtig).",
+    "needs.hint":          "Es gibt keine richtigen oder falschen Antworten — uns interessieren Ihre ehrlichen persönlichen Prioritäten.",
+    "needs.pro_env":       "🌱 Umweltfreundlichkeit",
+    "needs.pro_env.sub":   "Geringe Emissionen, nachhaltiger Verkehr",
+    "needs.physical":      "🚴 Körperliche Aktivität",
+    "needs.physical.sub":  "Bewegung während der Fahrt",
+    "needs.privacy":       "🔒 Privatsphäre & persönlicher Raum",
+    "needs.privacy.sub":   "Vermeidung überfüllter, geteilter Umgebungen",
+    "needs.autonomy":      "🗺️ Autonomie & Flexibilität",
+    "needs.autonomy.sub":  "Reisen nach eigenem Zeitplan",
+    "needs.cost":          "💶 Erschwinglichkeit",
+    "needs.cost.sub":      "Reisekosten gering halten",
+    "needs.speed":         "⚡ Geschwindigkeit",
+    "needs.speed.sub":     "So schnell wie möglich ankommen",
+    "needs.safety_accident":     "🚦 Verkehrssicherheit",
+    "needs.safety_accident.sub": "Geringes Unfallrisiko",
+    "needs.safety_crime":        "🔦 Persönliche Sicherheit",
+    "needs.safety_crime.sub":    "Sicherheit vor Kriminalität unterwegs",
+    "needs.comfort":       "🛋️ Komfort",
+    "needs.comfort.sub":   "Bequemes, angenehmes Reisen",
+    "needs.reliable":      "🕐 Zuverlässigkeit",
+    "needs.reliable.sub":  "Pünktlich ankommen, vorhersehbare Reise",
+    "needs.health_infection":     "😷 Infektions- & Gedrängerisiko",
+    "needs.health_infection.sub": "Enge, überfüllte Räume vermeiden",
+    "needs.btn":           "Weiter zu den Routenszenarien",
+
+    // ── Profile selection (post-study) ─────────────────────────
+    "profile.h2":          "Ihr Reisestil",
+    "profile.step":        "Schritt 3b von 4 — Wie würden Sie sich als Reisende/n beschreiben?",
+    "profile.intro":       "Bewerten Sie zunächst, wie gut jeder Reisestil Ihre alltäglichen Reisepräferenzen beschreibt. Wählen Sie dann das Profil aus, das insgesamt am besten passt. So können wir sowohl Ihr Hauptprofil als auch mögliche gemischte Präferenzen erfassen.",
+    "profile.hint":        "Denken Sie an Ihre alltäglichen Wege — Pendeln, Einkaufen, Freunde besuchen — nicht an eine außergewöhnliche Reise.",
+    "profile.bio.name":    "🌿 Die/Der Grüne Reisende",
+    "profile.bio.quote":   "\"Ich bevorzuge Routen, die die Umweltbelastung reduzieren, wenn dies sinnvoll möglich ist.\"",
+    "profile.bio.b1":      "Geringere Umweltbelastung ist mir wichtig.",
+    "profile.bio.b2":      "Aktives Reisen ist willkommen, wenn es machbar ist.",
+    "profile.bio.b3":      "Ich akzeptiere etwas mehr Zeit für eine nachhaltigere Route.",
+    "profile.alt.name":    "🔵 Die/Der Sichere & Zuverlässige Reisende",
+    "profile.alt.quote":   "\"Ich bevorzuge Routen, die sich sicher, vorhersehbar und verlässlich anfühlen.\"",
+    "profile.alt.b1":      "Unfall- und Sicherheitsrisiken zu vermeiden ist mir wichtig.",
+    "profile.alt.b2":      "Ich schätze Pünktlichkeit und vorhersehbare Ankunftszeiten.",
+    "profile.alt.b3":      "Ich bevorzuge Routen mit klaren, zuverlässigen Verbindungen.",
+    "profile.ego.name":    "⚡ Die/Der Unabhängige Reisende",
+    "profile.ego.quote":   "\"Ich bevorzuge Routen, die mir erlauben, Zeit und Bewegung selbst zu kontrollieren.\"",
+    "profile.ego.b1":      "Flexibilität und Direktheit sind mir wichtig.",
+    "profile.ego.b2":      "Ich möchte nicht zu sehr von festen Fahrplänen abhängen.",
+    "profile.ego.b3":      "Persönlicher Raum und Autonomie sind mir auf Reisen wichtig.",
+    "profile.hed.name":    "😊 Die/Der Entspannte Reisende",
+    "profile.hed.quote":   "\"Ich bevorzuge Routen, die sich einfach, bequem und stressfrei anfühlen.\"",
+    "profile.hed.b1":      "Komfort ist mir wichtiger als strenge Optimierung.",
+    "profile.hed.b2":      "Ich vermeide gerne überfüllte oder stressige Umgebungen.",
+    "profile.hed.b3":      "Ich mag keine Routen, die zu viel körperlichen Aufwand erfordern.",
+    "profile.rating.q":    "Wie gut beschreibt dieses Profil Ihre alltäglichen Reisepräferenzen?",
+    "profile.select.btn":  "Als nächstes Profil auswählen",
+    "profile.confidence.q": "Wie sicher sind Sie bei dieser Profilauswahl?",
+    "profile.btn":         "Weiter zu den Routenszenarien",
+    "profile.intro2":      "Nachdem Sie nun gesehen haben, wie verschiedene Routen bewertet werden, möchten wir wissen, welcher der folgenden Reisestile Sie am besten beschreibt. Bewerten Sie zunächst, wie gut jedes Profil Ihre alltäglichen Reisepräferenzen beschreibt, und wählen Sie dann das Profil, das insgesamt am besten passt.",
+    "profile.hint2":       "Denken Sie an Ihre alltäglichen Wege — Pendeln, Einkaufen, Freunde besuchen — nicht nur an die Szenarien, die Sie heute gesehen haben.",
+    "profile.btn2":        "Weiter zu den Abschlussfragen",
+    "profile.bio.name.en": "The Green Traveller",
+    "profile.alt.name.en": "The Safe & Reliable Traveller",
+    "profile.ego.name.en": "The Independent Traveller",
+    "profile.hed.name.en": "The Relaxed Traveller",
+
+    // ── Scenario section ───────────────────────────────────────
+    "scenario.task":       "<strong>Ihre Aufgabe:</strong> Bitte überprüfen Sie beide Routensets für dieselbe Strecke. <strong>Routenset A</strong> ist das Ranking-Ergebnis unserer präferenzbasierten Routing-Engine. <strong>Routenset B</strong> ist ein standardmäßiger Zeit-/Distanz-basierter Routing-Benchmark. Wir möchten wissen, ob das Ranking von Set A für Sie sinnvoll ist, ob intermodale Routen auffallen und verständlich sind und ob Sie ein solches System im Alltag nutzen würden.",
+    "scenario.assumption": "<strong>📌 Bitte gehen Sie davon aus</strong>, dass Sie für diese Fahrt Zugang zu <strong>allen Verkehrsmitteln</strong> haben — Auto, Fahrrad, öffentliche Verkehrsmittel und zu Fuß. Das Ranking basiert ausschließlich auf den Reisepräferenzen und Werten, die Sie zu Beginn angegeben haben, nicht auf dem, was Sie persönlich besitzen oder normalerweise nutzen.",
+    "scenario.note":       "<strong>⏱ Hinweis zu Fahrzeiten:</strong> Die für Autorouten angezeigten Fahrzeiten enthalten geschätzte <strong>8 Minuten</strong> für die Parkplatzsuche und den Fußweg zum Ziel. Dieser Aufwand wird von Standard-Navigationsapps nicht angezeigt, spiegelt aber die realistische Tür-zu-Tür-Reisezeit im städtischen Bereich wider.",
+    "scenario.setA.title": "Routenset A",
+    "scenario.setA.desc":  "Diese Routen sind von der Top-Empfehlung der Engine bis zur am niedrigsten bewerteten Option für diese Strecke sortiert.",
+    "scenario.setB.title": "Routenset B",
+    "scenario.setB.desc":  "Diese Routen sind nach Reisezeit sortiert — schnellste zuerst. <strong>Schritt 1:</strong> Lesen Sie sie durch und beantworten Sie die Fragen unten. <strong>Schritt 2:</strong> Falls diese Reihenfolge nicht Ihrer persönlichen Präferenz entspricht, ziehen Sie die Karten in die Reihenfolge, die Sie bevorzugen.",
+    "scenario.drag.hint":  "↕️ Optional: Karten oben ziehen, um nach persönlicher Präferenz zu sortieren — Ihre Reihenfolge wird automatisch gespeichert",
+    "scenario.setA.q1":    "Welche Route aus Set A würden Sie in dieser Situation wählen?",
+    "scenario.setA.q2":    "Würden Sie der von Routenset A vorgeschlagenen Top-Route folgen?",
+    "scenario.setA.q2.yes":   "Ja",
+    "scenario.setA.q2.maybe": "Vielleicht",
+    "scenario.setA.q2.no":    "Nein",
+    "scenario.setA.q3":    "Wie gut stimmt das Ranking von Routenset A mit dem überein, was Sie persönlich in dieser Situation bevorzugen würden?",
+    "scenario.setB.q1":    "Welche Route aus Set B würden Sie in dieser Situation wählen?",
+    "scenario.setB.q2":    "Wie gut stimmt dieses zeitbasierte Ranking (vor jeder Umsortierung) mit dem überein, was Sie persönlich bevorzugen würden?",
+    "scenario.intermodal.title": "Intermodale Routen",
+    "scenario.intermodal.desc":  "Einige Routenoptionen können mehr als ein Verkehrsmittel kombinieren, z.B. Gehen + Bus oder Fahrrad + öffentliche Verkehrsmittel.",
+    "scenario.intermodal.q1":   "Haben Sie in diesem Szenario eine intermodale Route bemerkt?",
+    "scenario.intermodal.q2":   "Wie einfach war es zu verstehen, wie die intermodalen Routen funktionieren?",
+    "scenario.intermodal.q3":   "Würden Sie eine intermodale Route in Betracht ziehen, wenn sie besser zu Ihren Reisepräferenzen passen würde?",
+    "scenario.system.title":    "Nutzung dieses Routing-Systems",
+    "scenario.system.q1":       "Würden Sie auf Basis dieses Szenarios ein System nutzen, das Routen nach Ihren Reisepräferenzen bewertet?",
+    "scenario.system.q2":       "Wie sehr würden Sie der Top-Empfehlung aus Routenset A in diesem Szenario vertrauen?",
+    "scenario.comment.label":   "Haben Sie Kommentare zu den in diesem Szenario gezeigten Routen?",
+    "scenario.comment.hint":    "Bitte fügen Sie einen kurzen Kommentar hinzu oder nutzen Sie die Schnelloption unten, falls Sie nichts hinzuzufügen haben.",
+    "scenario.comment.placeholder": "Was hat Ihren Erwartungen entsprochen oder nicht entsprochen?",
+    "scenario.comment.none":    "Kein Kommentar",
+    "scenario.comment.none.hint": "Füllt das Pflichtfeld automatisch aus.",
+    "scenario.btn.back":        "Zurück",
+    "scenario.btn.next":        "Nächstes Szenario",
+    "scenario.btn.finish":      "Studie abschließen",
+    "scenario.step":            "SCHRITT 3 VON 4 — SZENARIO",
+    "scenario.setA.q2.follow":  "Würden Sie der von Routenset A vorgeschlagenen Top-Route folgen?",
+    "scenario.nocomments":      "Kein Kommentar",
+    "scenario.nocomments.hint": "Füllt das Pflichtfeld automatisch aus.",
+    "scenario.system.title2":   "Nutzung dieses Routing-Systems",
+    "scenario.mode.sequence":   "Verkehrsmittelfolge:",
+
+    // ── Route card ─────────────────────────────────────────────
+    "route.duration":     "Dauer",
+    "route.transfers":    "Umstiege",
+    "route.walking":      "Gehzeit",
+    "route.type":         "Typ",
+    "route.single_mode":  "Einzelnes Verkehrsmittel",
+    "route.intermodal":   "Intermodal 🔀",
+    "route.select.placeholder": "— auswählen —",
+    "route.select.none":  "Ich würde keine dieser Routen wählen",
+    "route.intermodal.label": "Intermodale Route:",
+    "route.mode_sequence":    "Verkehrsmittelfolge:",
+    "setb.step_desc":         "Diese Routen sind nach Reisezeit sortiert — schnellste zuerst. <strong>Schritt 1:</strong> Lesen Sie sie durch und beantworten Sie die Fragen unten. <strong>Schritt 2:</strong> Falls diese Reihenfolge nicht Ihrer persönlichen Präferenz entspricht, ziehen Sie die Karten in die Reihenfolge, die Sie bevorzugen.",
+    "setb.drag_hint":         "↕️ Optional: Karten oben ziehen, um nach persönlicher Präferenz zu sortieren — Ihre Reihenfolge wird automatisch gespeichert",
+    "scenario.follow_q":      "Würden Sie der von Routenset A vorgeschlagenen Top-Route folgen?",
+    "scenario.follow.yes":    "Ja",
+    "scenario.follow.maybe":  "Vielleicht",
+    "scenario.follow.no":     "Nein",
+
+    // ── Final feedback ─────────────────────────────────────────
+    "final.h2":           "Abschlussfeedback",
+    "final.step":         "Schritt 4 von 4 — Gesamteindruck",
+    "final.personalisation.q": "Wie genau haben die Routen in Set A über alle vier Szenarien hinweg Ihre persönlichen Reisewerte widergespiegelt?",
+    "final.confidence.q":      "Wie sicher waren Sie bei der Bewertung der beiden Routensets?",
+    "final.system.title":      "Systembewertung",
+    "final.willingness.q":     "Wie wahrscheinlich ist es insgesamt, dass Sie eine personalisierte, wertbasierte Routing-App in Ihrem Alltag nutzen würden?",
+    "final.trust.q":           "Wie sehr haben Sie dem Ranking der in Set A gezeigten Routen insgesamt vertraut?",
+    "final.intermodal.q":      "Würden Sie insgesamt intermodale Routenvorschläge in Betracht ziehen, wenn diese besser zu Ihren Reisepräferenzen passen würden?",
+    "final.google.q":          "Im Vergleich zu Standard-Navigationsapps (z.B. Google Maps): Wie würden Sie dieses personalisierte Routing-System bewerten?",
+    "final.noticed.q":         "Haben Sie bemerkt, dass Routenset A an Ihre persönlichen Reisepräferenzen angepasst war?",
+    "final.noticed.yes":       "Ja, deutlich",
+    "final.noticed.no":        "Nein, das habe ich nicht bemerkt",
+    "final.bestfeature.label": "Was hat Ihnen am Routing-System am besten gefallen?",
+    "final.bestfeature.placeholder": "z.B. Routing-Ranking, intermodale Optionen, Übersichtlichkeit, Personalisierung ...",
+    "final.worstfeature.label": "Was hat Ihnen am wenigsten gefallen oder war verwirrend?",
+    "final.worstfeature.placeholder": "z.B. Reisezeiten, fehlende Optionen, unklares Ranking ...",
+    "final.improvement.label": "Haben Sie Verbesserungsvorschläge für das System?",
+    "final.improvement.placeholder": "Ihre Vorschläge ...",
+    "final.btn":               "Absenden — Studie abschließen",
+    "final.h2.2":              "Abschlussfeedback",
+    "final.bestfeature.hint":  "Bitte schreiben Sie eine kurze Antwort oder wählen Sie die Schnelloption, falls nichts hervorstach.",
+    "final.worstfeature.hint": "Bitte schreiben Sie eine kurze Antwort oder wählen Sie die Schnelloption, falls Sie keinen konkreten Vorschlag haben.",
+    "final.nocomments":        "Kein Kommentar",
+    "final.system.q1_alt":     "Wie gut haben die personalisierten Routen (Set A) Ihren Werten entsprochen?",
+    "final.google.worse":      "Viel schlechter",
+    "final.google.slworse":    "Etwas schlechter",
+    "final.google.same":       "Ungefähr gleich",
+    "final.google.better":     "Etwas besser",
+    "final.google.much_better":"Viel besser",
+    "final.bestfeature.hint2": "Bitte schreiben Sie eine kurze Antwort oder wählen Sie die Schnelloption, falls nichts hervorstach.",
+    "final.worstfeature.hint2":"Bitte schreiben Sie eine kurze Antwort oder wählen Sie die Schnelloption, falls Sie keinen konkreten Vorschlag haben.",
+    "final.improvement.hint2": "Bitte schreiben Sie eine kurze Antwort oder wählen Sie die Schnelloption, falls Sie keinen konkreten Vorschlag haben.",
+
+    // ── Common ─────────────────────────────────────────────────
+    "common.select":      "— auswählen —",
+    "common.yes":         "Ja",
+    "common.no":          "Nein",
+    "common.back":        "Zurück",
+    "common.not_at_all":  "Gar nicht",
+    "common.very_well":   "Sehr gut",
+    "common.very_much":   "Sehr viel",
+    "common.not_important": "Unwichtig",
+    "common.extremely_important": "Äußerst wichtig",
+    "common.definitely_not": "Auf keinen Fall",
+    "common.definitely_yes":  "Auf jeden Fall",
+    "common.much_worse":   "Viel schlechter",
+    "common.much_better":  "Viel besser",
+    "likert.frequency.1":  "Nie",
+    "likert.frequency.3":  "Manchmal",
+    "likert.frequency.5":  "Täglich",
+    "likert.comfort.1":    "Nicht sicher",
+    "likert.comfort.3":    "Mittel",
+    "likert.comfort.5":    "Sehr sicher",
+    // ── Likert anchors ────────────────────────────────────────────
+    "la.freq":         ["1 = Nie", "3 = Manchmal", "5 = Täglich"],
+    "la.comfort":      ["1 = Nicht sicher", "3 = Mittel", "5 = Sehr sicher"],
+    "la.match":        ["1 = Stimmt nicht überein", "3 = Stimmt teilweise", "5 = Stimmt sehr gut"],
+    "la.difficult":    ["1 = Sehr schwierig", "3 = Weder noch", "5 = Sehr einfach"],
+    "la.defnot":       ["1 = Auf keinen Fall", "3 = Vielleicht", "5 = Auf jeden Fall"],
+    "la.notatall":     ["1 = Gar nicht", "3 = Mäßig", "5 = Sehr viel"],
+    "la.profile7":     ["1 = Gar nicht", "4 = Mäßig", "7 = Beschreibt mich vollständig"],
+    "la.conf7":        ["1 = Nicht sicher", "4 = Mäßig sicher", "7 = Sehr sicher"],
+    "la.accurate":     ["1 = Gar nicht", "3 = Mäßig", "5 = Sehr genau"],
+    "la.conf5":        ["1 = Nicht sicher", "3 = Mäßig sicher", "5 = Sehr sicher"],
+    "la.quality":      ["1 = Schlecht", "3 = Mäßig", "5 = Sehr gut"],
+    "la.likely":       ["1 = Sehr unwahrscheinlich", "3 = Unsicher", "5 = Sehr wahrscheinlich"],
+    "la.trust":        ["1 = Gar nicht", "3 = Mäßig", "5 = Sehr viel"],
+    "la.need7":        ["1 = Gar nicht", "4 = Mäßig", "7 = Äußerst wichtig"],
+    "la.need5":        ["1 = Unwichtig", "3 = Mäßig wichtig", "5 = Sehr wichtig"],
+    // ── Likert point labels ───────────────────────────────────────────
+    "lp.freq":         ["Nie / fast nie", "Selten", "Manchmal", "Oft", "Täglich / fast täglich"],
+    "lp.comfort":      ["Gar nicht", "Kaum", "Mäßig", "Komfortabel", "Sehr sicher"],
+    "lp.match":        ["Gar nicht", "Kaum", "Teilweise", "Größtenteils", "Sehr gut"],
+    "lp.difficult":    ["Sehr schwierig", "Schwierig", "Weder noch", "Einfach", "Sehr einfach"],
+    "lp.defnot":       ["Auf keinen Fall", "Eher nicht", "Vielleicht", "Wahrscheinlich", "Auf jeden Fall"],
+    "lp.trust5":       ["Gar nicht", "Wenig", "Mäßig", "Ziemlich viel", "Sehr viel"],
+    "lp.profile7":     ["Gar nicht", "Sehr wenig", "Wenig", "Mäßig", "Ziemlich gut", "Sehr gut", "Beschreibt mich vollständig"],
+    "lp.conf7":        ["Nicht sicher", "Sehr niedrig", "Niedrig", "Mäßig", "Eher sicher", "Sicher", "Sehr sicher"],
+    "lp.accurate":     ["Gar nicht", "Wenig", "Mäßig", "Ziemlich genau", "Sehr genau"],
+    "lp.conf5":        ["Nicht sicher", "Kaum", "Mäßig", "Sicher", "Sehr sicher"],
+    "lp.quality":      ["Sehr schlecht", "Schlecht", "Mäßig", "Gut", "Sehr gut"],
+    "lp.likely":       ["Sehr unwahrscheinlich", "Unwahrscheinlich", "Unsicher", "Wahrscheinlich", "Sehr wahrscheinlich"],
+    "lp.trust":        ["Gar nicht", "Wenig", "Mäßig", "Ziemlich viel", "Sehr viel"],
+    "lp.need7":        ["Gar nicht", "", "", "Mäßig", "", "", "Äußerst"],
+    "lp.need5":        ["Unwichtig", "Kaum", "Mäßig wichtig", "Wichtig", "Sehr wichtig"],
+    // ── Likert scale L/R labels ───────────────────────────────────────
+    "ll.not_at_all":   "Gar nicht",
+    "ll.very_well":    "Sehr gut",
+    "ll.very_much":    "Sehr viel",
+    "ll.def_not":      "Auf keinen Fall",
+    "ll.def_yes":      "Auf jeden Fall",
+    "ll.not_conf":     "Nicht sicher",
+    "ll.very_conf":    "Sehr sicher",
+    "ll.very_acc":     "Sehr genau",
+    "ll.very_diff":    "Sehr schwierig",
+    "ll.very_easy":    "Sehr einfach",
+    "ll.very_unlik":   "Sehr unwahrscheinlich",
+    "ll.very_lik":     "Sehr wahrscheinlich",
+    "ll.not_import":   "Gar nicht wichtig",
+    "ll.extr_import":  "Äußerst wichtig",
+    "ll.freq_never":   "Nie / fast nie",
+    "ll.freq_daily":   "Täglich / fast täglich",
+    "ll.not_comf":     "Gar nicht",
+    "ll.very_comf":    "Sehr sicher",
+    "ll.poorly":       "Sehr schlecht",
+    "ll.not_match":    "Gar nicht",
+  }
+};
+
+let currentLang = localStorage.getItem("study_lang") || "en";
+
+function t(key) {
+    const val = TRANSLATIONS[currentLang][key] || TRANSLATIONS["en"][key] || key;
+    // Safety: if value accidentally contains data-i18n= (broken translation), return key
+    if (typeof val === "string" && val.includes('data-i18n=')) return key;
+    return val;
+}
+
+function setLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem("study_lang", lang);
+    applyTranslations();
+    updateLangToggle();
+}
+
+function applyTranslations() {
+    // Refresh Likert label objects with current language
+    Object.assign(LIKERT_ANCHORS, getLikertAnchors());
+    Object.assign(LIKERT_POINT_LABELS, buildLikertPointLabelsMap());
+    // Re-render point labels and anchors for all built Likerts
+    LIKERT_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const row = el.closest(".likert-row");
+        if (!row) return;
+
+        // Update left/right anchor labels
+        const lo = row.querySelector(".likert-label-l");
+        const hi = row.querySelector(".likert-label-r");
+        const anchors = LIKERT_ANCHORS[id];
+        if (anchors && Array.isArray(anchors)) {
+            if (lo) lo.textContent = anchors[0] || "";
+            if (hi) hi.textContent = anchors[anchors.length - 1] || "";
+        }
+
+        // Update point labels (the spans below each button)
+        const pointLabelsEl = row.nextElementSibling?.classList.contains("likert-point-labels")
+            ? row.nextElementSibling
+            : row.parentElement?.querySelector(".likert-point-labels");
+        const points = LIKERT_POINT_LABELS[id];
+        if (pointLabelsEl && points && Array.isArray(points)) {
+            const spans = pointLabelsEl.querySelectorAll("span");
+            points.forEach((label, i) => {
+                if (spans[i]) spans[i].textContent = label;
+            });
+        }
+
+        // Update footer anchor text (e.g. "1 = Never · 3 = Sometimes · 5 = Daily")
+        const footer = row.nextElementSibling?.classList.contains("likert-footer")
+            ? row.nextElementSibling
+            : row.parentElement?.querySelector(".likert-footer");
+        if (footer && anchors && Array.isArray(anchors)) {
+            footer.textContent = anchors.filter(Boolean).join(" · ");
+        }
+    });
+    // Update all elements with data-i18n attribute
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        const val = t(key);
+        if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+            el.placeholder = val;
+        } else {
+            el.innerHTML = val;
+        }
+    });
+    // Update placeholders with data-i18n-placeholder
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+        el.placeholder = t(el.getAttribute("data-i18n-placeholder"));
+    });
+    // Update select options with data-i18n-opt
+    document.querySelectorAll("option[data-i18n]").forEach(el => {
+        el.textContent = t(el.getAttribute("data-i18n"));
+    });
+    // Swap Likert anchors
+    updateLikertAnchors();
+    // Swap route cards if already rendered
+    updateRouteCardLabels();
+}
+
+function updateLangToggle() {
+    const btn  = document.getElementById("lang-toggle-en");
+    const btn2 = document.getElementById("lang-toggle-de");
+    if (!btn || !btn2) return;
+    btn.classList.toggle("lang-active",  currentLang === "en");
+    btn2.classList.toggle("lang-active", currentLang === "de");
+    // Explicitly set text so applyTranslations() can never overwrite it
+    btn.textContent  = "🇬🇧 EN";
+    btn2.textContent = "🇩🇪 DE";
+}
+
+function updateLikertAnchors() {
+    // Update LIKERT_LABELS dynamically based on current language
+    const FREQ_LABELS   = [t("likert.frequency.1"), "", t("likert.frequency.3"), "", t("likert.frequency.5")];
+    const COMFORT_LABELS = [t("likert.comfort.1"), "", t("likert.comfort.3"), "", t("likert.comfort.5")];
+    // Re-render anchors for built Likert widgets
+    document.querySelectorAll(".likert-row").forEach(row => {
+        const id = row.getAttribute("data-target");
+        if (!id) return;
+        const [lo, hi] = [row.querySelector(".likert-label-l"), row.querySelector(".likert-label-r")];
+        if (id.startsWith("pre-need") || id.startsWith("need-")) {
+            if (lo) lo.textContent = t("common.not_important");
+            if (hi) hi.textContent = t("common.extremely_important");
+        } else if (id === "mobility-frequency") {
+            if (lo) lo.textContent = t("likert.frequency.1");
+            if (hi) hi.textContent = t("likert.frequency.5");
+        } else if (id === "cycling-comfort") {
+            if (lo) lo.textContent = t("likert.comfort.1");
+            if (hi) hi.textContent = t("likert.comfort.5");
+        }
+    });
+}
+
+function updateRouteCardLabels() {
+    // Re-render all visible route cards with current language
+    document.querySelectorAll(".route-card .route-content").forEach(card => {
+        // Update metric card labels
+        const metrics = card.querySelectorAll(".metric-card strong");
+        const labels = [t("route.duration"), t("route.transfers"), t("route.walking"), t("route.type")];
+        metrics.forEach((el, i) => { if (labels[i]) el.textContent = labels[i]; });
+        // Update mode sequence label
+        const modeP = card.querySelector("p strong");
+        if (modeP) modeP.textContent = t("scenario.mode.sequence");
+        // Update intermodal box label
+        const imBox = card.querySelector(".intermodal-box strong");
+        if (imBox) imBox.textContent = t("route.intermodal.label");
+        // Update single/intermodal type span
+        const typeSpan = card.querySelector(".metric-card:last-child span");
+        if (typeSpan) {
+            const isIntermodal = card.closest(".route-card")?.dataset.intermodal === "1"
+                || typeSpan.textContent.includes("🔀")
+                || typeSpan.textContent.toLowerCase().includes("intermodal");
+            // re-check from data
+            const routeCard = card.closest(".route-card");
+            if (routeCard) {
+                const routeId = routeCard.dataset.routeId || "";
+                // Find from currentPersonalised/currentBaseline
+                const allRoutes = [...(window.currentPersonalised || []), ...(window.currentBaseline || [])];
+                const route = allRoutes.find(r => r.route_id === routeId);
+                if (route) {
+                    typeSpan.textContent = route.is_intermodal ? t("route.intermodal") : t("route.single_mode");
+                }
+            }
+        }
+    });
+    // Update select option placeholders
+    ["preferred-route-a", "preferred-route-b"].forEach(id => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        const ph = sel.querySelector('option[value=""]');
+        if (ph) ph.textContent = t("route.select.placeholder");
+        const none = sel.querySelector('option[value="__none__"]');
+        if (none) none.textContent = t("route.select.none");
+    });
+}
+
+// Apply on page load
+document.addEventListener("DOMContentLoaded", () => {
+    // Language toggle buttons
+    document.getElementById("lang-toggle-en")?.addEventListener("click", () => setLanguage("en"));
+    document.getElementById("lang-toggle-de")?.addEventListener("click", () => setLanguage("de"));
+    applyTranslations();
+    updateLangToggle();
+});
+
+
+
 
 // ── State ──────────────────────────────────────────────────────
 let scenarios          = [];
 let currentIdx         = 0;
 let studyCondition     = 1;   // 1 = no intermodal, 2 = with intermodal
 let setOrder           = "AB"; // AB = value first, BA = time first
-let currentPersonalised = [];   // routes for Set A
-let currentBaseline     = [];   // routes for Set B
+var currentPersonalised = [];   // routes for Set A (window-accessible for i18n)
+var currentBaseline     = [];   // routes for Set B (window-accessible for i18n)
 let selectedProfileForPreview = null;
 let previewModeActive = false;
 let scenarioDrafts = {};          // local per-scenario answers; used for back navigation and updates
@@ -1631,71 +2440,109 @@ function getLikert(containerId) {
     return sel ? parseInt(sel.dataset.value) : null;
 }
 
-const LIKERT_ANCHORS = {
-    "mobility-frequency": ["1 = Never", "3 = Sometimes", "5 = Daily"],
-    "cycling-comfort": ["1 = Not comfortable", "3 = Moderately comfortable", "5 = Very comfortable"],
-    "ranking-acceptance-a": ["1 = Does not match", "3 = Partly matches", "5 = Matches very well"],
-    "ranking-acceptance-b": ["1 = Does not match", "3 = Partly matches", "5 = Matches very well"],
-    "understood-intermodal": ["1 = Very difficult", "3 = Neither easy nor difficult", "5 = Very easy"],
-    "intermodal-acceptance": ["1 = Definitely not", "3 = Maybe", "5 = Definitely yes"],
-    "scenario-system-use": ["1 = Definitely not", "3 = Maybe", "5 = Definitely yes"],
-    "scenario-trust-top-recommendation": ["1 = Not at all", "3 = Moderately", "5 = Very much"],
-    "profile-rating-biospheric": ["1 = Not at all", "4 = Moderately", "7 = Fully describes me"],
-    "profile-rating-altruistic": ["1 = Not at all", "4 = Moderately", "7 = Fully describes me"],
-    "profile-rating-egoistic": ["1 = Not at all", "4 = Moderately", "7 = Fully describes me"],
-    "profile-rating-hedonic": ["1 = Not at all", "4 = Moderately", "7 = Fully describes me"],
-    "profile-selection-confidence": ["1 = Not confident", "4 = Moderately confident", "7 = Very confident"],
-    "value-profile-accuracy": ["1 = Not at all", "3 = Moderately", "5 = Very accurately"],
-    "profile-confidence": ["1 = Not confident", "3 = Moderately confident", "5 = Very confident"],
-    "personalisation-quality": ["1 = Poorly", "3 = Moderately", "5 = Very well"],
-    "willingness-use": ["1 = Very unlikely", "3 = Unsure", "5 = Very likely"],
-    "trust-ranking": ["1 = Not at all", "3 = Moderately", "5 = A great deal"],
-    "overall-intermodal-use": ["1 = Definitely not", "3 = Maybe", "5 = Definitely yes"],
-    "pre-need-pro-env": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
-    "pre-need-physical": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
-    "pre-need-privacy": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
-    "pre-need-autonomy": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
-    "pre-need-cost": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
-    "pre-need-speed": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
-    "pre-need-safety-accident": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
-    "pre-need-safety-crime": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
-    "pre-need-comfort": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
-    "pre-need-reliable": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
-    "pre-need-health-infection": ["1 = Not at all", "4 = Moderately", "7 = Extremely important"],
-    "need-pro-env": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
-    "need-physical": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
-    "need-privacy": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
-    "need-autonomy": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
-    "need-cost": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
-    "need-speed": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
-    "need-safety-accident": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
-    "need-safety-crime": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
-    "need-comfort": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
-    "need-reliable": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
-    "need-health-infection": ["1 = Not important", "3 = Moderately important", "5 = Very important"],
-};
+function getLikertAnchors() {
+    return {
+        "mobility-frequency":           t("la.freq"),
+        "cycling-comfort":              t("la.comfort"),
+        "ranking-acceptance-a":         t("la.match"),
+        "ranking-acceptance-b":         t("la.match"),
+        "understood-intermodal":        t("la.difficult"),
+        "intermodal-acceptance":        t("la.defnot"),
+        "scenario-system-use":          t("la.defnot"),
+        "scenario-trust-top-recommendation": t("la.notatall"),
+        "profile-rating-biospheric":    t("la.profile7"),
+        "profile-rating-altruistic":    t("la.profile7"),
+        "profile-rating-egoistic":      t("la.profile7"),
+        "profile-rating-hedonic":       t("la.profile7"),
+        "post-profile-rating-biospheric": t("la.profile7"),
+        "post-profile-rating-altruistic": t("la.profile7"),
+        "post-profile-rating-egoistic": t("la.profile7"),
+        "post-profile-rating-hedonic":  t("la.profile7"),
+        "post-profile-confidence":      t("la.conf7"),
+        "profile-selection-confidence": t("la.conf7"),
+        "value-profile-accuracy":       t("la.accurate"),
+        "profile-confidence":           t("la.conf5"),
+        "personalisation-quality":      t("la.quality"),
+        "willingness-use":              t("la.likely"),
+        "trust-ranking":                t("la.trust"),
+        "overall-intermodal-use":       t("la.defnot"),
+        "pre-need-pro-env":             t("la.need7"),
+        "pre-need-physical":            t("la.need7"),
+        "pre-need-privacy":             t("la.need7"),
+        "pre-need-autonomy":            t("la.need7"),
+        "pre-need-cost":                t("la.need7"),
+        "pre-need-speed":               t("la.need7"),
+        "pre-need-safety-accident":     t("la.need7"),
+        "pre-need-safety-crime":        t("la.need7"),
+        "pre-need-comfort":             t("la.need7"),
+        "pre-need-reliable":            t("la.need7"),
+        "pre-need-health-infection":    t("la.need7"),
+        "need-pro-env":                 t("la.need5"),
+        "need-physical":                t("la.need5"),
+        "need-privacy":                 t("la.need5"),
+        "need-autonomy":                t("la.need5"),
+        "need-cost":                    t("la.need5"),
+        "need-speed":                   t("la.need5"),
+        "need-safety-accident":         t("la.need5"),
+        "need-safety-crime":            t("la.need5"),
+        "need-comfort":                 t("la.need5"),
+        "need-reliable":                t("la.need5"),
+        "need-health-infection":        t("la.need5"),
+    };
+}
+const LIKERT_ANCHORS = getLikertAnchors();
 
-const LIKERT_POINT_LABELS = {
-    "mobility-frequency": ["Never / almost never", "Rarely", "Sometimes", "Often", "Daily / almost daily"],
-    "cycling-comfort": ["Not at all", "Slightly", "Moderately", "Comfortable", "Very comfortable"],
-    "ranking-acceptance-a": ["Not at all", "Slightly", "Partly", "Mostly", "Very well"],
-    "ranking-acceptance-b": ["Not at all", "Slightly", "Partly", "Mostly", "Very well"],
-    "understood-intermodal": ["Very difficult", "Difficult", "Neither", "Easy", "Very easy"],
-    "intermodal-acceptance": ["Definitely not", "Probably not", "Maybe", "Probably yes", "Definitely yes"],
-    "scenario-system-use": ["Definitely not", "Probably not", "Maybe", "Probably yes", "Definitely yes"],
-    "scenario-trust-top-recommendation": ["Not at all", "A little", "Moderately", "Quite a lot", "Very much"],
-    "profile-rating-biospheric": ["Not at all", "Very little", "A little", "Moderately", "Quite well", "Very well", "Fully describes me"],
-    "profile-rating-altruistic": ["Not at all", "Very little", "A little", "Moderately", "Quite well", "Very well", "Fully describes me"],
-    "profile-rating-egoistic": ["Not at all", "Very little", "A little", "Moderately", "Quite well", "Very well", "Fully describes me"],
-    "profile-rating-hedonic": ["Not at all", "Very little", "A little", "Moderately", "Quite well", "Very well", "Fully describes me"],
-    "profile-selection-confidence": ["Not confident", "Very low", "Low", "Moderate", "Rather confident", "Confident", "Very confident"],
-    "value-profile-accuracy": ["Not at all", "A little", "Moderately", "Quite accurately", "Very accurately"],
-    "profile-confidence": ["Not confident", "Slightly", "Moderately", "Confident", "Very confident"],
-    "personalisation-quality": ["Very poorly", "Poorly", "Moderately", "Well", "Very well"],
-    "willingness-use": ["Very unlikely", "Unlikely", "Unsure", "Likely", "Very likely"],
-    "trust-ranking": ["Not at all", "A little", "Moderately", "Quite a lot", "A great deal"],
-    "overall-intermodal-use": ["Definitely not", "Probably not", "Maybe", "Probably yes", "Definitely yes"]
-};
+function buildLikertPointLabelsMap() {
+    return {
+        "mobility-frequency":            t("lp.freq"),
+        "cycling-comfort":               t("lp.comfort"),
+        "ranking-acceptance-a":          t("lp.match"),
+        "ranking-acceptance-b":          t("lp.match"),
+        "understood-intermodal":         t("lp.difficult"),
+        "intermodal-acceptance":         t("lp.defnot"),
+        "scenario-system-use":           t("lp.defnot"),
+        "scenario-trust-top-recommendation": t("lp.trust5"),
+        "profile-rating-biospheric":     t("lp.profile7"),
+        "profile-rating-altruistic":     t("lp.profile7"),
+        "profile-rating-egoistic":       t("lp.profile7"),
+        "profile-rating-hedonic":        t("lp.profile7"),
+        "post-profile-rating-biospheric":t("lp.profile7"),
+        "post-profile-rating-altruistic":t("lp.profile7"),
+        "post-profile-rating-egoistic":  t("lp.profile7"),
+        "post-profile-rating-hedonic":   t("lp.profile7"),
+        "post-profile-confidence":       t("lp.conf7"),
+        "profile-selection-confidence":  t("lp.conf7"),
+        "value-profile-accuracy":        t("lp.accurate"),
+        "profile-confidence":            t("lp.conf5"),
+        "personalisation-quality":       t("lp.quality"),
+        "willingness-use":               t("lp.likely"),
+        "trust-ranking":                 t("lp.trust"),
+        "overall-intermodal-use":        t("lp.defnot"),
+        "pre-need-pro-env":              t("lp.need7"),
+        "pre-need-physical":             t("lp.need7"),
+        "pre-need-privacy":              t("lp.need7"),
+        "pre-need-autonomy":             t("lp.need7"),
+        "pre-need-cost":                 t("lp.need7"),
+        "pre-need-speed":                t("lp.need7"),
+        "pre-need-safety-accident":      t("lp.need7"),
+        "pre-need-safety-crime":         t("lp.need7"),
+        "pre-need-comfort":              t("lp.need7"),
+        "pre-need-reliable":             t("lp.need7"),
+        "pre-need-health-infection":     t("lp.need7"),
+        "need-pro-env":                  t("lp.need5"),
+        "need-physical":                 t("lp.need5"),
+        "need-privacy":                  t("lp.need5"),
+        "need-autonomy":                 t("lp.need5"),
+        "need-cost":                     t("lp.need5"),
+        "need-speed":                    t("lp.need5"),
+        "need-safety-accident":          t("lp.need5"),
+        "need-safety-crime":             t("lp.need5"),
+        "need-comfort":                  t("lp.need5"),
+        "need-reliable":                 t("lp.need5"),
+        "need-health-infection":         t("lp.need5"),
+    };
+}
+const LIKERT_POINT_LABELS = buildLikertPointLabelsMap();
 
 const NEED_LIKERT_POINT_LABELS = ["Not important", "Slightly important", "Moderately important", "Important", "Very important"];
 
@@ -1971,6 +2818,10 @@ function installQuickResponseButtons() {
 }
 
 // ── CONSENT → DEMOGRAPHICS ────────────────────────────────────
+document.getElementById("consent-checkbox").addEventListener("change", function() {
+    document.getElementById("start-btn").disabled = !this.checked;
+});
+
 document.getElementById("start-btn").onclick = () => {
     if (!document.getElementById("consent-checkbox").checked) {
         alert("Please provide consent before continuing.");
@@ -2178,9 +3029,6 @@ async function loadScenarios() {
 }
 
 async function loadScenario() {
-    // Always scroll to top when loading a new scenario
-    window.scrollTo({ top: 0, behavior: "smooth" });
-
     const s = scenarios[currentIdx];
 
     document.getElementById("scenario-title").textContent   = s.title;
@@ -2351,21 +3199,21 @@ function renderRouteSet(listId, selectId, routes, draggable=false) {
             <div class="route-rank">#${i + 1}</div>
             <div class="route-content">
                 <h4><span class="mode-emoji">${getModeEmoji(route)}</span>${escapeHTML(route.route_summary || "Route option")}</h4>
-                <p><strong>Mode sequence:</strong> ${escapeHTML(modeSequence)}</p>
+                <p><strong>${t("scenario.mode.sequence")}</strong> ${escapeHTML(modeSequence)}</p>
                 <div class="metric-grid">
-                    <div class="metric-card"><strong>Duration</strong>
+                    <div class="metric-card"><strong>${t("route.duration")}</strong>
                         <span>${route.total_duration_minutes != null
                               ? Math.round(route.total_duration_minutes) + " min" : "—"}</span></div>
-                    <div class="metric-card"><strong>Transfers</strong>
+                    <div class="metric-card"><strong>${t("route.transfers")}</strong>
                         <span>${route.transfer_count ?? 0}</span></div>
-                    <div class="metric-card"><strong>Walking</strong>
+                    <div class="metric-card"><strong>${t("route.walking")}</strong>
                         <span>${route.walking_minutes != null
                               ? Math.round(route.walking_minutes) + " min" : "—"}</span></div>
-                    <div class="metric-card"><strong>Type</strong>
-                        <span>${route.is_intermodal ? "Intermodal 🔀" : "Single mode"}</span></div>
+                    <div class="metric-card"><strong>${t("route.type")}</strong>
+                        <span>${route.is_intermodal ? t("route.intermodal") : t("route.single_mode")}</span></div>
                 </div>
                 ${route.is_intermodal
-                  ? `<div class="intermodal-box"><strong>Intermodal route:</strong> ${escapeHTML(modeSequence)}</div>`
+                  ? `<div class="intermodal-box"><strong>${t("route.intermodal.label")}</strong> ${escapeHTML(modeSequence)}</div>`
                   : ""}
             </div>`;
         list.appendChild(li);
@@ -2379,7 +3227,7 @@ function renderRouteSet(listId, selectId, routes, draggable=false) {
 
     const none = document.createElement("option");
     none.value = "__none__";
-    none.text = "I would not choose any of these routes";
+    none.text = t("route.select.none");
     select.appendChild(none);
 
     if (draggable) {
@@ -2421,7 +3269,7 @@ function renderRouteSet(listId, selectId, routes, draggable=false) {
                     sel.appendChild(ph);
                     orderedOpts.forEach(o => sel.appendChild(o));
                     const none = document.createElement("option");
-                    none.value = "__none__"; none.text = "I would not choose any of these routes";
+                    none.value = "__none__"; none.text = t("route.select.none");
                     sel.appendChild(none);
                     sel.value = currentVal;
                 }
@@ -2608,7 +3456,7 @@ function initScenarioMap(oLat, oLon, dLat, dLon) {
 
     // Static preview fallback when Leaflet is not available/offline.
     if (typeof L === "undefined") {
-        container.innerHTML = `<div style="height:260px;display:flex;align-items:centre;justify-content:centre;text-align:centre;padding:20px;color:#536173;">
+        container.innerHTML = `<div style="height:260px;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;color:#536173;">
             Map preview unavailable offline.<br>Origin and destination labels are still shown below.
         </div>`;
         return;
@@ -2640,7 +3488,7 @@ function initScenarioMap(oLat, oLon, dLat, dLon) {
                 width:28px;height:28px;border-radius:50%;
                 background:${color};color:#fff;
                 font-size:14px;font-weight:700;
-                display:flex;align-items:centre;justify-content:centre;
+                display:flex;align-items:center;justify-content:center;
                 border:2px solid #fff;
                 box-shadow:0 2px 6px rgba(0,0,0,0.35);">${label}</div>`,
             iconSize: [28, 28],
@@ -2906,6 +3754,8 @@ document.getElementById("submit-study-btn").onclick = async () => {
     }
 };
 
+
+// ═══════════════════════════════════════════════════════════════
 </script>
 </body>
 </html>
