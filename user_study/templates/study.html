@@ -1018,9 +1018,7 @@
             <!-- SET A — fixed engine ranking, no drag-and-drop -->
             <div id="route-set-a" class="route-set-panel set-a-panel">
                 <h3 class="set-label set-a-label" data-i18n="scenario.setA.title">Route Set 1</h3>
-                <p class="set-desc">
-                    <strong>Step 1:</strong> Read through them and answer the questions below.
-                </p>
+                <p class="set-desc" data-i18n="scenario.setA.step"><strong>Step 1:</strong> Read through them and answer the questions below.</p>
             
                 <ul id="routes-list-a" class="routes-list"></ul>
 
@@ -1052,11 +1050,7 @@
             <!-- SET B — rate first, then drag to reorder -->
             <div id="route-set-b" class="route-set-panel set-b-panel">
                 <h3 class="set-label set-b-label" data-i18n="scenario.setB.title">Route Set 2</h3>
-                <p class="set-desc">
-                    <strong>Step 1:</strong> Read through them and answer the questions below.
-                    <strong>Step 2:</strong> If this order does not match your personal preference,
-                    drag the cards into the order you would prefer.
-                </p>
+                <p class="set-desc" data-i18n="setb.step_desc"><strong>Step 1:</strong> Read through them and answer the questions below. <strong>Step 2:</strong> If this order does not match your personal preference, drag the cards into the order you would prefer.</p>
                 <ul id="routes-list-b" class="routes-list sortable-list"></ul>
 
                 <div class="question-group">
@@ -1609,6 +1603,12 @@ const TRANSLATIONS = {
 
     // ── Route card ─────────────────────────────────────────────
     "route.duration":     "Duration",
+    "mode.bike":          "🚴 Bike",
+    "mode.car":           "🚗 Car",
+    "mode.walk":          "🚶 Walk",
+    "mode.pt":            "🚌 Public Transport",
+    "mode.bike_pt":       "🚴+🚌 Bike & PT",
+    "mode.car_pt":        "🚗+🚌 Car & PT (P&R)",
     "route.transfers":    "Transfers",
     "route.walking":      "Walking",
     "route.type":         "Type",
@@ -1919,6 +1919,7 @@ const TRANSLATIONS = {
     "scenario.note":       "<strong>⏱ Hinweis zu Fahrzeiten:</strong> Die für Autorouten angezeigten Fahrzeiten enthalten geschätzte <strong>8 Minuten</strong> für die Parkplatzsuche und den Fußweg zum Ziel. Dieser Aufwand wird von Standard-Navigationsapps nicht angezeigt, spiegelt aber die realistische Tür-zu-Tür-Reisezeit im städtischen Bereich wider.",
     "scenario.setA.title": "Routenset 1",
     "scenario.setA.desc":  "Diese Routen sind nach einem Routing-Algorithmus auf Basis der Streckeneigenschaften sortiert.",
+    "scenario.setA.step":  "<strong>Schritt 1:</strong> Schauen Sie sich bitte das folgende Ranking an und beantworten Sie die untenstehenden Fragen.",
     "scenario.setB.title": "Routenset 2",
     "scenario.setB.desc":  "<strong>Schritt 1:</strong> Schauen Sie sich bitte das folgende Ranking an und beantworten Sie die untenstehenden Fragen. <strong>Schritt 2:</strong> Falls dieses Ranking nicht Ihren persönlichen Präferenzen entspricht, ziehen Sie bitte die Karten (an der oberen linken Ecke ⠿) in die Reihenfolge, die Ihrem persönlichen Ranking entspricht.",
     "scenario.drag.hint":  "↕️ Optional: Karten oben ziehen, um nach persönlicher Präferenz zu sortieren — Ihre Reihenfolge wird automatisch gespeichert",
@@ -1956,6 +1957,12 @@ const TRANSLATIONS = {
 
     // ── Route card ─────────────────────────────────────────────
     "route.duration":     "Dauer",
+    "mode.bike":          "🚴 Fahrrad",
+    "mode.car":           "🚗 Auto",
+    "mode.walk":          "🚶 Zu Fuß",
+    "mode.pt":            "🚌 Öffentliche Verkehrsmittel",
+    "mode.bike_pt":       "🚴+🚌 Fahrrad & ÖPNV",
+    "mode.car_pt":        "🚗+🚌 Auto & ÖPNV (P+R)",
     "route.transfers":    "Umstiege",
     "route.walking":      "Gehzeit",
     "route.type":         "Typ",
@@ -2206,6 +2213,22 @@ function updateLikertAnchors() {
 }
 
 function updateRouteCardLabels() {
+    // Re-translate mode names in route card headings
+    document.querySelectorAll(".route-card h4").forEach(h4 => {
+        const emojiSpan = h4.querySelector(".mode-emoji");
+        const emoji = emojiSpan ? emojiSpan.textContent : "";
+        // Strip emoji and translate
+        const allRoutes = [...(currentPersonalised || []), ...(currentBaseline || [])];
+        const card = h4.closest(".route-card");
+        if (card) {
+            const routeId = card.dataset.routeId;
+            const route = allRoutes.find(r => r.route_id === routeId);
+            if (route) {
+                const translated = translateModeName(route.route_summary) || route.route_summary;
+                h4.innerHTML = `<span class="mode-emoji">${emoji}</span>${escapeHTML(translated)}`;
+            }
+        }
+    });
     // Re-render all visible route cards with current language
     document.querySelectorAll(".route-card .route-content").forEach(card => {
         // Update metric card labels
@@ -3232,7 +3255,7 @@ function getModeEmoji(route) {
 }
 
 function routeDisplayName(route) {
-    const name = route.route_summary || route.route_id || "Route option";
+    const name = translateModeName(route.route_summary) || route.route_id || "Route option";
     return `${getModeEmoji(route)} ${name}`;
 }
 
@@ -3246,7 +3269,28 @@ function formatModeSequence(route) {
         if (modes.length) return modes.join(" → ");
     }
     if (route.intermodal_type) return String(route.intermodal_type).replace(/\+/g, " → ");
-    return route.transport_modes || route.route_summary || "—";
+    return route.transport_modes || translateModeName(route.route_summary) || "—";
+}
+
+function translateModeName(summary) {
+    if (!summary) return summary;
+    // Map API-returned English mode names to current language
+    const map = {
+        "🚴 Bike":              t("mode.bike"),
+        "🚗 Car":               t("mode.car"),
+        "🚶 Walk":              t("mode.walk"),
+        "🚌 Public Transport":  t("mode.pt"),
+        "🚴+🚌 Bike & PT":      t("mode.bike_pt"),
+        "🚗+🚌 Car & PT (P&R)": t("mode.car_pt"),
+        // Without emoji (fallback)
+        "Bike":             t("mode.bike"),
+        "Car":              t("mode.car"),
+        "Walk":             t("mode.walk"),
+        "Public Transport": t("mode.pt"),
+        "Bike & PT":        t("mode.bike_pt"),
+        "Car & PT (P&R)":   t("mode.car_pt"),
+    };
+    return map[summary] || summary;
 }
 
 function renderRouteSet(listId, selectId, routes, draggable=false) {
@@ -3271,7 +3315,7 @@ function renderRouteSet(listId, selectId, routes, draggable=false) {
         li.innerHTML = `
             <div class="route-rank">#${i + 1}</div>
             <div class="route-content">
-                <h4><span class="mode-emoji">${getModeEmoji(route)}</span>${escapeHTML(route.route_summary || "Route option")}</h4>
+                <h4><span class="mode-emoji">${getModeEmoji(route)}</span>${escapeHTML(translateModeName(route.route_summary) || "Route option")}</h4>
                 <p><strong>${t("scenario.mode.sequence")}</strong> ${escapeHTML(modeSequence)}</p>
                 <div class="metric-grid">
                     <div class="metric-card"><strong>${t("route.duration")}</strong>
