@@ -117,6 +117,7 @@ SCENARIOS = [
     {
         "scenario_code":       "T1",
         "title":               "Westerhüsen to OVGU",
+        "title_de":            "Von Westerhüsen zur OVGU",
         "origin":              "Westerhüsen district",
         "destination":         "OVGU Campus",
         "origin_coords":       [52.0821, 11.6197],
@@ -124,8 +125,11 @@ SCENARIOS = [
         "distance_band":       "medium",
         "context":             (
             "It is a weekday morning. You are travelling from Westerhüsen "
-            "to the OVGU campus for work or study. You have about 40 minutes "
-            "before your first appointment. Parking near OVGU can be limited."
+            "to the OVGU campus for work or study. "
+        ),
+        "context_de":          (
+            "Bitte stellen Sie sich folgendes Szenario vor: Es ist morgens an einem Werktag "
+            "und Sie möchten von Westerhüsen aus zur OVGU gelangen, weil Sie dort arbeiten "
         ),
         "purpose":   "work_study",
         "day_type":  "weekday_morning",
@@ -134,6 +138,7 @@ SCENARIOS = [
     {
         "scenario_code":       "S2",
         "title":               "Stadtfeld to Elbauenpark",
+        "title_de":            "Von Stadtfeld zum Elbauenpark",
         "origin":              "Home in Stadtfeld",
         "destination":         "Elbauenpark",
         "origin_coords":       [52.1276, 11.6046],
@@ -142,7 +147,12 @@ SCENARIOS = [
         "context":             (
             "It is a sunny weekday afternoon and you have free time. "
             "You want to get from your home in Stadtfeld to Elbauenpark "
-            "for a relaxed outing. There is no time pressure."
+            "for a relaxed outing."
+        ),
+        "context_de":          (
+            "Bitte stellen Sie sich folgendes Szenario vor: Sie haben einen freien Nachmittag "
+            "in der Woche. Draußen ist es sonnig und Sie möchten von Ihrem Zuhause in Stadtfeld "
+            "aus zum Elbauenpark gelangen, um einen entspannten Ausflug zu machen. "
         ),
         "purpose":   "leisure",
         "day_type":  "weekday_afternoon",
@@ -151,14 +161,21 @@ SCENARIOS = [
     {
         "scenario_code":       "S3",
         "title":               "Werder to City Center",
+        "title_de":            "Von Werder ins Stadtzentrum",
         "origin":              "Home in Werder",
         "destination":         "Magdeburg City Center",
-        "origin_coords":       [52.1335753, 11.6541874],
+        "origin_coords":       [52.13489519529525, 11.656597819711363],
         "destination_coords":  [52.1317, 11.6392],
         "distance_band":       "short",
         "context":             (
             "It is a weekday morning. You want to get from your home in Werder "
-            "to the city centre for a quick errand."
+            "to the city centre for a quick errand. The route crosses the Elbe."
+            
+        ),
+        "context_de":          (
+            "Bitte stellen Sie sich folgendes Szenario vor: Es ist morgens an einem Werktag "
+            "und Sie möchten von Werder aus ins Stadtzentrum, um dort eine kurze Erledigung "
+            "zu machen. Der Weg führt über die Elbe."
         ),
         "purpose":   "errand",
         "day_type":  "weekday_morning",
@@ -167,6 +184,7 @@ SCENARIOS = [
     {
         "scenario_code":       "S6",
         "title":               "City Center to Schönebeck",
+        "title_de":            "Vom Stadtzentrum nach Schönebeck",
         "origin":              "Magdeburg City Center",
         "destination":         "Schönebeck (Elbe)",
         "origin_coords":       [52.1317, 11.6392],
@@ -175,6 +193,13 @@ SCENARIOS = [
         "context":             (
             "It is Sunday afternoon. You are travelling from Magdeburg city centre "
             "to Schönebeck to visit family. The trip crosses district boundaries. "
+            
+        ),
+        "context_de":          (
+            "Bitte stellen Sie sich folgendes Szenario vor: Es ist Sonntagnachmittag "
+            "und Sie möchten vom Stadtzentrum aus nach Schönebeck gelangen, um Ihre Familie "
+            "zu besuchen. Auf dem Weg verlassen Sie die Stadtgrenzen. "
+            
         ),
         "purpose":   "family_visit",
         "day_type":  "sunday_afternoon",
@@ -263,17 +288,18 @@ def seed_scenarios() -> None:
         for s in SCENARIOS:
             conn.execute(
                 """INSERT IGNORE INTO scenarios (
-                    scenario_code, title, origin, destination,
+                    scenario_code, title, title_de, origin, destination,
                     origin_lat, origin_lon, destination_lat, destination_lon,
-                    distance_band, context, purpose, day_type, weather
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                    distance_band, context, context_de, purpose, day_type, weather
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
                 (
-                    s["scenario_code"], s["title"],
+                    s["scenario_code"], s["title"], s.get("title_de", s["title"]),
                     s["origin"],        s["destination"],
                     s["origin_coords"][0],       s["origin_coords"][1],
                     s["destination_coords"][0],  s["destination_coords"][1],
                     s["distance_band"],
-                    s["context"], s["purpose"], s["day_type"], s["weather"],
+                    s["context"], s.get("context_de", s["context"]),
+                    s["purpose"], s["day_type"], s["weather"],
                 ),
             )
     print(f"Seeded {len(SCENARIOS)} scenarios.")

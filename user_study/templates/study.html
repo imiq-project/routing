@@ -494,7 +494,7 @@
         <div class="ovgu-title-block">
             <div class="ovgu-kicker" data-i18n="header.kicker">Otto von Guericke University Magdeburg</div>
             <h1 data-i18n="header.title">Mobility Routing Study</h1>
-            <p data-i18n="header.subtitle">Evaluating personalised multimodal route recommendations — Phase 1</p>
+            <p data-i18n="header.subtitle">Evaluating personalised route recommendations — Phase 1</p>
         </div>
     </header>
 
@@ -509,7 +509,7 @@
             <div class="consent-lang-block">
                 <h2>Welcome! <span class="lang-tag">🇬🇧</span></h2>
                 <p>Thank you for participating in our survey. It is conducted as part of the ERDF-funded project <strong>"IMIQ – Intelligent Mobility Space in the Quarter"</strong>, a project of the <a href="https://www.imr.ovgu.de/niimo/Intelligenter+Mobilit%C3%A4tsraum-nonactive-1-preview-1-showdeleted-1.html" target="_blank" rel="noopener">IMR (Intelligent Mobility Space)</a>.</p>
-                <p>We are interested in your opinions on <strong>personalised multimodal route recommendations</strong>. There are no wrong answers — only your personal assessment matters. This study is anonymous and takes about <strong>20–25 minutes</strong>. Thank you for your support!</p>
+                <p>We are interested in your opinions on <strong>personalised route recommendations</strong>. There are no wrong answers — only your personal assessment matters. This study is anonymous and takes about <strong>20–25 minutes</strong>. Thank you for your support!</p>
                 <div class="info-box">
                     <strong>Contact person</strong><br>
                     Modou Lamin Manjang &nbsp;·&nbsp; Universitätsplatz 2, Building 29, 39106 Magdeburg<br>
@@ -529,7 +529,7 @@
             <div class="consent-lang-block">
                 <h2>Willkommen! <span class="lang-tag">🇩🇪</span></h2>
                 <p>Vielen Dank für Ihre Teilnahme. Die Umfrage wird im Rahmen des EFRE-geförderten Projekts <strong>„IMIQ – Intelligenter Mobilitätsraum im Quartier"</strong> durchgeführt, ein Projekt des <a href="https://www.imr.ovgu.de/niimo/Intelligenter+Mobilit%C3%A4tsraum-nonactive-1-preview-1-showdeleted-1.html" target="_blank" rel="noopener">IMR (Intelligenter Mobilitätsraum)</a>.</p>
-                <p>Wir interessieren uns für Ihre Meinungen zu <strong>personalisierten multimodalen Routenempfehlungen</strong>. Es gibt keine falschen Antworten — uns interessiert ausschließlich Ihre persönliche Einschätzung. Die Studie ist anonym und dauert etwa <strong>20–25 Minuten</strong>. Vielen Dank!</p>
+                <p>Wir interessieren uns für Ihre Meinungen zu <strong>personalisierten Routenempfehlungen</strong>. Es gibt keine falschen Antworten — uns interessiert ausschließlich Ihre persönliche Einschätzung. Die Studie ist anonym und dauert etwa <strong>20–25 Minuten</strong>. Vielen Dank!</p>
                 <div class="info-box">
                     <strong>Ansprechperson</strong><br>
                     Modou Lamin Manjang &nbsp;·&nbsp; Universitätsplatz 2, Gebäude 29, 39106 Magdeburg<br>
@@ -572,9 +572,9 @@
         </div>
 
         <div class="question-group">
-            <label data-i18n="demo.gender.label2">Gender</label>
+            <label data-i18n="demo.gender.label2">Please select the gender you identify with</label>
             <select id="gender" required>
-                <option value="">— select —</option>
+                <option value="" data-i18n="common.select">— select —</option>
                 <option data-i18n="demo.gender.female">Female</option>
                 <option data-i18n="demo.gender.male">Male</option>
                 <option data-i18n="demo.gender.nonbinary">Non-binary / third gender</option>
@@ -583,9 +583,9 @@
         </div>
 
         <div class="question-group">
-            <label data-i18n="demo.edu.label2">Highest level of education completed</label>
+            <label data-i18n="demo.edu.label2">Please select the highest level of education you have achieved so far</label>
             <select id="education" required>
-                <option value="">— select —</option>
+                <option value="" data-i18n="common.select">— select —</option>
                 <option value="no_formal" data-i18n="demo.edu.no_formal2">No formal qualification</option>
                 <option value="secondary">Secondary school (Hauptschule / Realschule)</option>
                 <option value="abitur" data-i18n="demo.edu.abitur">Abitur / A-levels</option>
@@ -600,7 +600,7 @@
         <div class="question-group">
             <label data-i18n="demo.occ.label2">Occupation</label>
             <select id="occupation" required>
-                <option value="">— select —</option>
+                <option value="" data-i18n="common.select">— select —</option>
                 <option data-i18n="demo.occ.student">Student</option>
                 <option data-i18n="demo.occ.employed2">Employed full-time</option>
                 <option data-i18n="demo.occ.part_time2">Employed part-time</option>
@@ -614,16 +614,16 @@
         <div class="question-group">
             <label data-i18n="demo.commute_from.label">Where do you usually travel <strong>from</strong> for your regular commute (work, studies, or similar)?</label>
             <select id="commute-origin-type" required>
-                <option value="">— select —</option>
+                <option value="" data-i18n="common.select">— select —</option>
                 <option value="magdeburg_district" data-i18n="demo.commute_from.mgd2">From a district within Magdeburg</option>
                 <option value="other_city" data-i18n="demo.commute_from.city2">From another city or town</option>
                 <option value="no_regular_commute" data-i18n="demo.commute_from.none">I do not have a regular commute</option>
             </select>
 
             <div id="commute-origin-district-group" class="conditional-block hidden">
-                <label class="subquestion-label" for="commute-origin-district">Which Magdeburg district do you commute from?</label>
+                <label class="subquestion-label" for="commute-origin-district" data-i18n="demo.commute_from.district_label">Which Magdeburg district do you commute from?</label>
                 <select id="commute-origin-district">
-                    <option value="">— select district —</option>
+                    <option value="" data-i18n="demo.district_placeholder">— select district —</option>
                     <option value="altstadt">Altstadt</option>
                     <option value="alte_neustadt">Alte Neustadt</option>
                     <option value="neue_neustadt">Neue Neustadt</option>
@@ -645,9 +645,9 @@
             </div>
 
             <div id="commute-origin-city-group" class="conditional-block hidden">
-                <label class="subquestion-label" for="commute-origin-city">Which city or town do you commute from?</label>
+                <label class="subquestion-label" for="commute-origin-city" data-i18n="demo.commute_from.city_label">Which city or town do you commute from?</label>
                 <select id="commute-origin-city">
-                    <option value="">— select city —</option>
+                    <option value="" data-i18n="demo.city_placeholder">— select city —</option>
                     <option value="halle_saale">Halle (Saale)</option>
                     <option value="leipzig">Leipzig</option>
                     <option value="berlin">Berlin</option>
@@ -665,16 +665,16 @@
         <div class="question-group">
             <label data-i18n="demo.commute_to.label">Where do you usually travel <strong>to</strong> for your regular commute?</label>
             <select id="commute-destination-type" required>
-                <option value="">— select —</option>
+                <option value="" data-i18n="common.select">— select —</option>
                 <option value="magdeburg_district" data-i18n="demo.commute_to.mgd2">To a district within Magdeburg</option>
                 <option value="other_city" data-i18n="demo.commute_to.city2">To another city or town</option>
                 <option value="no_regular_commute" data-i18n="demo.commute_from.none">I do not have a regular commute</option>
             </select>
 
             <div id="commute-dest-district-group" class="conditional-block hidden">
-                <label class="subquestion-label" for="commute-dest-district">Which Magdeburg district do you commute to?</label>
+                <label class="subquestion-label" for="commute-dest-district" data-i18n="demo.commute_to.district_label">Which Magdeburg district do you commute to?</label>
                 <select id="commute-dest-district">
-                    <option value="">— select district —</option>
+                    <option value="" data-i18n="demo.district_placeholder">— select district —</option>
                     <option value="altstadt">Altstadt (City Centre)</option>
                     <option value="alte_neustadt">Alte Neustadt</option>
                     <option value="neue_neustadt">Neue Neustadt</option>
@@ -696,9 +696,9 @@
             </div>
 
             <div id="commute-dest-city-group" class="conditional-block hidden">
-                <label class="subquestion-label" for="commute-dest-city">Which city or town do you commute to?</label>
+                <label class="subquestion-label" for="commute-dest-city" data-i18n="demo.commute_to.city_label">Which city or town do you commute to?</label>
                 <select id="commute-dest-city">
-                    <option value="">— select city —</option>
+                    <option value="" data-i18n="demo.city_placeholder">— select city —</option>
                     <option value="halle_saale">Halle (Saale)</option>
                     <option value="leipzig">Leipzig</option>
                     <option value="berlin">Berlin</option>
@@ -717,22 +717,22 @@
         <div class="question-group exclusion-group">
             <label data-i18n="demo.disability.label2">Do you have any physical impairment, disability, or health condition that significantly affects your ability to walk, cycle, or use public transport?</label>
             <select id="exclusion-disability-yesno" required>
-                <option value="">— select —</option>
+                <option value="" data-i18n="common.select">— select —</option>
                 <option value="0" data-i18n="common.no">No</option>
                 <option value="1" data-i18n="common.yes">Yes</option>
                 <option value="9" data-i18n="demo.gender.prefer_not">Prefer not to say</option>
             </select>
 
             <div id="disability-mode-group" class="conditional-block hidden">
-                <p class="subquestion-label">Which modes or mobility activities are affected? Please select all that apply.</p>
+                <p class="subquestion-label" data-i18n="demo.disability.modes_label">Which modes or mobility activities are affected? Please select all that apply.</p>
                 <div class="checkbox-grid">
-                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="walking"> Walking</label>
-                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="cycling"> Cycling</label>
-                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="public_transport"> Public transport</label>
-                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="driving"> Driving</label>
-                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="transfers"> Transfers / getting in or out of vehicles</label>
-                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="carrying_items"> Carrying luggage or shopping</label>
-                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="other"> Other mobility limitation</label>
+                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="walking"> <span data-i18n="demo.disability.walking">Walking</span></label>
+                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="cycling"> <span data-i18n="demo.disability.cycling">Cycling</span></label>
+                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="public_transport"> <span data-i18n="demo.disability.pt">Public transport</span></label>
+                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="driving"> <span data-i18n="demo.disability.driving">Driving</span></label>
+                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="transfers"> <span data-i18n="demo.disability.transfers">Transfers / getting in or out of vehicles</span></label>
+                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="carrying_items"> <span data-i18n="demo.disability.carrying">Carrying luggage or shopping</span></label>
+                    <label class="checkbox-chip"><input type="checkbox" name="disability-mode" value="other"> <span data-i18n="demo.disability.other">Other mobility limitation</span></label>
                 </div>
             </div>
             <p class="exclusion-note">
@@ -764,7 +764,7 @@
         <div class="question-group">
             <label data-i18n="mob.license.label">Do you have a driving licence?</label>
             <select id="driving-license" required>
-                <option value="">— select —</option>
+                <option value="" data-i18n="common.select">— select —</option>
                 <option value="1" data-i18n="common.yes">Yes</option>
                 <option value="0" data-i18n="common.no">No</option>
             </select>
@@ -773,7 +773,7 @@
         <div class="question-group">
             <label data-i18n="mob.car.label">Do you own or have regular access to a car?</label>
             <select id="owns-car" required>
-                <option value="">— select —</option>
+                <option value="" data-i18n="common.select">— select —</option>
                 <option value="1" data-i18n="common.yes">Yes</option>
                 <option value="0" data-i18n="common.no">No</option>
             </select>
@@ -782,7 +782,7 @@
         <div class="question-group">
             <label data-i18n="mob.bike.label">Do you own or have regular access to a bicycle?</label>
             <select id="owns-bike" required>
-                <option value="">— select —</option>
+                <option value="" data-i18n="common.select">— select —</option>
                 <option value="1" data-i18n="common.yes">Yes</option>
                 <option value="0" data-i18n="common.no">No</option>
             </select>
@@ -997,11 +997,9 @@
 
         <div class="info-box" id="scenario-instruction">
             <p data-i18n="scenario.task"><strong>Your task:</strong>
-            Please review both route sets for the same journey.
-            <strong>Route Set A</strong> is the ranked output of our preference-based routing engine.
-            <strong>Route Set B</strong> is a standard time/distance-based routing benchmark.
-            We want to know whether Set A's ranking makes sense to you, whether intermodal routes
-            are noticeable and understandable, and whether you would use this kind of system in daily life.</p>
+            Please look at the two route sets shown for the journey described above.
+            We want to know whether the ranking in any of the sets makes sense to you, whether you notice and understand any intermodal routes 
+            (routes that combine different modes of transport), and whether you would use this kind of ranking system in daily life.</p>
             <p data-i18n="scenario.assumption"><strong>📌 Please assume</strong> that for this journey you have access to <strong>all transport modes</strong>
             — car, bike, public transport, and walking. The rankings are based purely on the travel preferences
             and values you stated at the start, not on what you personally own or normally use.</p>
@@ -1023,19 +1021,22 @@
 
             <!-- SET A — fixed engine ranking, no drag-and-drop -->
             <div id="route-set-a" class="route-set-panel set-a-panel">
-                <h3 class="set-label set-a-label" data-i18n="scenario.setA.title">Route Set A</h3>
+                <h3 class="set-label set-a-label" data-i18n="scenario.setA.title">Route Set 1</h3>
+                <p class="set-desc">
+                    <strong>Step 1:</strong> Read through them and answer the questions below.
+                </p>
             
                 <ul id="routes-list-a" class="routes-list"></ul>
 
                 <div class="question-group">
-                    <label data-i18n="scenario.setA.q1">Which route from Set A would you choose in this situation?</label>
+                    <label data-i18n="scenario.setA.q1">Which route from Route Set 1 would you choose in the scenario described above? Please imagine you have access to all modes of transport.</label>
                     <select id="preferred-route-a"></select>
                 </div>
 
                 <div class="question-group">
-                    <label data-i18n="scenario.setA.q2">Would you follow the top-ranked route suggested in Route Set A?</label>
+                    <label data-i18n="scenario.setA.q2">Would you follow the top-ranked route in Route Set 1?</label>
                     <select id="follow-top-route-a" required>
-                        <option value="">— select —</option>
+                        <option value="" data-i18n="common.select">— select —</option>
                         <option value="yes" data-i18n="common.yes">Yes</option>
                         <option value="maybe" data-i18n="scenario.setA.q2.maybe">Maybe</option>
                         <option value="no" data-i18n="common.no">No</option>
@@ -1043,7 +1044,7 @@
                 </div>
 
                 <div class="question-group">
-                    <label data-i18n="scenario.setA.q3">How well does Route Set A's ranking match what you would personally prefer in this situation?</label>
+                    <label data-i18n="scenario.setA.q3">How well does Route Set 1's ranking match what you would personally prefer in this situation?</label>
                     <div class="likert-row" data-target="ranking-acceptance-a">
                         <span class="likert-label-l" data-i18n="ll.not_at_all">Not at all</span>
                         <div class="likert-options" id="ranking-acceptance-a"></div>
@@ -1054,7 +1055,7 @@
 
             <!-- SET B — rate first, then drag to reorder -->
             <div id="route-set-b" class="route-set-panel set-b-panel">
-                <h3 class="set-label set-b-label" data-i18n="scenario.setB.title">Route Set B</h3>
+                <h3 class="set-label set-b-label" data-i18n="scenario.setB.title">Route Set 2</h3>
                 <p class="set-desc">
                     <strong>Step 1:</strong> Read through them and answer the questions below.
                     <strong>Step 2:</strong> If this order does not match your personal preference,
@@ -1068,7 +1069,7 @@
                 </div>
 
                 <div class="question-group">
-                    <label data-i18n="scenario.setB.q2">How well does this time-sorted ranking (before any reordering) match what you would personally prefer?</label>
+                    <label data-i18n="scenario.setB.q2">How well does Route Set 2's ranking match what you would personally prefer in this situation?</label>
                     <div class="likert-row" data-target="ranking-acceptance-b">
                         <span class="likert-label-l" data-i18n="ll.not_at_all">Not at all</span>
                         <div class="likert-options" id="ranking-acceptance-b"></div>
@@ -1091,7 +1092,7 @@
             <div class="question-group">
                 <label data-i18n="scenario.intermodal.q1">Did you notice any intermodal route in this scenario?</label>
                 <select id="noticed-intermodal" required>
-                    <option value="">— select —</option>
+                    <option value="" data-i18n="common.select">— select —</option>
                     <option value="1" data-i18n="common.yes">Yes</option>
                     <option value="0" data-i18n="common.no">No</option>
                     <option value="2">Not sure</option>
@@ -1108,7 +1109,7 @@
             </div>
 
             <div class="question-group">
-                <label data-i18n="scenario.intermodal.q3">Would you consider using an intermodal route if it better matched your travel preferences?</label>
+                <label data-i18n="scenario.intermodal.q3">How likely would you be to choose one of the intermodal routes shown in this scenario?</label>
                 <div class="likert-row" data-target="intermodal-acceptance">
                     <span class="likert-label-l" data-i18n="ll.def_not">Definitely not</span>
                     <div class="likert-options" id="intermodal-acceptance"></div>
@@ -1119,7 +1120,7 @@
 
         <!-- ── Scenario-level system acceptance ── -->
         <div id="scenario-system-section" class="validation-block hidden">
-            <h3>Use of this Routing System</h3>
+            <h3 data-i18n="scenario.system.title">Use of this Routing System</h3>
             <div class="question-group">
                 <label data-i18n="scenario.system.q1">Based on this scenario, would you use a system that ranks routes according to your travel preferences?</label>
                 <div class="likert-row" data-target="scenario-system-use">
@@ -1130,7 +1131,7 @@
             </div>
 
             <div class="question-group">
-                <label data-i18n="scenario.system.q2">How much would you trust the top recommendation from Route Set A in this scenario?</label>
+                <label data-i18n="scenario.system.q2">How much would you trust the top recommendation from Route Set 1 in this scenario?</label>
                 <div class="likert-row" data-target="scenario-trust-top-recommendation">
                     <span class="likert-label-l" data-i18n="ll.not_at_all">Not at all</span>
                     <div class="likert-options" id="scenario-trust-top-recommendation"></div>
@@ -1301,16 +1302,16 @@
         </div>
 
         <div class="question-group">
-            <label data-i18n="final.noticed.q">Did you notice that Set A routes were adapted to the profile you selected?</label>
+            <label data-i18n="final.noticed.q">To what extent did Route Set 1 feel tailored to your personal travel preferences?</label>
             <select id="noticed-personalisation" required>
-                <option value="">— select —</option>
+                <option value="" data-i18n="common.select">— select —</option>
                 <option value="1" data-i18n="final.noticed.yes">Yes, clearly</option>
                 <option value="0">No, I did not notice a difference</option>
             </select>
         </div>
 
         <div class="question-group">
-            <label data-i18n="final.system.q1_alt">How well did the personalised routes (Set A) match your values? (1 = poorly, 5 = very well)</label>
+            <label data-i18n="final.system.q1_alt">How well did Route Set 1's ranking match your values?</label>
             <div class="likert-row" data-target="personalisation-quality">
                 <div class="likert-options" id="personalisation-quality"></div>
             </div>
@@ -1319,7 +1320,7 @@
         <div class="question-group">
             <label data-i18n="final.google.q">How useful is this routing system compared to a standard navigation app like Google Maps?</label>
             <select id="comparison-google" required>
-                <option value="">— select —</option>
+                <option value="" data-i18n="common.select">— select —</option>
                 <option value="1" data-i18n="final.google.worse">Much worse</option>
                 <option value="2" data-i18n="final.google.slworse">Slightly worse</option>
                 <option value="3" data-i18n="final.google.same">About the same</option>
@@ -1395,13 +1396,13 @@ const TRANSLATIONS = {
     // ── Header ─────────────────────────────────────────────────
     "header.kicker":   "Otto von Guericke University Magdeburg",
     "header.title":    "Mobility Routing Study",
-    "header.subtitle": "Evaluating personalised multimodal route recommendations — Phase 1",
+    "header.subtitle": "Evaluating personalised route recommendations — Phase 1",
 
     // ── Consent ────────────────────────────────────────────────
     "consent.h2":         "Welcome!",
     "consent.p1":         "Thank you very much for participating in our survey. It is being conducted as part of the ERDF-funded project <strong>\"IMIQ – Smart Mobility in the Quarter\"</strong>.",
     "consent.p2":         "<em>\"IMIQ – Intelligent Mobility Space in the Quarter\"</em> is a project of the <a href=\"https://www.imr.ovgu.de/niimo/Intelligenter+Mobilit%C3%A4tsraum-nonactive-1-preview-1-showdeleted-1.html\" target=\"_blank\" rel=\"noopener\">IMR (Intelligent Mobility Space)</a>, which is based at the Wissenschaftshafen in Magdeburg. During its planned runtime from 2024 to 2028, the Wissenschaftshafen will become a district of the future where new needs-based solutions are conceived, technically tested, and implemented with a socio-economic perspective in mind.",
-    "consent.p3":         "In this study, we are interested in your opinions on <strong>personalised multimodal route recommendations</strong>. We would like to emphasise that there are no wrong answers — we are only interested in your personal assessment. This study is anonymous. Please answer all questions. It will take about <strong>20–25 minutes</strong> to complete. Thank you again for your support!",
+    "consent.p3":         "In this study, we are interested in your opinions on <strong>personalised route recommendations</strong>. We would like to emphasise that there are no wrong answers — we are only interested in your personal assessment. This study is anonymous. Please answer all questions. It will take about <strong>20–25 minutes</strong> to complete. Thank you again for your support!",
     "consent.contact.title": "Contact person for the organisational unit executing the project",
     "consent.dp.title":   "Data Protection Information",
     "consent.dp.p1":      "Your consent to the processing of your data is voluntary. It may be modified or revoked in whole or in part at any time, effective for the future, without providing a reason. You may revoke your consent by mail or email using the contact information provided for the aforementioned contact person. Revoking consent will not result in any disadvantages for you.",
@@ -1432,6 +1433,21 @@ const TRANSLATIONS = {
     "demo.commute_to.mgd2":   "To a district within Magdeburg",
     "demo.commute_to.city2":  "To another city or town",
     "demo.intro":         "Please answer the following questions about yourself. All responses are anonymous and used solely for research purposes.",
+    "demo.commute_from.district_label": "Which Magdeburg district do you commute from?",
+    "demo.commute_from.city_label":     "Which city or town do you commute from?",
+    "demo.commute_to.district_label":   "Which Magdeburg district do you commute to?",
+    "demo.commute_to.city_label":       "Which city or town do you commute to?",
+    "demo.district_placeholder":        "— select district —",
+    "demo.city_placeholder":            "— select city —",
+    "demo.disability.modes_label":      "Which modes or mobility activities are affected? Please select all that apply.",
+    "demo.disability.walking":          "Walking",
+    "demo.disability.cycling":          "Cycling",
+    "demo.disability.pt":               "Public transport",
+    "demo.disability.driving":          "Driving",
+    "demo.disability.transfers":        "Transfers / getting in or out of vehicles",
+    "demo.disability.carrying":         "Carrying luggage or shopping",
+    "demo.disability.other":            "Other mobility limitation",
+    "demo.disability.hint":             "This question helps us understand whether our route options are appropriate for your situation. It does not exclude you from participating.",
     "demo.gender.label":  "What is your gender?",
     "demo.gender.male":   "Male",
     "demo.gender.female": "Female",
@@ -1556,40 +1572,40 @@ const TRANSLATIONS = {
     "profile.hed.name.en": "The Relaxed Traveller",
 
     // ── Scenario section ───────────────────────────────────────
-    "scenario.task":       "<strong>Your task:</strong> Please review both route sets for the same journey. <strong>Route Set A</strong> is the ranked output of our preference-based routing engine. <strong>Route Set B</strong> is a standard time/distance-based routing benchmark. We want to know whether Set A\'s ranking makes sense to you, whether intermodal routes are noticeable and understandable, and whether you would use this kind of system in daily life.",
-    "scenario.assumption": "<strong>📌 Please assume</strong> that for this journey you have access to <strong>all transport modes</strong> — car, bike, public transport, and walking. The rankings are based purely on the travel preferences and values you stated at the start, not on what you personally own or normally use.",
+    "scenario.task":       "<strong>Your task:</strong> Please look at the two route sets shown for the journey described above. We want to know whether the ranking in either set makes sense to you, whether you notice and understand any intermodal routes (routes that combine different modes of transport), and whether you would use this kind of ranking system in daily life.",
+    "scenario.assumption": "<strong>📌 Please note:</strong> For each scenario, please imagine that you have access to <strong>all transport modes</strong> — car, bike, public transport, and walking — regardless of what you personally own or normally use.",
     "scenario.note":       "<strong>⏱ Note on driving times:</strong> Travel times shown for car routes include an estimated <strong>8 minutes</strong> for parking search and the walk to your destination. This overhead is not shown by standard navigation apps but reflects realistic urban door-to-door journey time.",
-    "scenario.setA.title": "Route Set A",
+    "scenario.setA.title": "Route Set 1",
     "scenario.setA.desc":  "These routes are ranked from the engine\'s top recommendation to the lowest-ranked option for this journey.",
-    "scenario.setB.title": "Route Set B",
-    "scenario.setB.desc":  "These routes are sorted by travel time — fastest first. <strong>Step 1:</strong> Read through them and answer the questions below. <strong>Step 2:</strong> If this order does not match your personal preference, drag the cards into the order you would prefer.",
+    "scenario.setB.title": "Route Set 2",
+    "scenario.setB.desc":  "<strong>Step 1:</strong> Please look at the following ranking and answer the questions below. <strong>Step 2:</strong> If this ranking does not match your personal preferences, please drag the cards (using the handle ⠿ in the top-left corner) into the order that reflects your personal ranking.",
     "scenario.drag.hint":  "↕️ Optional: drag cards above to reorder by your personal preference — your order is saved automatically",
-    "scenario.setA.q1":    "Which route from Set A would you choose in this situation?",
-    "scenario.setA.q2":    "Would you follow the top-ranked route suggested in Route Set A?",
+    "scenario.setA.q1":    "Which route from Route Set 1 would you choose in the scenario described above? Please imagine you have access to all modes of transport.",
+    "scenario.setA.q2":    "Would you follow the top-ranked route in Route Set 1?",
     "scenario.setA.q2.yes": "Yes",
     "scenario.setA.q2.maybe": "Maybe",
     "scenario.setA.q2.no":  "No",
-    "scenario.setA.q3":    "How well does Route Set A\'s ranking match what you would personally prefer in this situation?",
-    "scenario.setB.q1":    "Which route from Set B would you choose in this situation?",
-    "scenario.setB.q2":    "How well does this time-sorted ranking (before any reordering) match what you would personally prefer?",
+    "scenario.setA.q3":    "How well does Route Set 1's ranking match what you would personally prefer in this situation?",
+    "scenario.setB.q1":    "Which route from Route Set 2 would you choose in the scenario described above? Please imagine you have access to all modes of transport.",
+    "scenario.setB.q2":    "How well does Route Set 2's ranking match what you would personally prefer in this situation?",
     "scenario.intermodal.title": "Intermodal Routes",
     "scenario.intermodal.desc":  "Some route options may combine more than one transport mode, for example walking + bus or bike + public transport.",
     "scenario.intermodal.q1":   "Did you notice any intermodal route in this scenario?",
     "scenario.intermodal.q2":   "How easy was it to understand how the intermodal route(s) worked?",
-    "scenario.intermodal.q3":   "Would you consider using an intermodal route if it better matched your travel preferences?",
+    "scenario.intermodal.q3":   "How likely would you be to choose one of the intermodal routes shown in this scenario?",
     "scenario.system.title":    "Use of this Routing System",
-    "scenario.system.q1":       "Based on this scenario, would you use a system that ranks routes according to your travel preferences?",
-    "scenario.system.q2":       "How much would you trust the top recommendation from Route Set A in this scenario?",
+    "scenario.system.q1":       "In the scenario described above, would you use a system that ranks routes according to your personal travel preferences?",
+    "scenario.system.q2":       "In the scenario described above, how much would you trust the top recommendation from Route Set 1?",
     "scenario.comment.label":   "Any comments about the routes shown in this scenario?",
-    "scenario.comment.hint":    "Please add a short comment, or use the quick option below if you have nothing to add.",
+    "scenario.comment.hint":    "Please write a short comment, or use the button below if you have nothing further to tell us.",
     "scenario.comment.placeholder": "What matched or did not match your expectations?",
     "scenario.comment.none":    "No comments",
     "scenario.comment.none.hint": "Fills the required text field automatically.",
     "scenario.btn.back":        "Back",
     "scenario.btn.next":        "Next Scenario",
     "scenario.btn.finish":      "Complete Study",
-    "scenario.step":            "STEP 3 OF 4 — SCENARIO",
-    "scenario.setA.q2.follow":  "Would you follow the top-ranked route suggested in Route Set A?",
+    "scenario.step":            "Step 3 of 4 — Scenario",
+    "scenario.setA.q2.follow":  "Would you follow the top-ranked route in Route Set 1?",
     "scenario.nocomments":      "No comments",
     "scenario.nocomments.hint": "Fills the required text field automatically.",
     "scenario.system.title2":   "Use of this Routing System",
@@ -1606,9 +1622,9 @@ const TRANSLATIONS = {
     "route.select.none":  "I would not choose any of these routes",
     "route.intermodal.label": "Intermodal route:",
     "route.mode_sequence":    "Mode sequence:",
-    "setb.step_desc":         "These routes are sorted by travel time — fastest first. <strong>Step 1:</strong> Read through them and answer the questions below. <strong>Step 2:</strong> If this order does not match your personal preference, drag the cards into the order you would prefer.",
+    "setb.step_desc":         "<strong>Step 1:</strong> Please look at the following ranking and answer the questions below. <strong>Step 2:</strong> If this ranking does not match your personal preferences, please drag the cards (using the handle ⠿ in the top-left corner) into the order that reflects your personal ranking.",
     "setb.drag_hint":  "↕️ Optional: drag cards above to reorder by your personal preference — your order is saved automatically",
-    "scenario.follow_q":      "Would you follow the top-ranked route suggested in Route Set A?",
+    "scenario.follow_q":      "Would you follow the top-ranked route in Route Set 1?",
     "scenario.follow.yes":    "Yes",
     "scenario.follow.maybe":  "Maybe",
     "scenario.follow.no":     "No",
@@ -1616,14 +1632,14 @@ const TRANSLATIONS = {
     // ── Final feedback ─────────────────────────────────────────
     "final.h2":           "Final Feedback",
     "final.step":         "Step 4 of 4 — Overall impressions",
-    "final.personalisation.q": "How accurately did the routes in Set A reflect your personal travel values across all four scenarios?",
+    "final.personalisation.q": "How accurately did the Route Set 1 reflect your personal travel preferences across all four scenarios?",
     "final.confidence.q":      "How confident were you in evaluating the two route sets?",
     "final.system.title":      "System Evaluation",
     "final.willingness.q":     "Overall, how likely would you be to use a personalised value-based routing app in your daily life?",
-    "final.trust.q":           "Overall, how much did you trust the route rankings shown in Set A?",
+    "final.trust.q":           "Overall, how much did you trust the route rankings shown in Route Set 1?",
     "final.intermodal.q":      "Overall, would you consider using intermodal route suggestions if they better matched your travel preferences?",
     "final.google.q":          "Compared to standard navigation apps (e.g. Google Maps), how would you rate this personalised routing system?",
-    "final.noticed.q":         "Did you notice that Route Set A was adapted to your personal travel preferences?",
+    "final.noticed.q":         "To what extent did Route Set 1 feel tailored to your personal travel preferences?",
     "final.noticed.yes":       "Yes, clearly",
     "final.noticed.no":        "No, I did not notice",
     "final.bestfeature.label": "What did you like most about the routing system?",
@@ -1637,7 +1653,7 @@ const TRANSLATIONS = {
     "final.bestfeature.hint":  "Please write a short answer, or choose the quick option if nothing stood out.",
     "final.worstfeature.hint": "Please write a short answer, or choose the quick option if you have no specific suggestion.",
     "final.nocomments":        "No comments",
-    "final.system.q1_alt":     "How well did the personalised routes (Set A) match your values?",
+    "final.system.q1_alt":     "How well did the Route Set 1's ranking match your values?",
     "final.google.worse":      "Much worse",
     "final.google.slworse":    "Slightly worse",
     "final.google.same":       "About the same",
@@ -1726,13 +1742,13 @@ const TRANSLATIONS = {
     // ── Header ─────────────────────────────────────────────────
     "header.kicker":   "Otto-von-Guericke-Universität Magdeburg",
     "header.title":    "Mobilitäts-Routing-Studie",
-    "header.subtitle": "Bewertung personalisierter multimodaler Routenempfehlungen — Phase 1",
+    "header.subtitle": "Bewertung personalisierter Routenempfehlungen — Phase 1",
 
     // ── Consent ────────────────────────────────────────────────
     "consent.h2":         "Willkommen!",
     "consent.p1":         "Vielen Dank für Ihre Teilnahme an unserer Umfrage. Sie wird im Rahmen des EFRE-geförderten Projekts <strong>\"IMIQ – Smarte Mobilität im Quartier\"</strong> durchgeführt.",
     "consent.p2":         "<em>\"IMIQ – Intelligenter Mobilitätsraum im Quartier\"</em> ist ein Projekt des <a href=\"https://www.imr.ovgu.de/niimo/Intelligenter+Mobilit%C3%A4tsraum-nonactive-1-preview-1-showdeleted-1.html\" target=\"_blank\" rel=\"noopener\">IMR (Intelligenter Mobilitätsraum)</a>, das am Wissenschaftshafen in Magdeburg angesiedelt ist. Während der geplanten Laufzeit von 2024 bis 2028 soll der Wissenschaftshafen zu einem Zukunftsquartier werden, in dem neue bedarfsorientierte Lösungen konzipiert, technisch erprobt und mit sozioökonomischer Perspektive umgesetzt werden.",
-    "consent.p3":         "In dieser Studie interessieren uns Ihre Meinungen zu <strong>personalisierten multimodalen Routenempfehlungen</strong>. Wir möchten betonen, dass es keine falschen Antworten gibt — uns interessiert ausschließlich Ihre persönliche Einschätzung. Die Studie ist anonym. Bitte beantworten Sie alle Fragen. Die Bearbeitung dauert etwa <strong>20–25 Minuten</strong>. Vielen Dank für Ihre Unterstützung!",
+    "consent.p3":         "In dieser Studie interessieren uns Ihre Meinungen zu <strong>personalisierten Routenempfehlungen</strong>. Wir möchten betonen, dass es keine falschen Antworten gibt — uns interessiert ausschließlich Ihre persönliche Einschätzung. Die Studie ist anonym. Bitte beantworten Sie alle Fragen. Die Bearbeitung dauert etwa <strong>20–25 Minuten</strong>. Vielen Dank für Ihre Unterstützung!",
     "consent.contact.title": "Ansprechperson für die durchführende Organisationseinheit",
     "consent.dp.title":   "Datenschutzinformationen",
     "consent.dp.p1":      "Ihre Einwilligung zur Verarbeitung Ihrer Daten ist freiwillig. Sie kann jederzeit ganz oder teilweise mit Wirkung für die Zukunft ohne Angabe von Gründen geändert oder widerrufen werden. Sie können Ihre Einwilligung per Post oder E-Mail an die oben genannte Kontaktperson widerrufen. Der Widerruf hat keine Nachteile für Sie.",
@@ -1748,8 +1764,8 @@ const TRANSLATIONS = {
     "demo.step":          "Schritt 1a von 4 — Persönliche Angaben",
     "demo.age.label":     "Wie alt sind Sie?",
     "demo.age.hint":      "(bitte geben Sie Ihr Alter in Jahren ein)",
-    "demo.gender.label2": "Geschlecht",
-    "demo.edu.label2":    "Höchster Bildungsabschluss",
+    "demo.gender.label2": "Bitte wählen Sie das Geschlecht aus, dem Sie sich zugehörig fühlen.",
+    "demo.edu.label2":    "Bitte wählen Sie den höchsten Bildungsabschluss, den Sie bis jetzt erreicht haben",
     "demo.occ.label2":    "Beschäftigung",
     "demo.edu.no_formal2": "Kein formaler Abschluss",
     "demo.edu.vocational2": "Berufsausbildung / Ausbildung",
@@ -1763,6 +1779,21 @@ const TRANSLATIONS = {
     "demo.commute_to.mgd2":   "In einen Stadtbezirk von Magdeburg",
     "demo.commute_to.city2":  "In eine andere Stadt oder Gemeinde",
     "demo.intro":         "Bitte beantworten Sie die folgenden Fragen zu Ihrer Person. Alle Angaben sind anonym und werden ausschließlich für Forschungszwecke verwendet.",
+    "demo.commute_from.district_label": "Aus welchem Magdeburger Stadtbezirk pendeln Sie?",
+    "demo.commute_from.city_label":     "Aus welcher Stadt oder Gemeinde pendeln Sie?",
+    "demo.commute_to.district_label":   "In welchen Magdeburger Stadtbezirk pendeln Sie?",
+    "demo.commute_to.city_label":       "In welche Stadt oder Gemeinde pendeln Sie?",
+    "demo.district_placeholder":        "— Stadtbezirk auswählen —",
+    "demo.city_placeholder":            "— Stadt auswählen —",
+    "demo.disability.modes_label":      "Welche Verkehrsmittel oder Mobilitätsaktivitäten sind betroffen? Bitte alles Zutreffende auswählen.",
+    "demo.disability.walking":          "Gehen",
+    "demo.disability.cycling":          "Fahrradfahren",
+    "demo.disability.pt":               "Öffentliche Verkehrsmittel",
+    "demo.disability.driving":          "Autofahren",
+    "demo.disability.transfers":        "Umsteigen / Ein- und Aussteigen",
+    "demo.disability.carrying":         "Gepäck oder Einkäufe tragen",
+    "demo.disability.other":            "Andere Mobilitätseinschränkung",
+    "demo.disability.hint":             "Diese Frage hilft uns zu verstehen, ob unsere Routenoptionen für Ihre Situation geeignet sind. Sie schließt Sie nicht von der Teilnahme aus.",
     "demo.gender.label":  "Was ist Ihr Geschlecht?",
     "demo.gender.male":   "Männlich",
     "demo.gender.female": "Weiblich",
@@ -1810,7 +1841,7 @@ const TRANSLATIONS = {
     "mob.btn":             "Weiter — Reiseprioritäten",
     "mob.intro":           "Diese Fragen helfen uns, Ihren alltäglichen Reisekontext zu verstehen. Es gibt keine richtigen oder falschen Antworten.",
     "mob.pt.q":            "Wie häufig nutzen Sie öffentliche Verkehrsmittel?",
-    "mob.pt.hint":         "Bitte antworten Sie auf einer Häufigkeitsskala für Ihr übliches Mobilitätsverhalten.",
+    "mob.pt.hint":         "Bitte wählen Sie auf der Skala die Option, die auf ihr übliches Mobilitätsverhalten zutrifft.",
     "mob.license.yes":     "Ja, ich habe einen Führerschein",
     "mob.license.no":      "Nein, ich habe keinen Führerschein",
     "mob.car.yes":         "Ja, ich habe regelmäßigen Zugang zu einem Auto",
@@ -1840,7 +1871,7 @@ const TRANSLATIONS = {
     "needs.safety_accident":     "🚦 Verkehrssicherheit",
     "needs.safety_accident.sub": "Geringes Unfallrisiko",
     "needs.safety_crime":        "🔦 Persönliche Sicherheit",
-    "needs.safety_crime.sub":    "Sicherheit vor Kriminalität unterwegs",
+    "needs.safety_crime.sub":    "Sicherheit vor Kriminalität",
     "needs.comfort":       "🛋️ Komfort",
     "needs.comfort.sub":   "Bequemes, angenehmes Reisen",
     "needs.reliable":      "🕐 Zuverlässigkeit",
@@ -1875,11 +1906,11 @@ const TRANSLATIONS = {
     "profile.hed.b2":      "Ich vermeide gerne überfüllte oder stressige Umgebungen.",
     "profile.hed.b3":      "Ich mag keine Routen, die zu viel körperlichen Aufwand erfordern.",
     "profile.rating.q":    "Wie gut beschreibt dieses Profil Ihre alltäglichen Reisepräferenzen?",
-    "profile.select.btn":  "Als nächstes Profil auswählen",
+    "profile.select.btn":  "Dieses Profil beschreibt mich am besten",
     "profile.confidence.q": "Wie sicher sind Sie bei dieser Profilauswahl?",
     "profile.btn":         "Weiter zu den Routenszenarien",
-    "profile.intro2":      "Nachdem Sie nun gesehen haben, wie verschiedene Routen bewertet werden, möchten wir wissen, welcher der folgenden Reisestile Sie am besten beschreibt. Bewerten Sie zunächst, wie gut jedes Profil Ihre alltäglichen Reisepräferenzen beschreibt, und wählen Sie dann das Profil, das insgesamt am besten passt.",
-    "profile.hint2":       "Denken Sie an Ihre alltäglichen Wege — Pendeln, Einkaufen, Freunde besuchen — nicht nur an die Szenarien, die Sie heute gesehen haben.",
+    "profile.intro2":      "Jetzt, wo Sie gesehen haben, wie verschiedene Routen bewertet werden, möchten wir wissen, welcher der folgenden Reisestile Sie am besten beschreibt. Wählen Sie bitte zuerst für jedes der Profile aus, wie gut es Ihre alltäglichen Reisepräferenzen beschreibt. Im Anschluss wählen Sie bitte das Profil aus, das Sie insgesamt am besten beschreibt.",
+    "profile.hint2":       "Denken Sie dabei vor allem an alltägliche Wege — zur Arbeit, zum Einkaufen, zu Freunden — und nicht nur an die zuvor beschriebenen Szenarien.",
     "profile.btn2":        "Weiter zu den Abschlussfragen",
     "profile.bio.name.en": "The Green Traveller",
     "profile.alt.name.en": "The Safe & Reliable Traveller",
@@ -1887,40 +1918,41 @@ const TRANSLATIONS = {
     "profile.hed.name.en": "The Relaxed Traveller",
 
     // ── Scenario section ───────────────────────────────────────
-    "scenario.task":       "<strong>Ihre Aufgabe:</strong> Bitte überprüfen Sie beide Routensets für dieselbe Strecke. <strong>Routenset A</strong> ist das Ranking-Ergebnis unserer präferenzbasierten Routing-Engine. <strong>Routenset B</strong> ist ein standardmäßiger Zeit-/Distanz-basierter Routing-Benchmark. Wir möchten wissen, ob das Ranking von Set A für Sie sinnvoll ist, ob intermodale Routen auffallen und verständlich sind und ob Sie ein solches System im Alltag nutzen würden.",
-    "scenario.assumption": "<strong>📌 Bitte gehen Sie davon aus</strong>, dass Sie für diese Fahrt Zugang zu <strong>allen Verkehrsmitteln</strong> haben — Auto, Fahrrad, öffentliche Verkehrsmittel und zu Fuß. Das Ranking basiert ausschließlich auf den Reisepräferenzen und Werten, die Sie zu Beginn angegeben haben, nicht auf dem, was Sie persönlich besitzen oder normalerweise nutzen.",
+    "scenario.task":       "<strong>Ihre Aufgabe:</strong> Bitte schauen Sie sich die beiden angezeigten Routensets für die oben beschriebene Strecke an. Wir möchten wissen, ob die Rankings in einem der Sets für Sie sinnvoll sind, ob Ihnen intermodale Routen (also Routen, auf denen verschiedene Verkehrsmittel verwendet werden) auffallen und verständlich sind und ob Sie ein solches Rankingsystem auch im Alltag nutzen würden.",
+    "scenario.assumption": "<strong>📌 Bitte beachten Sie:</strong> Stellen Sie sich für jedes Szenario vor, dass Sie Zugang zu <strong>allen Verkehrsmitteln</strong> haben — Auto, Fahrrad, öffentliche Verkehrsmittel und zu Fuß — unabhängig davon, was Sie persönlich besitzen oder normalerweise nutzen.",
     "scenario.note":       "<strong>⏱ Hinweis zu Fahrzeiten:</strong> Die für Autorouten angezeigten Fahrzeiten enthalten geschätzte <strong>8 Minuten</strong> für die Parkplatzsuche und den Fußweg zum Ziel. Dieser Aufwand wird von Standard-Navigationsapps nicht angezeigt, spiegelt aber die realistische Tür-zu-Tür-Reisezeit im städtischen Bereich wider.",
-    "scenario.setA.title": "Routenset A",
-    "scenario.setA.desc":  "Diese Routen sind von der Top-Empfehlung der Engine bis zur am niedrigsten bewerteten Option für diese Strecke sortiert.",
-    "scenario.setB.title": "Routenset B",
-    "scenario.setB.desc":  "Diese Routen sind nach Reisezeit sortiert — schnellste zuerst. <strong>Schritt 1:</strong> Lesen Sie sie durch und beantworten Sie die Fragen unten. <strong>Schritt 2:</strong> Falls diese Reihenfolge nicht Ihrer persönlichen Präferenz entspricht, ziehen Sie die Karten in die Reihenfolge, die Sie bevorzugen.",
+    "scenario.setA.title": "Routenset 1",
+    "scenario.setA.desc":  "Diese Routen sind nach einem Routing-Algorithmus auf Basis der Streckeneigenschaften sortiert.",
+    "scenario.setB.title": "Routenset 2",
+    "scenario.setB.desc":  "<strong>Schritt 1:</strong> Schauen Sie sich bitte das folgende Ranking an und beantworten Sie die untenstehenden Fragen. <strong>Schritt 2:</strong> Falls dieses Ranking nicht Ihren persönlichen Präferenzen entspricht, ziehen Sie bitte die Karten (an der oberen linken Ecke ⠿) in die Reihenfolge, die Ihrem persönlichen Ranking entspricht.",
     "scenario.drag.hint":  "↕️ Optional: Karten oben ziehen, um nach persönlicher Präferenz zu sortieren — Ihre Reihenfolge wird automatisch gespeichert",
-    "scenario.setA.q1":    "Welche Route aus Set A würden Sie in dieser Situation wählen?",
-    "scenario.setA.q2":    "Würden Sie der von Routenset A vorgeschlagenen Top-Route folgen?",
+    "scenario.setA.q1":    "Welche Route aus Routenset 1 würden Sie im oben beschriebenen Szenario wählen? Stellen Sie sich bitte vor, dass Sie Zugang zu allen Verkehrsmitteln haben.",
+    "scenario.setA.q2":    "Würden Sie der Top-Route aus Routenset 1 folgen?",
     "scenario.setA.q2.yes":   "Ja",
     "scenario.setA.q2.maybe": "Vielleicht",
     "scenario.setA.q2.no":    "Nein",
-    "scenario.setA.q3":    "Wie gut stimmt das Ranking von Routenset A mit dem überein, was Sie persönlich in dieser Situation bevorzugen würden?",
-    "scenario.setB.q1":    "Welche Route aus Set B würden Sie in dieser Situation wählen?",
-    "scenario.setB.q2":    "Wie gut stimmt dieses zeitbasierte Ranking (vor jeder Umsortierung) mit dem überein, was Sie persönlich bevorzugen würden?",
+    "scenario.setA.q3":    "Wie gut stimmt das Ranking von Routenset 1 mit dem überein, was Sie persönlich in dieser Situation bevorzugen würden?",
+    "scenario.setB.q1":    "Welche Route aus Set B würden Sie im oben beschriebenen Szenario wählen? Stellen Sie sich bitte vor, dass Sie zu allen Verkehrsmitteln Zugang haben.",
+    "scenario.setB.q2":    "Wie gut stimmt das Ranking von Routenset 2 mit dem überein, was Sie persönlich in dieser Situation bevorzugen würden?",
     "scenario.intermodal.title": "Intermodale Routen",
     "scenario.intermodal.desc":  "Einige Routenoptionen können mehr als ein Verkehrsmittel kombinieren, z.B. Gehen + Bus oder Fahrrad + öffentliche Verkehrsmittel.",
     "scenario.intermodal.q1":   "Haben Sie in diesem Szenario eine intermodale Route bemerkt?",
     "scenario.intermodal.q2":   "Wie einfach war es zu verstehen, wie die intermodalen Routen funktionieren?",
-    "scenario.intermodal.q3":   "Würden Sie eine intermodale Route in Betracht ziehen, wenn sie besser zu Ihren Reisepräferenzen passen würde?",
+    "scenario.intermodal.q3":   "Wie wahrscheinlich ist es, dass Sie eine der in diesem Szenario gezeigten intermodalen Routen wählen würden?",
     "scenario.system.title":    "Nutzung dieses Routing-Systems",
-    "scenario.system.q1":       "Würden Sie auf Basis dieses Szenarios ein System nutzen, das Routen nach Ihren Reisepräferenzen bewertet?",
-    "scenario.system.q2":       "Wie sehr würden Sie der Top-Empfehlung aus Routenset A in diesem Szenario vertrauen?",
+    "scenario.system.q1":       "Würden Sie im oben beschriebenen Szenario ein System nutzen, das Routen nach Ihren persönlichen Reisepräferenzen bewertet?",
+    "scenario.system.q2":       "Wie sehr würden Sie im oben beschriebenen Szenario der Top-Empfehlung aus Routenset 1 vertrauen?",
     "scenario.comment.label":   "Haben Sie Kommentare zu den in diesem Szenario gezeigten Routen?",
-    "scenario.comment.hint":    "Bitte fügen Sie einen kurzen Kommentar hinzu oder nutzen Sie die Schnelloption unten, falls Sie nichts hinzuzufügen haben.",
+    "scenario.comment.hint":    "Bitte schreiben Sie einen kurzen Kommentar, oder verwenden Sie den Button, wenn Sie uns nichts Weiteres mitteilen möchten.",
     "scenario.comment.placeholder": "Was hat Ihren Erwartungen entsprochen oder nicht entsprochen?",
     "scenario.comment.none":    "Kein Kommentar",
     "scenario.comment.none.hint": "Füllt das Pflichtfeld automatisch aus.",
     "scenario.btn.back":        "Zurück",
     "scenario.btn.next":        "Nächstes Szenario",
     "scenario.btn.finish":      "Studie abschließen",
-    "scenario.step":            "SCHRITT 3 VON 4 — SZENARIO",
-    "scenario.setA.q2.follow":  "Würden Sie der von Routenset A vorgeschlagenen Top-Route folgen?",
+    "scenario.step":            "Schritt 3 von 4 — Szenario",
+    "scenario.setA.q2.follow":  "Würden Sie der Top-Route aus Routenset 1 folgen?",
+    "setb.step_desc":         "<strong>Schritt 1:</strong> Schauen Sie sich bitte das folgende Ranking an und beantworten Sie die untenstehenden Fragen. <strong>Schritt 2:</strong> Falls dieses Ranking nicht Ihren persönlichen Präferenzen entspricht, ziehen Sie bitte die Karten (an der oberen linken Ecke ⠿) in die Reihenfolge, die Ihrem persönlichen Ranking entspricht.",
     "scenario.nocomments":      "Kein Kommentar",
     "scenario.nocomments.hint": "Füllt das Pflichtfeld automatisch aus.",
     "scenario.system.title2":   "Nutzung dieses Routing-Systems",
@@ -1939,7 +1971,7 @@ const TRANSLATIONS = {
     "route.mode_sequence":    "Verkehrsmittelfolge:",
     "setb.step_desc":         "Diese Routen sind nach Reisezeit sortiert — schnellste zuerst. <strong>Schritt 1:</strong> Lesen Sie sie durch und beantworten Sie die Fragen unten. <strong>Schritt 2:</strong> Falls diese Reihenfolge nicht Ihrer persönlichen Präferenz entspricht, ziehen Sie die Karten in die Reihenfolge, die Sie bevorzugen.",
     "setb.drag_hint":         "↕️ Optional: Karten oben ziehen, um nach persönlicher Präferenz zu sortieren — Ihre Reihenfolge wird automatisch gespeichert",
-    "scenario.follow_q":      "Würden Sie der von Routenset A vorgeschlagenen Top-Route folgen?",
+    "scenario.follow_q":      "Würden Sie der Top-Route aus Routenset 1 folgen?",
     "scenario.follow.yes":    "Ja",
     "scenario.follow.maybe":  "Vielleicht",
     "scenario.follow.no":     "Nein",
@@ -1947,14 +1979,14 @@ const TRANSLATIONS = {
     // ── Final feedback ─────────────────────────────────────────
     "final.h2":           "Abschlussfeedback",
     "final.step":         "Schritt 4 von 4 — Gesamteindruck",
-    "final.personalisation.q": "Wie genau haben die Routen in Set A über alle vier Szenarien hinweg Ihre persönlichen Reisewerte widergespiegelt?",
+    "final.personalisation.q": "Wie genau haben die Routenset 1 über alle vier Szenarien hinweg Ihren persönlichen Reisewerte widergespiegelt?",
     "final.confidence.q":      "Wie sicher waren Sie bei der Bewertung der beiden Routensets?",
     "final.system.title":      "Systembewertung",
     "final.willingness.q":     "Wie wahrscheinlich ist es insgesamt, dass Sie eine personalisierte, wertbasierte Routing-App in Ihrem Alltag nutzen würden?",
-    "final.trust.q":           "Wie sehr haben Sie dem Ranking der in Set A gezeigten Routen insgesamt vertraut?",
+    "final.trust.q":           "Wie sehr haben Sie dem Ranking von Routenset 1 insgesamt vertraut?",
     "final.intermodal.q":      "Würden Sie insgesamt intermodale Routenvorschläge in Betracht ziehen, wenn diese besser zu Ihren Reisepräferenzen passen würden?",
     "final.google.q":          "Im Vergleich zu Standard-Navigationsapps (z.B. Google Maps): Wie würden Sie dieses personalisierte Routing-System bewerten?",
-    "final.noticed.q":         "Haben Sie bemerkt, dass Routenset A an Ihre persönlichen Reisepräferenzen angepasst war?",
+    "final.noticed.q":         "Inwieweit hatte Routenset 1 das Gefühl, auf Ihre persönlichen Reisepräferenzen zugeschnitten zu sein?",
     "final.noticed.yes":       "Ja, deutlich",
     "final.noticed.no":        "Nein, das habe ich nicht bemerkt",
     "final.bestfeature.label": "Was hat Ihnen am Routing-System am besten gefallen?",
@@ -1968,7 +2000,7 @@ const TRANSLATIONS = {
     "final.bestfeature.hint":  "Bitte schreiben Sie eine kurze Antwort oder wählen Sie die Schnelloption, falls nichts hervorstach.",
     "final.worstfeature.hint": "Bitte schreiben Sie eine kurze Antwort oder wählen Sie die Schnelloption, falls Sie keinen konkreten Vorschlag haben.",
     "final.nocomments":        "Kein Kommentar",
-    "final.system.q1_alt":     "Wie gut haben die personalisierten Routen (Set A) Ihren Werten entsprochen?",
+    "final.system.q1_alt":     "Wie gut hat das Ranking von Routenset 1 Ihren persönlichen Reisepräferenzen entsprochen?",
     "final.google.worse":      "Viel schlechter",
     "final.google.slworse":    "Etwas schlechter",
     "final.google.same":       "Ungefähr gleich",
@@ -2016,18 +2048,18 @@ const TRANSLATIONS = {
     "la.need5":        ["1 = Unwichtig", "3 = Mäßig wichtig", "5 = Sehr wichtig"],
     // ── Likert point labels ───────────────────────────────────────────
     "lp.freq":         ["Nie / fast nie", "Selten", "Manchmal", "Oft", "Täglich / fast täglich"],
-    "lp.comfort":      ["Gar nicht", "Kaum", "Mäßig", "Komfortabel", "Sehr sicher"],
+    "lp.comfort":      ["Gar nicht", "Kaum", "Mäßig", "Ziemlich", "Sehr sicher"],
     "lp.match":        ["Gar nicht", "Kaum", "Teilweise", "Größtenteils", "Sehr gut"],
     "lp.difficult":    ["Sehr schwierig", "Schwierig", "Weder noch", "Einfach", "Sehr einfach"],
     "lp.defnot":       ["Auf keinen Fall", "Eher nicht", "Vielleicht", "Wahrscheinlich", "Auf jeden Fall"],
-    "lp.trust5":       ["Gar nicht", "Wenig", "Mäßig", "Ziemlich viel", "Sehr viel"],
+    "lp.trust5":       ["Gar nicht", "Wenig", "Mäßig", "Ziemlich", "Sehr"],
     "lp.profile7":     ["Gar nicht", "Sehr wenig", "Wenig", "Mäßig", "Ziemlich gut", "Sehr gut", "Beschreibt mich vollständig"],
     "lp.conf7":        ["Nicht sicher", "Sehr niedrig", "Niedrig", "Mäßig", "Eher sicher", "Sicher", "Sehr sicher"],
     "lp.accurate":     ["Gar nicht", "Wenig", "Mäßig", "Ziemlich genau", "Sehr genau"],
     "lp.conf5":        ["Nicht sicher", "Kaum", "Mäßig", "Sicher", "Sehr sicher"],
     "lp.quality":      ["Sehr schlecht", "Schlecht", "Mäßig", "Gut", "Sehr gut"],
     "lp.likely":       ["Sehr unwahrscheinlich", "Unwahrscheinlich", "Unsicher", "Wahrscheinlich", "Sehr wahrscheinlich"],
-    "lp.trust":        ["Gar nicht", "Wenig", "Mäßig", "Ziemlich viel", "Sehr viel"],
+    "lp.trust":        ["Gar nicht", "Wenig", "Mäßig", "Ziemlich", "Sehr"],
     "lp.need7":        ["Gar nicht", "", "", "Mäßig", "", "", "Äußerst"],
     "lp.need5":        ["Unwichtig", "Kaum", "Mäßig wichtig", "Wichtig", "Sehr wichtig"],
     // ── Likert scale L/R labels ───────────────────────────────────────
@@ -2110,6 +2142,16 @@ function applyTranslations() {
             footer.textContent = anchors.filter(Boolean).join(" · ");
         }
     });
+    // Refresh scenario title/context/counter when language switches
+    if (typeof scenarios !== "undefined" && scenarios.length > 0 && currentIdx < scenarios.length) {
+        const s = scenarios[currentIdx];
+        const titleEl = document.getElementById("scenario-title");
+        const ctxEl   = document.getElementById("scenario-context");
+        const cntEl   = document.getElementById("scenario-counter");
+        if (titleEl) titleEl.textContent = (currentLang === "de" && s.title_de)   ? s.title_de   : s.title;
+        if (ctxEl)   ctxEl.textContent   = (currentLang === "de" && s.context_de) ? s.context_de : s.context;
+        if (cntEl)   cntEl.textContent   = `${t("scenario.step")} ${currentIdx + 1} / ${scenarios.length}`;
+    }
     // Update all elements with data-i18n attribute
     document.querySelectorAll("[data-i18n]").forEach(el => {
         const key = el.getAttribute("data-i18n");
@@ -3064,10 +3106,12 @@ async function loadScenarios() {
 async function loadScenario() {
     const s = scenarios[currentIdx];
 
-    document.getElementById("scenario-title").textContent   = s.title;
+    document.getElementById("scenario-title").textContent   =
+        (currentLang === "de" && s.title_de)   ? s.title_de   : s.title;
     document.getElementById("scenario-counter").textContent =
-        `Step 3 of 4 — Scenario ${currentIdx + 1} / ${scenarios.length}`;
-    document.getElementById("scenario-context").textContent = s.context;
+        `${t("scenario.step")} ${currentIdx + 1} / ${scenarios.length}`;
+    document.getElementById("scenario-context").textContent =
+        (currentLang === "de" && s.context_de) ? s.context_de : s.context;
 
     // ── Orientation map ───────────────────────────────────────
     document.getElementById("map-origin-label").textContent = s.origin;
@@ -3217,7 +3261,7 @@ function renderRouteSet(listId, selectId, routes, draggable=false) {
 
     const placeholder = document.createElement("option");
     placeholder.value = "";
-    placeholder.text = "— select —";
+    placeholder.text = t("common.select");
     select.appendChild(placeholder);
 
     routes.forEach((route, i) => {
@@ -3298,7 +3342,7 @@ function renderRouteSet(listId, selectId, routes, draggable=false) {
                     // Rebuild select
                     while (sel.options.length > 0) sel.remove(0);
                     const ph = document.createElement("option");
-                    ph.value = ""; ph.text = "— select —";
+                    ph.value = ""; ph.text = t("common.select");
                     sel.appendChild(ph);
                     orderedOpts.forEach(o => sel.appendChild(o));
                     const none = document.createElement("option");
@@ -3339,13 +3383,13 @@ function kendallTau(listA, listB) {
 
 function validateScenarioResponse(hasIntermodal) {
     const required = [
-        [document.getElementById("preferred-route-a").value, "Please select which route you would choose from Route Set A."],
-        [document.getElementById("follow-top-route-a").value, "Please indicate whether you would follow the top-ranked route in Route Set A."],
-        [getLikert("ranking-acceptance-a"), "Please rate how well Route Set A's ranking matches your preference."],
+        [document.getElementById("preferred-route-a").value, "Please select which route you would choose from Route Set 1."],
+        [document.getElementById("follow-top-route-a").value, "Please indicate whether you would follow the top-ranked route in Route Set 1."],
+        [getLikert("ranking-acceptance-a"), "Please rate how well Route Set 1's ranking matches your preference."],
         [document.getElementById("preferred-route-b").value, "Please select which route you would choose from Route Set B."],
         [getLikert("ranking-acceptance-b"), "Please rate how well Route Set B's ranking matches your preference."],
         [getLikert("scenario-system-use"), "Please rate whether you would use this kind of routing system."],
-        [getLikert("scenario-trust-top-recommendation"), "Please rate how much you trust the top recommendation from Route Set A."],
+        [getLikert("scenario-trust-top-recommendation"), "Please rate how much you trust the top recommendation from Route Set 1."],
         [document.getElementById("scenario-comment").value.trim(), "Please add a short comment about the routes shown in this scenario."],
     ];
     if (hasIntermodal) {

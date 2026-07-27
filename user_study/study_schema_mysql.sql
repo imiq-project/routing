@@ -99,6 +99,7 @@ CREATE TABLE IF NOT EXISTS scenarios (
     id              INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
     scenario_code   VARCHAR(16)  NOT NULL UNIQUE,
     title           VARCHAR(128) NOT NULL,
+    title_de        VARCHAR(128) NULL,
     origin          VARCHAR(255) NOT NULL,
     destination     VARCHAR(255) NOT NULL,
     origin_lat      DOUBLE       NULL,
@@ -107,6 +108,7 @@ CREATE TABLE IF NOT EXISTS scenarios (
     destination_lon DOUBLE       NULL,
     distance_band   VARCHAR(16)  NULL,    -- short | medium | long
     context         TEXT         NOT NULL,
+    context_de      TEXT         NULL,
     purpose         VARCHAR(64)  NOT NULL,
     day_type        VARCHAR(64)  NULL,
     weather         VARCHAR(32)  NULL
