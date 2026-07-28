@@ -165,12 +165,13 @@ def ensure_database():
 #  Participant helpers
 # ─────────────────────────────────────────────
 
-def create_participant() -> int:
+def create_participant(panel_id=None, panel_source=None) -> int:
     import random
     code         = str(uuid.uuid4())[:8].upper()
     condition, set_order = assign_study_condition()
-    panel_id     = session.get("panel_participant_id")
-    panel_source = session.get("panel_source", "direct")
+    # Use passed values, fall back to session
+    p_id     = panel_id     or session.get("panel_participant_id") or None
+    p_source = panel_source or session.get("panel_source") or "direct"
 
     with get_connection() as conn:
         cursor = conn.execute(
@@ -178,7 +179,7 @@ def create_participant() -> int:
                (participant_code, consent_given, study_phase, study_condition, set_order,
                 panel_participant_id, panel_source)
                VALUES (?, 1, 1, ?, ?, ?, ?)""",
-            (code, condition, set_order, panel_id, panel_source),
+            (code, condition, set_order, p_id, p_source),
         )
         conn.commit()
         pid = cursor.lastrowid
@@ -548,26 +549,22 @@ def kendall_tau(engine_order: list, participant_order: list) -> float:
 
 @app.route("/")
 def index():
-    # Capture panel ID from URL parameter server-side BEFORE creating participant.
-    # This is the most reliable approach — the ?p= param is available at first
-    # request before any JS runs.
     if "participant_id" not in session:
         panel_id = (
             request.args.get("p") or
             request.args.get("pid") or
             request.args.get("PROLIFIC_PID") or
-            request.args.get("d") or
-            ""
+            request.args.get("d") or ""
         ).strip() or None
 
-        if panel_id:
-            source = "prolific" if request.args.get("PROLIFIC_PID") else \
-                     "sosci"    if request.args.get("d") else "panel"
-            session["panel_participant_id"] = panel_id
-            session["panel_source"]         = source
+        panel_source = (
+            "prolific" if request.args.get("PROLIFIC_PID") else
+            "sosci"    if request.args.get("d") else
+            "panel"    if panel_id else "direct"
+        )
 
-        create_participant()
-
+        # Pass directly — no session needed
+        create_participant(panel_id=panel_id, panel_source=panel_source)
     # Dev override: ?condition=1&order=AB forces a specific study assignment.
     # Only active when FLASK_DEBUG=1 env var is set — never use in production.
     if os.getenv("FLASK_DEBUG") == "1":
