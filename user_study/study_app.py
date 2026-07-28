@@ -548,7 +548,24 @@ def kendall_tau(engine_order: list, participant_order: list) -> float:
 
 @app.route("/")
 def index():
+    # Capture panel ID from URL parameter server-side BEFORE creating participant.
+    # This is the most reliable approach — the ?p= param is available at first
+    # request before any JS runs.
     if "participant_id" not in session:
+        panel_id = (
+            request.args.get("p") or
+            request.args.get("pid") or
+            request.args.get("PROLIFIC_PID") or
+            request.args.get("d") or
+            ""
+        ).strip() or None
+
+        if panel_id:
+            source = "prolific" if request.args.get("PROLIFIC_PID") else \
+                     "sosci"    if request.args.get("d") else "panel"
+            session["panel_participant_id"] = panel_id
+            session["panel_source"]         = source
+
         create_participant()
 
     # Dev override: ?condition=1&order=AB forces a specific study assignment.
